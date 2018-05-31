@@ -31,12 +31,14 @@
         "operationId" : "searchInventory",
         "produces" : [ "application/json" ],
         "parameters" : [ {
+
           "name" : "searchString",
           "in" : "query",
           "description" : "pass an optional search string for looking up inventory",
           "required" : false,
           "type" : "string"
         }, {
+
           "name" : "skip",
           "in" : "query",
           "description" : "number of records to skip for pagination",
