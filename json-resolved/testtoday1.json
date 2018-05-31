@@ -31,6 +31,7 @@
         "operationId" : "searchInventory",
         "produces" : [ "application/json" ],
         "parameters" : [ {
+
           "name" : "limit",
           "in" : "query",
           "description" : "maximum number of records to return",
