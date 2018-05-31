@@ -13,7 +13,8 @@ import java.util.UUID
 case class InventoryItem (
   id: UUID,
   name: String,
-  releaseDate: String
+  releaseDate: String,
+  expirydate: Option[String]
 ) extends ApiModel
 
 
