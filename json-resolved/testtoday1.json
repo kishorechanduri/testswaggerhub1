@@ -31,14 +31,7 @@
         "operationId" : "searchInventory",
         "produces" : [ "application/json" ],
         "parameters" : [ {
-          "name" : "skip",
-          "in" : "query",
-          "description" : "number of records to skip for pagination",
-          "required" : false,
-          "type" : "integer",
-          "minimum" : 0,
-          "format" : "int32"
-        }, {
+
           "name" : "limit",
           "in" : "query",
           "description" : "maximum number of records to return",
