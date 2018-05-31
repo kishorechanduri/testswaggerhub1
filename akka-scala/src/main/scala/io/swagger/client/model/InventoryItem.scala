@@ -14,7 +14,7 @@ case class InventoryItem (
   id: UUID,
   name: String,
   releaseDate: String,
-  expirytime: Option[String]
+  expirydate: Option[String]
 ) extends ApiModel
 
 
