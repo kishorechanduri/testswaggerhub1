@@ -1,0 +1,5012 @@
+{
+  "swagger" : "2.0",
+  "info" : {
+    "description" : "API specification for catalogue information. Uplifted version 2.1 contains the uplifted product object model used for put operation in /products and /products/<guid>.Also put operation introduced for other catalogue item resources. Ver 2.2 uplifted to remove editorial version from product data model and instead add contentprovider Id. ver 2.3 uplifted to include transactionId as a transient field. version 2.4 added the post operations for /programs and /programs/<guid> and pricing roll up changes related 2.6 version is created after adding pricingStartDate,pricingEndDate fields to brand collection and season data model. version '2.7' to uplift the collection operations and data model for product. Version '2.8' to uplift the Program resource data model to include the context aware offer and other dates using productAssociationDetails. Version'2.9' is uplifted to include the parentEditorialVersion in parentInfo data model referenced in product data model and removed dates from anchor data model",
+    "version" : "3.1.0",
+    "title" : "Catalogue API Specification",
+    "contact" : {
+      "name" : "xyz",
+      "email" : "xyz@bt.com"
+    }
+  },
+  "host" : "catalogueDS.btvision.xyz.com",
+  "basePath" : "/catalogue/V3.1.0",
+  "schemes" : [ "http" ],
+  "consumes" : [ "application/json" ],
+  "produces" : [ "application/json" ],
+  "paths" : {
+    "/products" : {
+      "get" : {
+        "summary" : "Provides the product catalogue details for the given product guids.",
+        "description" : "This API will provide product catalogue details for the given product guids.The sample request looks as - /catalogue/V1.0/products?guid=12345&guid=23456&guid=34567. There should be at least one guid should be passed as a request field and supporting maximum number of guids is as supplied in configuration.",
+        "parameters" : [ {
+          "name" : "X-BT-correlationId",
+          "in" : "header",
+          "description" : "This has to be a UNIQUE reference for each and every request sent from calling system. This SHOULD NOT be duplicated across  the requests.",
+          "required" : true,
+          "type" : "string",
+          "maxLength" : 150,
+          "format" : "string"
+        }, {
+          "name" : "guid",
+          "in" : "query",
+          "description" : "The list of product identifiers for those the product details needs to be fetched.",
+          "required" : true,
+          "type" : "string",
+          "maxLength" : 50,
+          "format" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful retrieval of product catalogue details.",
+            "schema" : {
+              "$ref" : "#/definitions/productsDetails"
+            }
+          },
+          "204" : {
+            "description" : "No Catalogue details found with provided inputs."
+          },
+          "400" : {
+            "description" : "Mandatory parameters missing/Empty Parameter/Invalid parameter provided."
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "No endpoint available."
+          },
+          "429" : {
+            "description" : "Too Many Requests."
+          },
+          "500" : {
+            "description" : "Internal Server Exception."
+          },
+          "503" : {
+            "description" : "Service Unavailable."
+          }
+        }
+      },
+      "post" : {
+        "summary" : "Provides ability to add or update multiple products (more than one)",
+        "description" : "This API prvides an ability to add or update or replace the attributes of the Product catalogue objects. Sample URL would look as - /catalogue/V2.0/products/ and the product objects with fields to be updated populated like pricing tiers and product tags, approved, disabled, offer start and end date fields will be passed as json objects aspart of the request body.",
+        "parameters" : [ {
+          "name" : "X-BT-correlationId",
+          "in" : "header",
+          "description" : "This has to be a UNIQUE reference for each and every request sent from calling system. This SHOULD NOT be duplicated across  the requests.",
+          "required" : true,
+          "type" : "string",
+          "maxLength" : 150,
+          "format" : "string"
+        }, {
+          "in" : "body",
+          "name" : "products",
+          "description" : "Array of product object",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/products"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successfully updated or added the product object.",
+            "schema" : {
+              "$ref" : "#/definitions/outcome"
+            }
+          },
+          "400" : {
+            "description" : "Mandatory parameters missing/Empty Parameter/Invalid parameter provided."
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "No endpoint available."
+          },
+          "429" : {
+            "description" : "Too Many Requests."
+          },
+          "500" : {
+            "description" : "Internal Server Exception."
+          },
+          "503" : {
+            "description" : "Service Unavailable."
+          }
+        }
+      }
+    },
+    "/products/<guid>" : {
+      "post" : {
+        "summary" : "Provides ability to update the product catalogue details",
+        "description" : "This API provides an ability to update or replace the attributes of the Product catalogue object. Sample URL would look as - /catalogue/V2.0/products/12345 and the product object with fields to be updated populated like pricing tiers and product tags, approved, disabled, offer start and end date fields.",
+        "parameters" : [ {
+          "name" : "X-BT-correlationId",
+          "in" : "header",
+          "description" : "This has to be a UNIQUE reference for each and every request sent from calling system. This SHOULD NOT be duplicated across  the requests.",
+          "required" : true,
+          "type" : "string",
+          "maxLength" : 150,
+          "format" : "string"
+        }, {
+          "in" : "body",
+          "name" : "product",
+          "description" : "The product object",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/product"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successfully updated or added the product object."
+          },
+          "400" : {
+            "description" : "Mandatory parameters missing/Empty Parameter/Invalid parameter provided."
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "No endpoint available."
+          },
+          "429" : {
+            "description" : "Too Many Requests."
+          },
+          "500" : {
+            "description" : "Internal Server Exception."
+          },
+          "503" : {
+            "description" : "Service Unavailable."
+          }
+        }
+      }
+    },
+    "/traverse/products" : {
+      "get" : {
+        "summary" : "Provides the product and parent product catalogue details for the given product guids.",
+        "description" : "This API will provide product and parent product catalogue details for the given product guids.The sample request looks as - /catalogue/V1.0/traverse/products?guid=12345&guid=23456&guid=34567. There should be at least one guid should be passed as a request field and supporting maximum number of guids is as supplied in configuration.",
+        "parameters" : [ {
+          "name" : "X-BT-correlationId",
+          "in" : "header",
+          "description" : "This has to be a UNIQUE reference for each and every request sent from calling system. This SHOULD NOT be duplicated across  the requests.",
+          "required" : true,
+          "type" : "string",
+          "maxLength" : 150,
+          "format" : "string"
+        }, {
+          "name" : "guid",
+          "in" : "query",
+          "description" : "The list of product identifiers for those the product and parent product details needs to be fetched.",
+          "required" : true,
+          "type" : "string",
+          "maxLength" : 50,
+          "format" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful retrieval of product catalogue details.",
+            "schema" : {
+              "$ref" : "#/definitions/productsTraverseDetails"
+            }
+          },
+          "204" : {
+            "description" : "No Catalogue details found with provided inputs."
+          },
+          "400" : {
+            "description" : "Mandatory parameters missing/Empty Parameter/Invalid parameter provided."
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "No endpoint available."
+          },
+          "429" : {
+            "description" : "Too Many Requests."
+          },
+          "500" : {
+            "description" : "Internal Server Exception."
+          },
+          "503" : {
+            "description" : "Service Unavailable."
+          }
+        }
+      }
+    },
+    "/programs" : {
+      "get" : {
+        "summary" : "Provides the program catalogue details for the given program guids.",
+        "description" : "This API will provide program catalogue details for the given program guids.The sample request looks as - /catalogue/V1.0/programs?guid=12345&guid=23456&guid=34567. There should be at least one guid should be passed as a request field and supporting maximum number of guids is as supplied in configuration.",
+        "parameters" : [ {
+          "name" : "X-BT-correlationId",
+          "in" : "header",
+          "description" : "This has to be a UNIQUE reference for each and every request sent from calling system. This SHOULD NOT be duplicated across the requests.",
+          "required" : true,
+          "type" : "string",
+          "maxLength" : 150,
+          "format" : "string"
+        }, {
+          "name" : "guid",
+          "in" : "query",
+          "description" : "The list of program identifiers for those the program details needs to be fetched.",
+          "required" : true,
+          "type" : "string",
+          "maxLength" : 50,
+          "format" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful retrieval of program catalogue details.",
+            "schema" : {
+              "$ref" : "#/definitions/programsDetails"
+            }
+          },
+          "204" : {
+            "description" : "No Catalogue details found with provided inputs."
+          },
+          "400" : {
+            "description" : "Mandatory parameters missing/Empty Parameter/Invalid parameter provided."
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "No endpoint available."
+          },
+          "429" : {
+            "description" : "Too Many Requests."
+          },
+          "500" : {
+            "description" : "Internal Server Exception."
+          },
+          "503" : {
+            "description" : "Service Unavailable."
+          }
+        }
+      },
+      "post" : {
+        "summary" : "Provides ability to update the program catalogue details for the given program guids.",
+        "description" : "This API will provide ability to create or update program catalogue details for the given program guids in Couchbase.The sample request looks as - /catalogue/V2.0/programs/ and the program objects to be updated or created will be passed as json objects aspart of the request body.  ",
+        "parameters" : [ {
+          "name" : "X-BT-correlationId",
+          "in" : "header",
+          "description" : "This has to be a UNIQUE reference for each and every request sent from calling system. This SHOULD NOT be duplicated across the requests.",
+          "required" : true,
+          "type" : "string",
+          "maxLength" : 150,
+          "format" : "string"
+        }, {
+          "in" : "body",
+          "name" : "guid",
+          "description" : "Array of program objects",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/guid"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful update or addition of program catalogue details.",
+            "schema" : {
+              "$ref" : "#/definitions/outcome"
+            }
+          },
+          "400" : {
+            "description" : "Mandatory parameters missing/Empty Parameter/Invalid parameter provided."
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "No endpoint available."
+          },
+          "429" : {
+            "description" : "Too Many Requests."
+          },
+          "500" : {
+            "description" : "Internal Server Exception."
+          },
+          "503" : {
+            "description" : "Service Unavailable."
+          }
+        }
+      }
+    },
+    "/traverse/programs" : {
+      "get" : {
+        "summary" : "Provides the program and all it's parents catalogue details for the given program guids.",
+        "description" : "This API will provide program and all it's parents catalogue details for the given program guids.The sample request looks as - /catalogue/V1.0/traverse/programs?guid=12345&guid=23456&guid=34567. There should be at least one guid should be passed as a request field and supporting maximum number of guids is as supplied in configuration.",
+        "parameters" : [ {
+          "name" : "X-BT-correlationId",
+          "in" : "header",
+          "description" : "This has to be a UNIQUE reference for each and every request sent from calling system. This SHOULD NOT be duplicated across the requests.",
+          "required" : true,
+          "type" : "string",
+          "maxLength" : 150,
+          "format" : "string"
+        }, {
+          "name" : "guid",
+          "in" : "query",
+          "description" : "The list of program identifiers for those the program and it's all parents details needs to be fetched.",
+          "required" : true,
+          "type" : "string",
+          "maxLength" : 50,
+          "format" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful retrieval of program and all it's parents catalogue details.",
+            "schema" : {
+              "$ref" : "#/definitions/programsTraverseDetails"
+            }
+          },
+          "204" : {
+            "description" : "No Catalogue details found with provided inputs."
+          },
+          "400" : {
+            "description" : "Mandatory parameters missing/Empty Parameter/Invalid parameter provided."
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "No endpoint available."
+          },
+          "429" : {
+            "description" : "Too Many Requests."
+          },
+          "500" : {
+            "description" : "Internal Server Exception."
+          },
+          "503" : {
+            "description" : "Service Unavailable."
+          }
+        }
+      }
+    },
+    "/collections" : {
+      "get" : {
+        "summary" : "Provides the collection catalogue details for the given collection guids.",
+        "description" : "This API will provide collection catalogue details for the given collection guids.The sample request looks as - /catalogue/V2.0/collections?guid=12345&guid=23456&guid=34567. There should be at least one guid should be passed as a request field and supporting maximum number of guids is as supplied in configuration.",
+        "parameters" : [ {
+          "name" : "X-BT-correlationId",
+          "in" : "header",
+          "description" : "This has to be a UNIQUE reference for each and every request sent from calling system. This SHOULD NOT be duplicated across  the requests.",
+          "required" : true,
+          "type" : "string",
+          "maxLength" : 150,
+          "format" : "string"
+        }, {
+          "name" : "guid",
+          "in" : "query",
+          "description" : "The list of collection identifiers for those collection details needs to be fetched.",
+          "required" : true,
+          "type" : "string",
+          "maxLength" : 50,
+          "format" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful retrieval of collection catalogue details.",
+            "schema" : {
+              "$ref" : "#/definitions/collectionsDetails"
+            }
+          },
+          "204" : {
+            "description" : "No Catalogue details found with provided inputs."
+          },
+          "400" : {
+            "description" : "Mandatory parameters missing/Empty Parameter/Invalid parameter provided."
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "No endpoint available."
+          },
+          "429" : {
+            "description" : "Too Many Requests."
+          },
+          "500" : {
+            "description" : "Internal Server Exception."
+          },
+          "503" : {
+            "description" : "Service Unavailable."
+          }
+        }
+      },
+      "post" : {
+        "summary" : "Provides the ability to update the collection catalogue details for the given collection guids.",
+        "description" : "This API will provide ability to create or update collection catalogue details for the given program guids in Couchbase.The sample request looks as - /catalogue/V2.0/collections/ and the collection objects to be updated or created will be passed as json objects as part of the request body.",
+        "parameters" : [ {
+          "name" : "X-BT-correlationId",
+          "in" : "header",
+          "description" : "This has to be a UNIQUE reference for each and every request sent from calling system. This SHOULD NOT be duplicated across  the requests.",
+          "required" : true,
+          "type" : "string",
+          "maxLength" : 150,
+          "format" : "string"
+        }, {
+          "in" : "body",
+          "name" : "guid",
+          "description" : "Array of collection objects to be created or updated.",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/guid_1"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful update or addition of collection catalogue details.",
+            "schema" : {
+              "$ref" : "#/definitions/outcome"
+            }
+          },
+          "400" : {
+            "description" : "Mandatory parameters missing/Empty Parameter/Invalid parameter provided."
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "No endpoint available."
+          },
+          "429" : {
+            "description" : "Too Many Requests."
+          },
+          "500" : {
+            "description" : "Internal Server Exception."
+          },
+          "503" : {
+            "description" : "Service Unavailable."
+          }
+        }
+      }
+    },
+    "/seasons" : {
+      "get" : {
+        "summary" : "Provides the season catalogue details for the given season guids.",
+        "description" : "This API will provide season catalogue details for the given season guids.The sample request looks as - /catalogue/V2.0/seasons?guid=12345&guid=23456&guid=34567. There should be at least one guid should be passed as a request field and supporting maximum number of guids is as supplied in configuration.",
+        "parameters" : [ {
+          "name" : "X-BT-correlationId",
+          "in" : "header",
+          "description" : "This has to be a UNIQUE reference for each and every request sent from calling system. This SHOULD NOT be duplicated across  the requests.",
+          "required" : true,
+          "type" : "string",
+          "maxLength" : 150,
+          "format" : "string"
+        }, {
+          "name" : "guid",
+          "in" : "query",
+          "description" : "The list of season identifiers for those season details needs to be fetched.",
+          "required" : true,
+          "type" : "string",
+          "maxLength" : 50,
+          "format" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful retrieval of season catalogue details.",
+            "schema" : {
+              "$ref" : "#/definitions/seasonsDetails"
+            }
+          },
+          "204" : {
+            "description" : "No Catalogue details found with provided inputs."
+          },
+          "400" : {
+            "description" : "Mandatory parameters missing/Empty Parameter/Invalid parameter provided."
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "No endpoint available."
+          },
+          "429" : {
+            "description" : "Too Many Requests."
+          },
+          "500" : {
+            "description" : "Internal Server Exception."
+          },
+          "503" : {
+            "description" : "Service Unavailable."
+          }
+        }
+      },
+      "post" : {
+        "summary" : "Provides the ability to update the season catalogue details for the given season guids.",
+        "description" : "This API will provide ability to create or update program catalogue details for the given season guids in Couchbase.The sample request looks as - /catalogue/V2.0/seasons/ and the season objects to be updated or created will be passed as json objects as part of the request body.",
+        "parameters" : [ {
+          "name" : "X-BT-correlationId",
+          "in" : "header",
+          "description" : "This has to be a UNIQUE reference for each and every request sent from calling system. This SHOULD NOT be duplicated across  the requests.",
+          "required" : true,
+          "type" : "string",
+          "maxLength" : 150,
+          "format" : "string"
+        }, {
+          "in" : "body",
+          "name" : "guid",
+          "description" : "Array of collection objects to be created or updated. The list could contain just one guid if a single season is to be updated",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/guid_2"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful update or addotion of season catalogue details.",
+            "schema" : {
+              "$ref" : "#/definitions/outcome"
+            }
+          },
+          "400" : {
+            "description" : "Mandatory parameters missing/Empty Parameter/Invalid parameter provided."
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "No endpoint available."
+          },
+          "429" : {
+            "description" : "Too Many Requests."
+          },
+          "500" : {
+            "description" : "Internal Server Exception."
+          },
+          "503" : {
+            "description" : "Service Unavailable."
+          }
+        }
+      }
+    },
+    "/traverse/seasons" : {
+      "get" : {
+        "summary" : "Provides the season and brand catalogue details for the given season guids.",
+        "description" : "This API will provide season and brand catalogue details for the given season guids. The sample request looks as - /catalogue/V1.0/traverse/seasons?guid=12345&guid=23456&guid=34567. There should be at least one guid should be passed as a request field and supporting maximum number of guids is as supplied in configuration.",
+        "parameters" : [ {
+          "name" : "X-BT-correlationId",
+          "in" : "header",
+          "description" : "This has to be a UNIQUE reference for each and every request sent from calling system. This SHOULD NOT be duplicated across  the requests.",
+          "required" : true,
+          "type" : "string",
+          "maxLength" : 150,
+          "format" : "string"
+        }, {
+          "name" : "guid",
+          "in" : "query",
+          "description" : "The list of season identifiers for those the season and brand details needs to be fetched.",
+          "required" : true,
+          "type" : "string",
+          "maxLength" : 50,
+          "format" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful retrieval of season catalogue details.",
+            "schema" : {
+              "$ref" : "#/definitions/seasonsTraverseDetails"
+            }
+          },
+          "204" : {
+            "description" : "No Catalogue details found with provided inputs."
+          },
+          "400" : {
+            "description" : "Mandatory parameters missing/Empty Parameter/Invalid parameter provided."
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "No endpoint available."
+          },
+          "429" : {
+            "description" : "Too Many Requests."
+          },
+          "500" : {
+            "description" : "Internal Server Exception."
+          },
+          "503" : {
+            "description" : "Service Unavailable."
+          }
+        }
+      }
+    },
+    "/brands" : {
+      "get" : {
+        "summary" : "Provides the brand catalogue details for the given brand guids.",
+        "description" : "This API will provide brand catalogue details for the given brand guids.The sample request looks as - /catalogue/V1.0/brands?guid=12345&guid=23456&guid=34567. There should be at least one guid should be passed as a request field and supporting maximum number of guids is as supplied in configuration.",
+        "parameters" : [ {
+          "name" : "X-BT-correlationId",
+          "in" : "header",
+          "description" : "This has to be a UNIQUE reference for each and every request sent from calling system. This SHOULD NOT be duplicated across  the requests.",
+          "required" : true,
+          "type" : "string",
+          "maxLength" : 150,
+          "format" : "string"
+        }, {
+          "name" : "guid",
+          "in" : "query",
+          "description" : "The list of Brand identifiers for those brand details needs to be fetched.",
+          "required" : true,
+          "type" : "string",
+          "maxLength" : 50,
+          "format" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful retrieval of brand catalogue details.",
+            "schema" : {
+              "$ref" : "#/definitions/brandsDetails"
+            }
+          },
+          "204" : {
+            "description" : "No Catalogue details found with provided inputs."
+          },
+          "400" : {
+            "description" : "Mandatory parameters missing/Empty Parameter/Invalid parameter provided."
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "No endpoint available."
+          },
+          "429" : {
+            "description" : "Too Many Requests."
+          },
+          "500" : {
+            "description" : "Internal Server Exception."
+          },
+          "503" : {
+            "description" : "Service Unavailable."
+          }
+        }
+      },
+      "post" : {
+        "summary" : "Provides the ability to update brand catalogue details for the given brand guids.",
+        "description" : "This API will provide ability to create or update brand catalogue details for the given program guids in Couchbase.The sample request looks as - /catalogue/V2.0/collections/ and the collection objects to be updated or created will be passed as json objects as part of the request body.",
+        "parameters" : [ {
+          "name" : "X-BT-correlationId",
+          "in" : "header",
+          "description" : "This has to be a UNIQUE reference for each and every request sent from calling system. This SHOULD NOT be duplicated across  the requests.",
+          "required" : true,
+          "type" : "string",
+          "maxLength" : 150,
+          "format" : "string"
+        }, {
+          "in" : "body",
+          "name" : "guid",
+          "description" : "The list of Brand identifiers for those brand details needs to be fetched.",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/guid_3"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful retrieval of brand catalogue details.",
+            "schema" : {
+              "$ref" : "#/definitions/outcome"
+            }
+          },
+          "400" : {
+            "description" : "Mandatory parameters missing/Empty Parameter/Invalid parameter provided."
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "No endpoint available."
+          },
+          "429" : {
+            "description" : "Too Many Requests."
+          },
+          "500" : {
+            "description" : "Internal Server Exception."
+          },
+          "503" : {
+            "description" : "Service Unavailable."
+          }
+        }
+      }
+    }
+  },
+  "definitions" : {
+    "pricingTiers" : {
+      "type" : "object",
+      "properties" : {
+        "start" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "start date time of the pricing tier in epoch time format."
+        },
+        "end" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "end date time of the pricing tier in epoch time format."
+        },
+        "amount" : {
+          "type" : "number",
+          "format" : "double",
+          "description" : "price applicable for the given pricing tier."
+        },
+        "isBlackout" : {
+          "type" : "boolean",
+          "description" : "represents if blackout is applied for the given pricing tier.    "
+        },
+        "isActive" : {
+          "type" : "boolean",
+          "description" : "represents if the pricing tier is active or not at the given point of time."
+        },
+        "blackoutType" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "represents the type of the blackout. These values will be only be set if isBlackout=True.",
+          "enum" : [ "blackout", "pre-release", "licenseGracePeriod" ]
+        }
+      },
+      "example" : {
+        "amount" : 2.3021358869347655,
+        "blackoutType" : "blackout",
+        "start" : 5,
+        "end" : 5,
+        "isActive" : true,
+        "isBlackout" : true
+      }
+    },
+    "failedGuidDetails" : {
+      "type" : "object",
+      "properties" : {
+        "guid" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "The guid for which the request is failed.",
+          "maxLength" : 50
+        },
+        "reason" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "Reason for the failure.The possible errors that could be returned with this field are as below. But this may not be the full list of failure reasons, as reason could be something that network returns some times.  1.No Record Found 2.QueryTimeoutException 3.OperationInterruptedException 4.Temporary Failure 5.Temporary Lock Failure 6.Request Too Big 7.Request Cancelled 8.Back Pressure 9.Invalid Configuration 10.Invalid Environment 11.SSL Error 12.Service Not Available 13.Bucket Closed 14.Bucket Does Not Exist 15.Authentication      ",
+          "maxLength" : 1024
+        }
+      },
+      "example" : {
+        "reason" : "reason",
+        "guid" : "guid"
+      }
+    },
+    "outcome" : {
+      "type" : "object",
+      "properties" : {
+        "numberOfRequestedGuids" : {
+          "type" : "integer",
+          "format" : "int32",
+          "description" : "The number of guids requested for catalogue details."
+        },
+        "numberOfRespondedGuids" : {
+          "type" : "integer",
+          "format" : "int32",
+          "description" : "The number of guids for which the catalogue details are returned.  "
+        },
+        "failedGuidInfo" : {
+          "type" : "array",
+          "description" : "The details of the failed guids.",
+          "items" : {
+            "$ref" : "#/definitions/failedGuidDetails"
+          }
+        }
+      },
+      "example" : {
+        "failedGuidInfo" : [ {
+          "reason" : "reason",
+          "guid" : "guid"
+        }, {
+          "reason" : "reason",
+          "guid" : "guid"
+        } ],
+        "numberOfRequestedGuids" : 1,
+        "numberOfRespondedGuids" : 6
+      }
+    },
+    "parentInfo" : {
+      "type" : "object",
+      "properties" : {
+        "type" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "Type of the parent. For standalone programs,this would be an empty value at product level.",
+          "maxLength" : 10,
+          "enum" : [ "collection", "season" ]
+        },
+        "guid" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "Guid of the parent.",
+          "maxLength" : 50
+        },
+        "parentEditorialVersion" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "editorial Version of the parent.",
+          "maxLength" : 50
+        }
+      },
+      "example" : {
+        "parentEditorialVersion" : "parentEditorialVersion",
+        "guid" : "guid",
+        "type" : "collection"
+      }
+    },
+    "programVariantsInfo" : {
+      "type" : "object",
+      "properties" : {
+        "parent" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "program variant's parent product guid.",
+          "maxLength" : 10
+        },
+        "guid" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "program variant guid.",
+          "maxLength" : 50
+        }
+      },
+      "example" : {
+        "parent" : "parent",
+        "guid" : "guid"
+      }
+    },
+    "parentContextInfo" : {
+      "type" : "object",
+      "properties" : {
+        "type" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "Type of the parent.",
+          "maxLength" : 10,
+          "enum" : [ "collection", "season" ]
+        },
+        "overarchingGuid" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "editorialVersion of the parent.",
+          "maxLength" : 50
+        }
+      },
+      "example" : {
+        "overarchingGuid" : "overarchingGuid",
+        "type" : "collection"
+      }
+    },
+    "productsDetails" : {
+      "type" : "object",
+      "properties" : {
+        "products" : {
+          "type" : "array",
+          "description" : "Product catalogue details of all requested product guids. The response is an outCome object that details the over all response of requested guids details which include number of guids requested and number of guids responded and reasons for failures if any.",
+          "items" : {
+            "$ref" : "#/definitions/product"
+          }
+        },
+        "outcome" : {
+          "$ref" : "#/definitions/outcome"
+        }
+      },
+      "example" : {
+        "outcome" : {
+          "failedGuidInfo" : [ {
+            "reason" : "reason",
+            "guid" : "guid"
+          }, {
+            "reason" : "reason",
+            "guid" : "guid"
+          } ],
+          "numberOfRequestedGuids" : 1,
+          "numberOfRespondedGuids" : 6
+        },
+        "products" : [ {
+          "audioTrackInfo" : [ {
+            "mixType" : "mixType",
+            "trackNumber" : 4,
+            "purpose" : "purpose",
+            "language" : "language",
+            "type" : "type"
+          }, {
+            "mixType" : "mixType",
+            "trackNumber" : 4,
+            "purpose" : "purpose",
+            "language" : "language",
+            "type" : "type"
+          } ],
+          "isPromotional" : true,
+          "year" : 9,
+          "subGenres" : [ "subGenres", "subGenres" ],
+          "rating" : "rating",
+          "type" : "product",
+          "productOfferingType" : "Feature",
+          "updatedAtSource" : 7,
+          "isDownloadable" : true,
+          "serviceTypes" : [ "serviceTypes", "serviceTypes" ],
+          "supportedPlatforms" : [ "supportedPlatforms", "supportedPlatforms" ],
+          "parentInfo" : [ {
+            "parentEditorialVersion" : "parentEditorialVersion",
+            "guid" : "guid",
+            "type" : "collection"
+          }, {
+            "parentEditorialVersion" : "parentEditorialVersion",
+            "guid" : "guid",
+            "type" : "collection"
+          } ],
+          "availableEndDate" : 2,
+          "offerStartDate" : 0,
+          "created" : 1,
+          "rentalPeriod" : 1,
+          "pricingTiers" : [ {
+            "amount" : 2.3021358869347655,
+            "blackoutType" : "blackout",
+            "start" : 5,
+            "end" : 5,
+            "isActive" : true,
+            "isBlackout" : true
+          }, {
+            "amount" : 2.3021358869347655,
+            "blackoutType" : "blackout",
+            "start" : 5,
+            "end" : 5,
+            "isActive" : true,
+            "isBlackout" : true
+          } ],
+          "runtime" : 7,
+          "shortDescription" : "shortDescription",
+          "overarchingInfo" : {
+            "guid" : "guid",
+            "type" : "program"
+          },
+          "transactionId" : "abc123",
+          "subtitleEnabled" : true,
+          "externalReference" : "https:/1234",
+          "targetBandwidth" : "SD",
+          "inhibitProduct" : true,
+          "channelServiceLocator" : "channelServiceLocator",
+          "adEnabled" : true,
+          "isCastable" : true,
+          "guid" : "12345",
+          "trailerProductGuid" : "trailerProductGuid",
+          "contentproviderId" : "contentproviderId",
+          "updated" : 1.024645700144157789424070870154537260532379150390625,
+          "offerEndDate" : 6,
+          "backgroundImageUrl" : "backgroundImageUrl",
+          "longDescription" : "longDescription",
+          "validStorefront" : true,
+          "title" : "title",
+          "schedulerChannels" : [ "schedulerChannels", "schedulerChannels" ],
+          "genres" : [ "genres", "genres" ],
+          "collectionBundleCount" : 1,
+          "disabled" : true,
+          "redeem" : true,
+          "isApproved" : true,
+          "productType" : "collection",
+          "availableStartDate" : 3,
+          "masterAgreementServiceType" : [ "masterAgreementServiceType", "masterAgreementServiceType" ],
+          "packshotImageUrl" : "packshotImageUrl",
+          "structureType" : "single",
+          "offerTypes" : [ "offerTypes", "offerTypes" ],
+          "scodes" : [ "scodes", "scodes" ],
+          "subtitleInfo" : [ {
+            "path" : "path",
+            "language" : "language"
+          }, {
+            "path" : "path",
+            "language" : "language"
+          } ],
+          "trailerId" : "trailerId"
+        }, {
+          "audioTrackInfo" : [ {
+            "mixType" : "mixType",
+            "trackNumber" : 4,
+            "purpose" : "purpose",
+            "language" : "language",
+            "type" : "type"
+          }, {
+            "mixType" : "mixType",
+            "trackNumber" : 4,
+            "purpose" : "purpose",
+            "language" : "language",
+            "type" : "type"
+          } ],
+          "isPromotional" : true,
+          "year" : 9,
+          "subGenres" : [ "subGenres", "subGenres" ],
+          "rating" : "rating",
+          "type" : "product",
+          "productOfferingType" : "Feature",
+          "updatedAtSource" : 7,
+          "isDownloadable" : true,
+          "serviceTypes" : [ "serviceTypes", "serviceTypes" ],
+          "supportedPlatforms" : [ "supportedPlatforms", "supportedPlatforms" ],
+          "parentInfo" : [ {
+            "parentEditorialVersion" : "parentEditorialVersion",
+            "guid" : "guid",
+            "type" : "collection"
+          }, {
+            "parentEditorialVersion" : "parentEditorialVersion",
+            "guid" : "guid",
+            "type" : "collection"
+          } ],
+          "availableEndDate" : 2,
+          "offerStartDate" : 0,
+          "created" : 1,
+          "rentalPeriod" : 1,
+          "pricingTiers" : [ {
+            "amount" : 2.3021358869347655,
+            "blackoutType" : "blackout",
+            "start" : 5,
+            "end" : 5,
+            "isActive" : true,
+            "isBlackout" : true
+          }, {
+            "amount" : 2.3021358869347655,
+            "blackoutType" : "blackout",
+            "start" : 5,
+            "end" : 5,
+            "isActive" : true,
+            "isBlackout" : true
+          } ],
+          "runtime" : 7,
+          "shortDescription" : "shortDescription",
+          "overarchingInfo" : {
+            "guid" : "guid",
+            "type" : "program"
+          },
+          "transactionId" : "abc123",
+          "subtitleEnabled" : true,
+          "externalReference" : "https:/1234",
+          "targetBandwidth" : "SD",
+          "inhibitProduct" : true,
+          "channelServiceLocator" : "channelServiceLocator",
+          "adEnabled" : true,
+          "isCastable" : true,
+          "guid" : "12345",
+          "trailerProductGuid" : "trailerProductGuid",
+          "contentproviderId" : "contentproviderId",
+          "updated" : 1.024645700144157789424070870154537260532379150390625,
+          "offerEndDate" : 6,
+          "backgroundImageUrl" : "backgroundImageUrl",
+          "longDescription" : "longDescription",
+          "validStorefront" : true,
+          "title" : "title",
+          "schedulerChannels" : [ "schedulerChannels", "schedulerChannels" ],
+          "genres" : [ "genres", "genres" ],
+          "collectionBundleCount" : 1,
+          "disabled" : true,
+          "redeem" : true,
+          "isApproved" : true,
+          "productType" : "collection",
+          "availableStartDate" : 3,
+          "masterAgreementServiceType" : [ "masterAgreementServiceType", "masterAgreementServiceType" ],
+          "packshotImageUrl" : "packshotImageUrl",
+          "structureType" : "single",
+          "offerTypes" : [ "offerTypes", "offerTypes" ],
+          "scodes" : [ "scodes", "scodes" ],
+          "subtitleInfo" : [ {
+            "path" : "path",
+            "language" : "language"
+          }, {
+            "path" : "path",
+            "language" : "language"
+          } ],
+          "trailerId" : "trailerId"
+        } ]
+      }
+    },
+    "product" : {
+      "type" : "object",
+      "properties" : {
+        "guid" : {
+          "type" : "string",
+          "format" : "string",
+          "example" : "12345",
+          "description" : "The requested guid. This is added only for the implementation sake to be able to give the \"outcome\" details.Hence do not reference this field as to get guid details.",
+          "maxLength" : 50
+        },
+        "transactionId" : {
+          "type" : "string",
+          "format" : "string",
+          "example" : "abc123",
+          "description" : "This is a transient field and should not be serialized. This should not be persisted in Couchbase. This should not be returned as part of any /GET operation as well when requested for either /product or /traverse/productDetails  This value is only track a product update end-end until it is processed by catalogue DS as well for logging purposes.  This Id will be used to track any updates on a given program object from any of the streams and helps in providing a correlated view. This value is populated by the respective Watcher process that generates this event.  The recommended format is '<catalogueItem>_<Guid>_TimestampInEpochinMsec' Example for a product -- product_BBJ3456A_1516406400000.      ",
+          "maxLength" : 150
+        },
+        "type" : {
+          "type" : "string",
+          "format" : "string",
+          "example" : "product",
+          "description" : "This is a new field added to populate the couchbase object type in every object of catalogue store. For Products, the value of type will be always \"Product\"",
+          "maxLength" : 50,
+          "default" : "Product"
+        },
+        "externalReference" : {
+          "type" : "string",
+          "format" : "string",
+          "example" : "https:/1234",
+          "description" : "complete URI of the MPX Product Id",
+          "maxLength" : 500
+        },
+        "collectionBundleCount" : {
+          "type" : "integer",
+          "format" : "int64",
+          "example" : 1,
+          "description" : "Indicates the number of child programs or products in that bundle"
+        },
+        "title" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "atomic title."
+        },
+        "contentproviderId" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "Content Provider Id of the product"
+        },
+        "targetBandwidth" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "encoding bandwidth   or bitrate of the media. The valid values are SD, HD and 4K.",
+          "enum" : [ "SD", "HD", "4K" ]
+        },
+        "offerTypes" : {
+          "type" : "array",
+          "description" : "if the product has scodes alone then it becomes SVOD, if the product has scodes and price and productOfferingType is not equal to feature-EST/Season-EST/Collection-EST, then it will be STVOD, if there are no scodes but there is a price and productOfferingType is equal to feature-EST/Season-EST/Collection-EST, then it becomes EST, if there are no scodes but there is a price and productOfferingType is not equal to feature-EST/Season-EST/Collection-EST then it becomes TVOD.",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "offerStartDate" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "This is the offer start date of the season or collection in epoch time format. It will be equal to the earliest of all the offer start dates of all the individual items of the collectionor episodes of the season."
+        },
+        "offerEndDate" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "This is the offer end date of the season or collection in epoch time format. This will be equal to the latest of all the offer end dates of all the individual items of the collection or episodes of the season."
+        },
+        "rentalPeriod" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "rental period of the product as available in product object."
+        },
+        "pricingTiers" : {
+          "type" : "array",
+          "description" : "Price details of a product",
+          "items" : {
+            "$ref" : "#/definitions/pricingTiers"
+          }
+        },
+        "scodes" : {
+          "type" : "array",
+          "description" : "list of scodes associated to the product.",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "rating" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "content rating of   the program. If there are multiple ratings for a given program then the   highest rating will be provided here.Allowed values for rating (BBFC   standard) in the order, left most is the lowest rating.\"U\", \"PG\", \"12A\", \"12\", \"15\", \"18\", \"UNRATED\", \"18A\", \"R18\".Note that the values are in upper case   as given for Flash Player App currently.",
+          "maxLength" : 10
+        },
+        "runtime" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "running time of the content in epoch time format."
+        },
+        "year" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "release year of the program in epoch time format."
+        },
+        "genres" : {
+          "type" : "array",
+          "description" : "list of genres available for the given program.",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "subGenres" : {
+          "type" : "array",
+          "description" : "list of sub-genres available for the given program.",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "schedulerChannels" : {
+          "type" : "array",
+          "description" : "scheduler channels of the product.",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "masterAgreementServiceType" : {
+          "type" : "array",
+          "description" : "Service type of the product as extracted from MPX masterAgreement.",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "serviceTypes" : {
+          "type" : "array",
+          "description" : "Service type of the product",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "supportedPlatforms" : {
+          "type" : "array",
+          "description" : "Supporting platforms.",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "trailerId" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "ID (MPX internal   ID) of the trailer asset. If this value is present then it means there is a trailer associated to the product which is playable on client device. If this value is empty then it means there will be NO trailer associated to the product.Client UI has to send this value to   requestToPlay API when respective trailer has to be played.",
+          "maxLength" : 50
+        },
+        "trailerProductGuid" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "Trailer product guid.    ",
+          "maxLength" : 50
+        },
+        "availableStartDate" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "This is the available start date or license start of the product in epoch time format."
+        },
+        "availableEndDate" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "This is the available end date or license end date of the product in epoch time format."
+        },
+        "subtitleInfo" : {
+          "type" : "array",
+          "description" : "this will be the   array of subtitleInfo information   provided for each subtitle. This will exist if there are subtitles available   for a given media file associated to the given product.",
+          "items" : {
+            "$ref" : "#/definitions/subtitleInfo"
+          }
+        },
+        "audioTrackInfo" : {
+          "type" : "array",
+          "description" : "this will be the   array of audioTrackInfo information provided for each audio description. This will exist if there are audio description   available for a given media file associated to the given product.",
+          "items" : {
+            "$ref" : "#/definitions/audioTrackInfo"
+          }
+        },
+        "productOfferingType" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "productOfferingType of the product object.",
+          "enum" : [ "Feature", "Feature-EST", "season", "season-EST", "colletion", "collection-EST" ]
+        },
+        "overarchingInfo" : {
+          "$ref" : "#/definitions/overarchingInfo"
+        },
+        "productType" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "productType from MPX for the given product guid.",
+          "enum" : [ "collection", "episode", "film", "music", "other", "preview", "season", "link", "help", "Not specified" ]
+        },
+        "structureType" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "structureType from MPX for the given product guid.",
+          "enum" : [ "single", "collection", "Not specified" ]
+        },
+        "validStorefront" : {
+          "type" : "boolean",
+          "description" : "flag to indicate if valid to Storefront. Supported values are - true/false"
+        },
+        "inhibitProduct" : {
+          "type" : "boolean",
+          "description" : "true/false"
+        },
+        "parentInfo" : {
+          "type" : "array",
+          "description" : "Parent information in the catalogue hierarchy. This object fields would be empty while fetching the product details of a parent.",
+          "items" : {
+            "$ref" : "#/definitions/parentInfo"
+          }
+        },
+        "isPromotional" : {
+          "type" : "boolean",
+          "description" : "Flag to indicate whether product is promotional or not.Supported values are - true/false."
+        },
+        "isApproved" : {
+          "type" : "boolean",
+          "description" : "Flag to indicate whether product is Approved or not.Supported values are - true/false.Used for computing validStorefront."
+        },
+        "disabled" : {
+          "type" : "boolean",
+          "description" : "Flag to indicate whether product is disabled or not.Supported values are - true/false.Used for computing validStorefront"
+        },
+        "adEnabled" : {
+          "type" : "boolean",
+          "description" : "Flag to indicate whether product has Audio description enabled or not.Supported values are - true/false."
+        },
+        "subtitleEnabled" : {
+          "type" : "boolean",
+          "description" : "Flag to indicate whether product has subtitle enabled or not.Supported values are - true/false.Used for computing validStorefront"
+        },
+        "shortDescription" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "short synopsis of the product (equal to description  in Product objects).",
+          "maxLength" : 2048
+        },
+        "longDescription" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "long synopsis of the product (equal to longDescription in Product object).         ",
+          "maxLength" : 2048
+        },
+        "packshotImageUrl" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "if there are multiple packshot images available then priority has to be given in the order of hiRes, HD and then SD. If there are more than one image for the same type then select the latest image using the respective image media object id value whichever is greater number.   "
+        },
+        "backgroundImageUrl" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "if there are multiple packshot images available then priority has to be given in the order of hiRes, HD and then SD. If there are more than one image for the same type then select the latest image using the respective image media object id value whichever is greater number."
+        },
+        "updatedAtSource" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "updated date time of the program object in MPX in epoch time format."
+        },
+        "created" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "created date time of the program object in Couchbase.This is returned in epoch time format."
+        },
+        "updated" : {
+          "type" : "number",
+          "format" : "number",
+          "description" : "updated date time of the program object in Couchbase.This is returned in epoch time format."
+        },
+        "isCastable" : {
+          "type" : "boolean",
+          "description" : "true/false - based on content rights whether a product is castable or not."
+        },
+        "redeem" : {
+          "type" : "boolean",
+          "description" : "indicates if the product is redeemable"
+        },
+        "isDownloadable" : {
+          "type" : "boolean",
+          "description" : "true/false - based on conten rights whether a product is downloadable or not."
+        },
+        "channelServiceLocator" : {
+          "type" : "string",
+          "description" : "Channle Service locator ID introduced for PPV"
+        }
+      },
+      "example" : {
+        "audioTrackInfo" : [ {
+          "mixType" : "mixType",
+          "trackNumber" : 4,
+          "purpose" : "purpose",
+          "language" : "language",
+          "type" : "type"
+        }, {
+          "mixType" : "mixType",
+          "trackNumber" : 4,
+          "purpose" : "purpose",
+          "language" : "language",
+          "type" : "type"
+        } ],
+        "isPromotional" : true,
+        "year" : 9,
+        "subGenres" : [ "subGenres", "subGenres" ],
+        "rating" : "rating",
+        "type" : "product",
+        "productOfferingType" : "Feature",
+        "updatedAtSource" : 7,
+        "isDownloadable" : true,
+        "serviceTypes" : [ "serviceTypes", "serviceTypes" ],
+        "supportedPlatforms" : [ "supportedPlatforms", "supportedPlatforms" ],
+        "parentInfo" : [ {
+          "parentEditorialVersion" : "parentEditorialVersion",
+          "guid" : "guid",
+          "type" : "collection"
+        }, {
+          "parentEditorialVersion" : "parentEditorialVersion",
+          "guid" : "guid",
+          "type" : "collection"
+        } ],
+        "availableEndDate" : 2,
+        "offerStartDate" : 0,
+        "created" : 1,
+        "rentalPeriod" : 1,
+        "pricingTiers" : [ {
+          "amount" : 2.3021358869347655,
+          "blackoutType" : "blackout",
+          "start" : 5,
+          "end" : 5,
+          "isActive" : true,
+          "isBlackout" : true
+        }, {
+          "amount" : 2.3021358869347655,
+          "blackoutType" : "blackout",
+          "start" : 5,
+          "end" : 5,
+          "isActive" : true,
+          "isBlackout" : true
+        } ],
+        "runtime" : 7,
+        "shortDescription" : "shortDescription",
+        "overarchingInfo" : {
+          "guid" : "guid",
+          "type" : "program"
+        },
+        "transactionId" : "abc123",
+        "subtitleEnabled" : true,
+        "externalReference" : "https:/1234",
+        "targetBandwidth" : "SD",
+        "inhibitProduct" : true,
+        "channelServiceLocator" : "channelServiceLocator",
+        "adEnabled" : true,
+        "isCastable" : true,
+        "guid" : "12345",
+        "trailerProductGuid" : "trailerProductGuid",
+        "contentproviderId" : "contentproviderId",
+        "updated" : 1.024645700144157789424070870154537260532379150390625,
+        "offerEndDate" : 6,
+        "backgroundImageUrl" : "backgroundImageUrl",
+        "longDescription" : "longDescription",
+        "validStorefront" : true,
+        "title" : "title",
+        "schedulerChannels" : [ "schedulerChannels", "schedulerChannels" ],
+        "genres" : [ "genres", "genres" ],
+        "collectionBundleCount" : 1,
+        "disabled" : true,
+        "redeem" : true,
+        "isApproved" : true,
+        "productType" : "collection",
+        "availableStartDate" : 3,
+        "masterAgreementServiceType" : [ "masterAgreementServiceType", "masterAgreementServiceType" ],
+        "packshotImageUrl" : "packshotImageUrl",
+        "structureType" : "single",
+        "offerTypes" : [ "offerTypes", "offerTypes" ],
+        "scodes" : [ "scodes", "scodes" ],
+        "subtitleInfo" : [ {
+          "path" : "path",
+          "language" : "language"
+        }, {
+          "path" : "path",
+          "language" : "language"
+        } ],
+        "trailerId" : "trailerId"
+      }
+    },
+    "productAssociationDetails" : {
+      "type" : "object",
+      "properties" : {
+        "parentContext" : {
+          "$ref" : "#/definitions/parentContextInfo"
+        },
+        "products" : {
+          "type" : "array",
+          "description" : "array of product guids along with their parent product guids",
+          "items" : {
+            "$ref" : "#/definitions/programVariantsInfo"
+          }
+        },
+        "offerStartDate" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "offer start date for the program will be the earliest of the offer start dates of the product variants that are part of the given collection or season that defines the context.This is in epoch time format."
+        },
+        "offerEndDate" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "offer end date for the program will be the latest of the offer end dates of the product variants that are part of the given collection or season that defines the context.This is in epoch time format."
+        },
+        "availableStartDate" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "availbility start date for the program will be the earliest of the availability start dates of the product variants that are part of the given collection or season that defines the context.This is in epoch time format."
+        },
+        "availableEndDate" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "availbility end date for the program will be the latest of the availability end dates of the product variants that are part of the given collection or season that defines the context.This is in epoch time format."
+        },
+        "pricingStartDate" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "Pricing start date for the program will be the earliest of the offer start dates of the product variants that are part of the given collection or season that defines the context.This is in epoch time format."
+        },
+        "pricingEndDate" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "offer end date for the program will be the latest of the offer end dates of the product variants that are part of the given collection or season that defines the context.This is in epoch time format."
+        }
+      },
+      "example" : {
+        "availableEndDate" : 9,
+        "pricingEndDate" : 2,
+        "offerStartDate" : 5,
+        "pricingStartDate" : 3,
+        "availableStartDate" : 7,
+        "parentContext" : {
+          "overarchingGuid" : "overarchingGuid",
+          "type" : "collection"
+        },
+        "offerEndDate" : 2,
+        "products" : [ {
+          "parent" : "parent",
+          "guid" : "guid"
+        }, {
+          "parent" : "parent",
+          "guid" : "guid"
+        } ]
+      }
+    },
+    "credits" : {
+      "type" : "object",
+      "properties" : {
+        "personName" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "array of credits associated to the program (populate by retrieving from bottom to top order from the list of credits in PA object) this will be the name of the actor/director, etc.",
+          "maxLength" : 256
+        },
+        "personRole" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "this will be the role of the person such as actor, director, etc.",
+          "maxLength" : 256
+        }
+      },
+      "example" : {
+        "personName" : "personName",
+        "personRole" : "personRole"
+      }
+    },
+    "productsTraverseDetails" : {
+      "type" : "object",
+      "properties" : {
+        "products" : {
+          "type" : "array",
+          "description" : "Product and parent product catalogue details of all requested product guids.",
+          "items" : {
+            "$ref" : "#/definitions/productTraverseDetails"
+          }
+        },
+        "outcome" : {
+          "$ref" : "#/definitions/outcome"
+        }
+      },
+      "example" : {
+        "outcome" : {
+          "failedGuidInfo" : [ {
+            "reason" : "reason",
+            "guid" : "guid"
+          }, {
+            "reason" : "reason",
+            "guid" : "guid"
+          } ],
+          "numberOfRequestedGuids" : 1,
+          "numberOfRespondedGuids" : 6
+        },
+        "products" : [ {
+          "parent" : {
+            "audioTrackInfo" : [ {
+              "mixType" : "mixType",
+              "trackNumber" : 4,
+              "purpose" : "purpose",
+              "language" : "language",
+              "type" : "type"
+            }, {
+              "mixType" : "mixType",
+              "trackNumber" : 4,
+              "purpose" : "purpose",
+              "language" : "language",
+              "type" : "type"
+            } ],
+            "isPromotional" : true,
+            "year" : 9,
+            "subGenres" : [ "subGenres", "subGenres" ],
+            "rating" : "rating",
+            "type" : "product",
+            "productOfferingType" : "Feature",
+            "updatedAtSource" : 7,
+            "isDownloadable" : true,
+            "serviceTypes" : [ "serviceTypes", "serviceTypes" ],
+            "supportedPlatforms" : [ "supportedPlatforms", "supportedPlatforms" ],
+            "parentInfo" : [ {
+              "parentEditorialVersion" : "parentEditorialVersion",
+              "guid" : "guid",
+              "type" : "collection"
+            }, {
+              "parentEditorialVersion" : "parentEditorialVersion",
+              "guid" : "guid",
+              "type" : "collection"
+            } ],
+            "availableEndDate" : 2,
+            "offerStartDate" : 0,
+            "created" : 1,
+            "rentalPeriod" : 1,
+            "pricingTiers" : [ {
+              "amount" : 2.3021358869347655,
+              "blackoutType" : "blackout",
+              "start" : 5,
+              "end" : 5,
+              "isActive" : true,
+              "isBlackout" : true
+            }, {
+              "amount" : 2.3021358869347655,
+              "blackoutType" : "blackout",
+              "start" : 5,
+              "end" : 5,
+              "isActive" : true,
+              "isBlackout" : true
+            } ],
+            "runtime" : 7,
+            "shortDescription" : "shortDescription",
+            "overarchingInfo" : {
+              "guid" : "guid",
+              "type" : "program"
+            },
+            "transactionId" : "abc123",
+            "subtitleEnabled" : true,
+            "externalReference" : "https:/1234",
+            "targetBandwidth" : "SD",
+            "inhibitProduct" : true,
+            "channelServiceLocator" : "channelServiceLocator",
+            "adEnabled" : true,
+            "isCastable" : true,
+            "guid" : "12345",
+            "trailerProductGuid" : "trailerProductGuid",
+            "contentproviderId" : "contentproviderId",
+            "updated" : 1.024645700144157789424070870154537260532379150390625,
+            "offerEndDate" : 6,
+            "backgroundImageUrl" : "backgroundImageUrl",
+            "longDescription" : "longDescription",
+            "validStorefront" : true,
+            "title" : "title",
+            "schedulerChannels" : [ "schedulerChannels", "schedulerChannels" ],
+            "genres" : [ "genres", "genres" ],
+            "collectionBundleCount" : 1,
+            "disabled" : true,
+            "redeem" : true,
+            "isApproved" : true,
+            "productType" : "collection",
+            "availableStartDate" : 3,
+            "masterAgreementServiceType" : [ "masterAgreementServiceType", "masterAgreementServiceType" ],
+            "packshotImageUrl" : "packshotImageUrl",
+            "structureType" : "single",
+            "offerTypes" : [ "offerTypes", "offerTypes" ],
+            "scodes" : [ "scodes", "scodes" ],
+            "subtitleInfo" : [ {
+              "path" : "path",
+              "language" : "language"
+            }, {
+              "path" : "path",
+              "language" : "language"
+            } ],
+            "trailerId" : "trailerId"
+          },
+          "product" : {
+            "audioTrackInfo" : [ {
+              "mixType" : "mixType",
+              "trackNumber" : 4,
+              "purpose" : "purpose",
+              "language" : "language",
+              "type" : "type"
+            }, {
+              "mixType" : "mixType",
+              "trackNumber" : 4,
+              "purpose" : "purpose",
+              "language" : "language",
+              "type" : "type"
+            } ],
+            "isPromotional" : true,
+            "year" : 9,
+            "subGenres" : [ "subGenres", "subGenres" ],
+            "rating" : "rating",
+            "type" : "product",
+            "productOfferingType" : "Feature",
+            "updatedAtSource" : 7,
+            "isDownloadable" : true,
+            "serviceTypes" : [ "serviceTypes", "serviceTypes" ],
+            "supportedPlatforms" : [ "supportedPlatforms", "supportedPlatforms" ],
+            "parentInfo" : [ {
+              "parentEditorialVersion" : "parentEditorialVersion",
+              "guid" : "guid",
+              "type" : "collection"
+            }, {
+              "parentEditorialVersion" : "parentEditorialVersion",
+              "guid" : "guid",
+              "type" : "collection"
+            } ],
+            "availableEndDate" : 2,
+            "offerStartDate" : 0,
+            "created" : 1,
+            "rentalPeriod" : 1,
+            "pricingTiers" : [ {
+              "amount" : 2.3021358869347655,
+              "blackoutType" : "blackout",
+              "start" : 5,
+              "end" : 5,
+              "isActive" : true,
+              "isBlackout" : true
+            }, {
+              "amount" : 2.3021358869347655,
+              "blackoutType" : "blackout",
+              "start" : 5,
+              "end" : 5,
+              "isActive" : true,
+              "isBlackout" : true
+            } ],
+            "runtime" : 7,
+            "shortDescription" : "shortDescription",
+            "overarchingInfo" : {
+              "guid" : "guid",
+              "type" : "program"
+            },
+            "transactionId" : "abc123",
+            "subtitleEnabled" : true,
+            "externalReference" : "https:/1234",
+            "targetBandwidth" : "SD",
+            "inhibitProduct" : true,
+            "channelServiceLocator" : "channelServiceLocator",
+            "adEnabled" : true,
+            "isCastable" : true,
+            "guid" : "12345",
+            "trailerProductGuid" : "trailerProductGuid",
+            "contentproviderId" : "contentproviderId",
+            "updated" : 1.024645700144157789424070870154537260532379150390625,
+            "offerEndDate" : 6,
+            "backgroundImageUrl" : "backgroundImageUrl",
+            "longDescription" : "longDescription",
+            "validStorefront" : true,
+            "title" : "title",
+            "schedulerChannels" : [ "schedulerChannels", "schedulerChannels" ],
+            "genres" : [ "genres", "genres" ],
+            "collectionBundleCount" : 1,
+            "disabled" : true,
+            "redeem" : true,
+            "isApproved" : true,
+            "productType" : "collection",
+            "availableStartDate" : 3,
+            "masterAgreementServiceType" : [ "masterAgreementServiceType", "masterAgreementServiceType" ],
+            "packshotImageUrl" : "packshotImageUrl",
+            "structureType" : "single",
+            "offerTypes" : [ "offerTypes", "offerTypes" ],
+            "scodes" : [ "scodes", "scodes" ],
+            "subtitleInfo" : [ {
+              "path" : "path",
+              "language" : "language"
+            }, {
+              "path" : "path",
+              "language" : "language"
+            } ],
+            "trailerId" : "trailerId"
+          }
+        }, {
+          "parent" : {
+            "audioTrackInfo" : [ {
+              "mixType" : "mixType",
+              "trackNumber" : 4,
+              "purpose" : "purpose",
+              "language" : "language",
+              "type" : "type"
+            }, {
+              "mixType" : "mixType",
+              "trackNumber" : 4,
+              "purpose" : "purpose",
+              "language" : "language",
+              "type" : "type"
+            } ],
+            "isPromotional" : true,
+            "year" : 9,
+            "subGenres" : [ "subGenres", "subGenres" ],
+            "rating" : "rating",
+            "type" : "product",
+            "productOfferingType" : "Feature",
+            "updatedAtSource" : 7,
+            "isDownloadable" : true,
+            "serviceTypes" : [ "serviceTypes", "serviceTypes" ],
+            "supportedPlatforms" : [ "supportedPlatforms", "supportedPlatforms" ],
+            "parentInfo" : [ {
+              "parentEditorialVersion" : "parentEditorialVersion",
+              "guid" : "guid",
+              "type" : "collection"
+            }, {
+              "parentEditorialVersion" : "parentEditorialVersion",
+              "guid" : "guid",
+              "type" : "collection"
+            } ],
+            "availableEndDate" : 2,
+            "offerStartDate" : 0,
+            "created" : 1,
+            "rentalPeriod" : 1,
+            "pricingTiers" : [ {
+              "amount" : 2.3021358869347655,
+              "blackoutType" : "blackout",
+              "start" : 5,
+              "end" : 5,
+              "isActive" : true,
+              "isBlackout" : true
+            }, {
+              "amount" : 2.3021358869347655,
+              "blackoutType" : "blackout",
+              "start" : 5,
+              "end" : 5,
+              "isActive" : true,
+              "isBlackout" : true
+            } ],
+            "runtime" : 7,
+            "shortDescription" : "shortDescription",
+            "overarchingInfo" : {
+              "guid" : "guid",
+              "type" : "program"
+            },
+            "transactionId" : "abc123",
+            "subtitleEnabled" : true,
+            "externalReference" : "https:/1234",
+            "targetBandwidth" : "SD",
+            "inhibitProduct" : true,
+            "channelServiceLocator" : "channelServiceLocator",
+            "adEnabled" : true,
+            "isCastable" : true,
+            "guid" : "12345",
+            "trailerProductGuid" : "trailerProductGuid",
+            "contentproviderId" : "contentproviderId",
+            "updated" : 1.024645700144157789424070870154537260532379150390625,
+            "offerEndDate" : 6,
+            "backgroundImageUrl" : "backgroundImageUrl",
+            "longDescription" : "longDescription",
+            "validStorefront" : true,
+            "title" : "title",
+            "schedulerChannels" : [ "schedulerChannels", "schedulerChannels" ],
+            "genres" : [ "genres", "genres" ],
+            "collectionBundleCount" : 1,
+            "disabled" : true,
+            "redeem" : true,
+            "isApproved" : true,
+            "productType" : "collection",
+            "availableStartDate" : 3,
+            "masterAgreementServiceType" : [ "masterAgreementServiceType", "masterAgreementServiceType" ],
+            "packshotImageUrl" : "packshotImageUrl",
+            "structureType" : "single",
+            "offerTypes" : [ "offerTypes", "offerTypes" ],
+            "scodes" : [ "scodes", "scodes" ],
+            "subtitleInfo" : [ {
+              "path" : "path",
+              "language" : "language"
+            }, {
+              "path" : "path",
+              "language" : "language"
+            } ],
+            "trailerId" : "trailerId"
+          },
+          "product" : {
+            "audioTrackInfo" : [ {
+              "mixType" : "mixType",
+              "trackNumber" : 4,
+              "purpose" : "purpose",
+              "language" : "language",
+              "type" : "type"
+            }, {
+              "mixType" : "mixType",
+              "trackNumber" : 4,
+              "purpose" : "purpose",
+              "language" : "language",
+              "type" : "type"
+            } ],
+            "isPromotional" : true,
+            "year" : 9,
+            "subGenres" : [ "subGenres", "subGenres" ],
+            "rating" : "rating",
+            "type" : "product",
+            "productOfferingType" : "Feature",
+            "updatedAtSource" : 7,
+            "isDownloadable" : true,
+            "serviceTypes" : [ "serviceTypes", "serviceTypes" ],
+            "supportedPlatforms" : [ "supportedPlatforms", "supportedPlatforms" ],
+            "parentInfo" : [ {
+              "parentEditorialVersion" : "parentEditorialVersion",
+              "guid" : "guid",
+              "type" : "collection"
+            }, {
+              "parentEditorialVersion" : "parentEditorialVersion",
+              "guid" : "guid",
+              "type" : "collection"
+            } ],
+            "availableEndDate" : 2,
+            "offerStartDate" : 0,
+            "created" : 1,
+            "rentalPeriod" : 1,
+            "pricingTiers" : [ {
+              "amount" : 2.3021358869347655,
+              "blackoutType" : "blackout",
+              "start" : 5,
+              "end" : 5,
+              "isActive" : true,
+              "isBlackout" : true
+            }, {
+              "amount" : 2.3021358869347655,
+              "blackoutType" : "blackout",
+              "start" : 5,
+              "end" : 5,
+              "isActive" : true,
+              "isBlackout" : true
+            } ],
+            "runtime" : 7,
+            "shortDescription" : "shortDescription",
+            "overarchingInfo" : {
+              "guid" : "guid",
+              "type" : "program"
+            },
+            "transactionId" : "abc123",
+            "subtitleEnabled" : true,
+            "externalReference" : "https:/1234",
+            "targetBandwidth" : "SD",
+            "inhibitProduct" : true,
+            "channelServiceLocator" : "channelServiceLocator",
+            "adEnabled" : true,
+            "isCastable" : true,
+            "guid" : "12345",
+            "trailerProductGuid" : "trailerProductGuid",
+            "contentproviderId" : "contentproviderId",
+            "updated" : 1.024645700144157789424070870154537260532379150390625,
+            "offerEndDate" : 6,
+            "backgroundImageUrl" : "backgroundImageUrl",
+            "longDescription" : "longDescription",
+            "validStorefront" : true,
+            "title" : "title",
+            "schedulerChannels" : [ "schedulerChannels", "schedulerChannels" ],
+            "genres" : [ "genres", "genres" ],
+            "collectionBundleCount" : 1,
+            "disabled" : true,
+            "redeem" : true,
+            "isApproved" : true,
+            "productType" : "collection",
+            "availableStartDate" : 3,
+            "masterAgreementServiceType" : [ "masterAgreementServiceType", "masterAgreementServiceType" ],
+            "packshotImageUrl" : "packshotImageUrl",
+            "structureType" : "single",
+            "offerTypes" : [ "offerTypes", "offerTypes" ],
+            "scodes" : [ "scodes", "scodes" ],
+            "subtitleInfo" : [ {
+              "path" : "path",
+              "language" : "language"
+            }, {
+              "path" : "path",
+              "language" : "language"
+            } ],
+            "trailerId" : "trailerId"
+          }
+        } ]
+      }
+    },
+    "productTraverseDetails" : {
+      "type" : "object",
+      "properties" : {
+        "product" : {
+          "$ref" : "#/definitions/product"
+        },
+        "parent" : {
+          "$ref" : "#/definitions/product"
+        }
+      },
+      "example" : {
+        "parent" : {
+          "audioTrackInfo" : [ {
+            "mixType" : "mixType",
+            "trackNumber" : 4,
+            "purpose" : "purpose",
+            "language" : "language",
+            "type" : "type"
+          }, {
+            "mixType" : "mixType",
+            "trackNumber" : 4,
+            "purpose" : "purpose",
+            "language" : "language",
+            "type" : "type"
+          } ],
+          "isPromotional" : true,
+          "year" : 9,
+          "subGenres" : [ "subGenres", "subGenres" ],
+          "rating" : "rating",
+          "type" : "product",
+          "productOfferingType" : "Feature",
+          "updatedAtSource" : 7,
+          "isDownloadable" : true,
+          "serviceTypes" : [ "serviceTypes", "serviceTypes" ],
+          "supportedPlatforms" : [ "supportedPlatforms", "supportedPlatforms" ],
+          "parentInfo" : [ {
+            "parentEditorialVersion" : "parentEditorialVersion",
+            "guid" : "guid",
+            "type" : "collection"
+          }, {
+            "parentEditorialVersion" : "parentEditorialVersion",
+            "guid" : "guid",
+            "type" : "collection"
+          } ],
+          "availableEndDate" : 2,
+          "offerStartDate" : 0,
+          "created" : 1,
+          "rentalPeriod" : 1,
+          "pricingTiers" : [ {
+            "amount" : 2.3021358869347655,
+            "blackoutType" : "blackout",
+            "start" : 5,
+            "end" : 5,
+            "isActive" : true,
+            "isBlackout" : true
+          }, {
+            "amount" : 2.3021358869347655,
+            "blackoutType" : "blackout",
+            "start" : 5,
+            "end" : 5,
+            "isActive" : true,
+            "isBlackout" : true
+          } ],
+          "runtime" : 7,
+          "shortDescription" : "shortDescription",
+          "overarchingInfo" : {
+            "guid" : "guid",
+            "type" : "program"
+          },
+          "transactionId" : "abc123",
+          "subtitleEnabled" : true,
+          "externalReference" : "https:/1234",
+          "targetBandwidth" : "SD",
+          "inhibitProduct" : true,
+          "channelServiceLocator" : "channelServiceLocator",
+          "adEnabled" : true,
+          "isCastable" : true,
+          "guid" : "12345",
+          "trailerProductGuid" : "trailerProductGuid",
+          "contentproviderId" : "contentproviderId",
+          "updated" : 1.024645700144157789424070870154537260532379150390625,
+          "offerEndDate" : 6,
+          "backgroundImageUrl" : "backgroundImageUrl",
+          "longDescription" : "longDescription",
+          "validStorefront" : true,
+          "title" : "title",
+          "schedulerChannels" : [ "schedulerChannels", "schedulerChannels" ],
+          "genres" : [ "genres", "genres" ],
+          "collectionBundleCount" : 1,
+          "disabled" : true,
+          "redeem" : true,
+          "isApproved" : true,
+          "productType" : "collection",
+          "availableStartDate" : 3,
+          "masterAgreementServiceType" : [ "masterAgreementServiceType", "masterAgreementServiceType" ],
+          "packshotImageUrl" : "packshotImageUrl",
+          "structureType" : "single",
+          "offerTypes" : [ "offerTypes", "offerTypes" ],
+          "scodes" : [ "scodes", "scodes" ],
+          "subtitleInfo" : [ {
+            "path" : "path",
+            "language" : "language"
+          }, {
+            "path" : "path",
+            "language" : "language"
+          } ],
+          "trailerId" : "trailerId"
+        },
+        "product" : {
+          "audioTrackInfo" : [ {
+            "mixType" : "mixType",
+            "trackNumber" : 4,
+            "purpose" : "purpose",
+            "language" : "language",
+            "type" : "type"
+          }, {
+            "mixType" : "mixType",
+            "trackNumber" : 4,
+            "purpose" : "purpose",
+            "language" : "language",
+            "type" : "type"
+          } ],
+          "isPromotional" : true,
+          "year" : 9,
+          "subGenres" : [ "subGenres", "subGenres" ],
+          "rating" : "rating",
+          "type" : "product",
+          "productOfferingType" : "Feature",
+          "updatedAtSource" : 7,
+          "isDownloadable" : true,
+          "serviceTypes" : [ "serviceTypes", "serviceTypes" ],
+          "supportedPlatforms" : [ "supportedPlatforms", "supportedPlatforms" ],
+          "parentInfo" : [ {
+            "parentEditorialVersion" : "parentEditorialVersion",
+            "guid" : "guid",
+            "type" : "collection"
+          }, {
+            "parentEditorialVersion" : "parentEditorialVersion",
+            "guid" : "guid",
+            "type" : "collection"
+          } ],
+          "availableEndDate" : 2,
+          "offerStartDate" : 0,
+          "created" : 1,
+          "rentalPeriod" : 1,
+          "pricingTiers" : [ {
+            "amount" : 2.3021358869347655,
+            "blackoutType" : "blackout",
+            "start" : 5,
+            "end" : 5,
+            "isActive" : true,
+            "isBlackout" : true
+          }, {
+            "amount" : 2.3021358869347655,
+            "blackoutType" : "blackout",
+            "start" : 5,
+            "end" : 5,
+            "isActive" : true,
+            "isBlackout" : true
+          } ],
+          "runtime" : 7,
+          "shortDescription" : "shortDescription",
+          "overarchingInfo" : {
+            "guid" : "guid",
+            "type" : "program"
+          },
+          "transactionId" : "abc123",
+          "subtitleEnabled" : true,
+          "externalReference" : "https:/1234",
+          "targetBandwidth" : "SD",
+          "inhibitProduct" : true,
+          "channelServiceLocator" : "channelServiceLocator",
+          "adEnabled" : true,
+          "isCastable" : true,
+          "guid" : "12345",
+          "trailerProductGuid" : "trailerProductGuid",
+          "contentproviderId" : "contentproviderId",
+          "updated" : 1.024645700144157789424070870154537260532379150390625,
+          "offerEndDate" : 6,
+          "backgroundImageUrl" : "backgroundImageUrl",
+          "longDescription" : "longDescription",
+          "validStorefront" : true,
+          "title" : "title",
+          "schedulerChannels" : [ "schedulerChannels", "schedulerChannels" ],
+          "genres" : [ "genres", "genres" ],
+          "collectionBundleCount" : 1,
+          "disabled" : true,
+          "redeem" : true,
+          "isApproved" : true,
+          "productType" : "collection",
+          "availableStartDate" : 3,
+          "masterAgreementServiceType" : [ "masterAgreementServiceType", "masterAgreementServiceType" ],
+          "packshotImageUrl" : "packshotImageUrl",
+          "structureType" : "single",
+          "offerTypes" : [ "offerTypes", "offerTypes" ],
+          "scodes" : [ "scodes", "scodes" ],
+          "subtitleInfo" : [ {
+            "path" : "path",
+            "language" : "language"
+          }, {
+            "path" : "path",
+            "language" : "language"
+          } ],
+          "trailerId" : "trailerId"
+        }
+      }
+    },
+    "programsDetails" : {
+      "type" : "object",
+      "properties" : {
+        "programs" : {
+          "type" : "array",
+          "description" : "Program catalogue details of all requested program guids.",
+          "items" : {
+            "$ref" : "#/definitions/program"
+          }
+        },
+        "outcome" : {
+          "$ref" : "#/definitions/outcome"
+        }
+      },
+      "example" : {
+        "programs" : [ {
+          "longDescription" : "longDescription",
+          "year" : 5,
+          "subGenres" : [ "subGenres", "subGenres" ],
+          "rating" : "rating",
+          "type" : "Program",
+          "title" : "title",
+          "schedulerChannels" : [ "schedulerChannels", "schedulerChannels" ],
+          "episodeNumber" : 0,
+          "productAssociations" : [ {
+            "availableEndDate" : 9,
+            "pricingEndDate" : 2,
+            "offerStartDate" : 5,
+            "pricingStartDate" : 3,
+            "availableStartDate" : 7,
+            "parentContext" : {
+              "overarchingGuid" : "overarchingGuid",
+              "type" : "collection"
+            },
+            "offerEndDate" : 2,
+            "products" : [ {
+              "parent" : "parent",
+              "guid" : "guid"
+            }, {
+              "parent" : "parent",
+              "guid" : "guid"
+            } ]
+          }, {
+            "availableEndDate" : 9,
+            "pricingEndDate" : 2,
+            "offerStartDate" : 5,
+            "pricingStartDate" : 3,
+            "availableStartDate" : 7,
+            "parentContext" : {
+              "overarchingGuid" : "overarchingGuid",
+              "type" : "collection"
+            },
+            "offerEndDate" : 2,
+            "products" : [ {
+              "parent" : "parent",
+              "guid" : "guid"
+            }, {
+              "parent" : "parent",
+              "guid" : "guid"
+            } ]
+          } ],
+          "displayTitle" : "displayTitle",
+          "updatedAtSource" : 1,
+          "credits" : [ {
+            "personName" : "personName",
+            "personRole" : "personRole"
+          }, {
+            "personName" : "personName",
+            "personRole" : "personRole"
+          } ],
+          "genres" : [ "genres", "genres" ],
+          "broadcastEndDate" : 7,
+          "subtitlesEnabled" : true,
+          "parentInfo" : [ {
+            "parentEditorialVersion" : "parentEditorialVersion",
+            "guid" : "guid",
+            "type" : "collection"
+          }, {
+            "parentEditorialVersion" : "parentEditorialVersion",
+            "guid" : "guid",
+            "type" : "collection"
+          } ],
+          "carouselTags" : [ "carouselTags", "carouselTags" ],
+          "created" : 1,
+          "runtime" : 1,
+          "shortDescription" : "shortDescription",
+          "seasonNumber" : 6,
+          "packshotImageUrl" : "packshotImageUrl",
+          "broadcastStartDate" : 4,
+          "contentProviderId" : "contentProviderId",
+          "straplineText" : "straplineText",
+          "adEnabled" : true,
+          "scodes" : [ "scodes", "scodes" ],
+          "offerTypes" : [ "offerTypes", "offerTypes" ],
+          "guid" : "guid",
+          "productGuids" : [ "productGuids", "productGuids" ],
+          "updated" : 1,
+          "backgroundImageUrl" : "backgroundImageUrl"
+        }, {
+          "longDescription" : "longDescription",
+          "year" : 5,
+          "subGenres" : [ "subGenres", "subGenres" ],
+          "rating" : "rating",
+          "type" : "Program",
+          "title" : "title",
+          "schedulerChannels" : [ "schedulerChannels", "schedulerChannels" ],
+          "episodeNumber" : 0,
+          "productAssociations" : [ {
+            "availableEndDate" : 9,
+            "pricingEndDate" : 2,
+            "offerStartDate" : 5,
+            "pricingStartDate" : 3,
+            "availableStartDate" : 7,
+            "parentContext" : {
+              "overarchingGuid" : "overarchingGuid",
+              "type" : "collection"
+            },
+            "offerEndDate" : 2,
+            "products" : [ {
+              "parent" : "parent",
+              "guid" : "guid"
+            }, {
+              "parent" : "parent",
+              "guid" : "guid"
+            } ]
+          }, {
+            "availableEndDate" : 9,
+            "pricingEndDate" : 2,
+            "offerStartDate" : 5,
+            "pricingStartDate" : 3,
+            "availableStartDate" : 7,
+            "parentContext" : {
+              "overarchingGuid" : "overarchingGuid",
+              "type" : "collection"
+            },
+            "offerEndDate" : 2,
+            "products" : [ {
+              "parent" : "parent",
+              "guid" : "guid"
+            }, {
+              "parent" : "parent",
+              "guid" : "guid"
+            } ]
+          } ],
+          "displayTitle" : "displayTitle",
+          "updatedAtSource" : 1,
+          "credits" : [ {
+            "personName" : "personName",
+            "personRole" : "personRole"
+          }, {
+            "personName" : "personName",
+            "personRole" : "personRole"
+          } ],
+          "genres" : [ "genres", "genres" ],
+          "broadcastEndDate" : 7,
+          "subtitlesEnabled" : true,
+          "parentInfo" : [ {
+            "parentEditorialVersion" : "parentEditorialVersion",
+            "guid" : "guid",
+            "type" : "collection"
+          }, {
+            "parentEditorialVersion" : "parentEditorialVersion",
+            "guid" : "guid",
+            "type" : "collection"
+          } ],
+          "carouselTags" : [ "carouselTags", "carouselTags" ],
+          "created" : 1,
+          "runtime" : 1,
+          "shortDescription" : "shortDescription",
+          "seasonNumber" : 6,
+          "packshotImageUrl" : "packshotImageUrl",
+          "broadcastStartDate" : 4,
+          "contentProviderId" : "contentProviderId",
+          "straplineText" : "straplineText",
+          "adEnabled" : true,
+          "scodes" : [ "scodes", "scodes" ],
+          "offerTypes" : [ "offerTypes", "offerTypes" ],
+          "guid" : "guid",
+          "productGuids" : [ "productGuids", "productGuids" ],
+          "updated" : 1,
+          "backgroundImageUrl" : "backgroundImageUrl"
+        } ],
+        "outcome" : {
+          "failedGuidInfo" : [ {
+            "reason" : "reason",
+            "guid" : "guid"
+          }, {
+            "reason" : "reason",
+            "guid" : "guid"
+          } ],
+          "numberOfRequestedGuids" : 1,
+          "numberOfRespondedGuids" : 6
+        }
+      }
+    },
+    "program" : {
+      "type" : "object",
+      "properties" : {
+        "guid" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "The requested guid. This is added only for the implementation sake to be able to give the \"outcome\" details.Hence do not reference this field as to get guid details.",
+          "maxLength" : 50
+        },
+        "type" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "This is a new field added to populate the couchbase object type in every object of catalogue store. For Programs, the value of type will be always \"Program\"",
+          "maxLength" : 50,
+          "default" : "Program"
+        },
+        "displayTitle" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "Customized display title provided to the client.",
+          "maxLength" : 1024
+        },
+        "title" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "atomic title."
+        },
+        "shortDescription" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "short synopsis of the brand (equal to shortDescription  in Program object).",
+          "maxLength" : 2048
+        },
+        "longDescription" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "long synopsis of the brand (equal to longDescription in Program object).   ",
+          "maxLength" : 2048
+        },
+        "packshotImageUrl" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "if there are multiple packshot images available then priority has to be given in the order of hiRes, HD and then SD. If there are more than one image for the same type then select the latest image using the respective image media object id value whichever is greater number."
+        },
+        "backgroundImageUrl" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "if there are multiple packshot images available then priority has to be given in the order of hiRes, HD and then SD. If there are more than one image for the same type then select the latest image using the respective image media object id value whichever is greater number."
+        },
+        "straplineText" : {
+          "type" : "string",
+          "description" : "this will equal to key in contextualTags custom field in brand/collection/standalone program object in MPX.",
+          "maxLength" : 256
+        },
+        "episodeNumber" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "episode number of the program in the given season, this exists if the program is part of season only."
+        },
+        "seasonNumber" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "if the program is an episode, then this will be the respective tvSeasonNumber of the TvSeason object.      "
+        },
+        "parentInfo" : {
+          "type" : "array",
+          "description" : "Parent information in the catalogue hierarchy.",
+          "items" : {
+            "$ref" : "#/definitions/parentInfo"
+          }
+        },
+        "rating" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "if there are more than one rating for a given program, then consider the least value (minimum rating).",
+          "maxLength" : 10
+        },
+        "runtime" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "running time of the content in epoch time format."
+        },
+        "year" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "release year of the program in epoch time format."
+        },
+        "scodes" : {
+          "type" : "array",
+          "description" : "list of scodes associated to the program.",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "genres" : {
+          "type" : "array",
+          "description" : "list of genres available for the given program.",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "productGuids" : {
+          "type" : "array",
+          "description" : "list of guids of the program variants with and without its parent variant references.",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "credits" : {
+          "type" : "array",
+          "description" : "array of credits associated to the program (populate by retrieving from bottom to top order from the list of credits in PA object).",
+          "items" : {
+            "$ref" : "#/definitions/credits"
+          }
+        },
+        "contentProviderId" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "this will equal to the value of contentProvider programTag.",
+          "maxLength" : 50
+        },
+        "offerTypes" : {
+          "type" : "array",
+          "description" : "list of offer types such as SVOD/TVOD/STVOD/EST, this can be obtained from relatedProducts of respective program object. If the related Pro contains SVOD and TVOD with same productGuid reference, then that means the respective program is STVOD.",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "productAssociations" : {
+          "type" : "array",
+          "description" : "an array of objects that contain context aware offer, availability dates including the parent guid(s)",
+          "items" : {
+            "$ref" : "#/definitions/productAssociationDetails"
+          }
+        },
+        "broadcastStartDate" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "Broadcasting start time of the PPV event on PPV linear channel. start date as available in program object in epoch time format."
+        },
+        "broadcastEndDate" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "Broadcasting end time of the PPV event on PPV linear channel.  end date as available in program object in epoch time format.      "
+        },
+        "adEnabled" : {
+          "type" : "boolean",
+          "format" : "object",
+          "description" : "to be obtained from program object."
+        },
+        "subtitlesEnabled" : {
+          "type" : "boolean",
+          "format" : "object",
+          "description" : "to be obtained from program object."
+        },
+        "updatedAtSource" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "updated date time of the program object in MPX in epoch time format."
+        },
+        "created" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "created date time of the program object in Couchbase.This is returned in epoch time format."
+        },
+        "updated" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "updated date time of the program object in Couchbase.This is returned in epoch time format."
+        },
+        "carouselTags" : {
+          "type" : "array",
+          "description" : "list of carousel tags available for the given program.",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "subGenres" : {
+          "type" : "array",
+          "description" : "list of sub genres available for the given program.",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "schedulerChannels" : {
+          "type" : "array",
+          "description" : "scheduler channels of the program.",
+          "items" : {
+            "type" : "string"
+          }
+        }
+      },
+      "example" : {
+        "longDescription" : "longDescription",
+        "year" : 5,
+        "subGenres" : [ "subGenres", "subGenres" ],
+        "rating" : "rating",
+        "type" : "Program",
+        "title" : "title",
+        "schedulerChannels" : [ "schedulerChannels", "schedulerChannels" ],
+        "episodeNumber" : 0,
+        "productAssociations" : [ {
+          "availableEndDate" : 9,
+          "pricingEndDate" : 2,
+          "offerStartDate" : 5,
+          "pricingStartDate" : 3,
+          "availableStartDate" : 7,
+          "parentContext" : {
+            "overarchingGuid" : "overarchingGuid",
+            "type" : "collection"
+          },
+          "offerEndDate" : 2,
+          "products" : [ {
+            "parent" : "parent",
+            "guid" : "guid"
+          }, {
+            "parent" : "parent",
+            "guid" : "guid"
+          } ]
+        }, {
+          "availableEndDate" : 9,
+          "pricingEndDate" : 2,
+          "offerStartDate" : 5,
+          "pricingStartDate" : 3,
+          "availableStartDate" : 7,
+          "parentContext" : {
+            "overarchingGuid" : "overarchingGuid",
+            "type" : "collection"
+          },
+          "offerEndDate" : 2,
+          "products" : [ {
+            "parent" : "parent",
+            "guid" : "guid"
+          }, {
+            "parent" : "parent",
+            "guid" : "guid"
+          } ]
+        } ],
+        "displayTitle" : "displayTitle",
+        "updatedAtSource" : 1,
+        "credits" : [ {
+          "personName" : "personName",
+          "personRole" : "personRole"
+        }, {
+          "personName" : "personName",
+          "personRole" : "personRole"
+        } ],
+        "genres" : [ "genres", "genres" ],
+        "broadcastEndDate" : 7,
+        "subtitlesEnabled" : true,
+        "parentInfo" : [ {
+          "parentEditorialVersion" : "parentEditorialVersion",
+          "guid" : "guid",
+          "type" : "collection"
+        }, {
+          "parentEditorialVersion" : "parentEditorialVersion",
+          "guid" : "guid",
+          "type" : "collection"
+        } ],
+        "carouselTags" : [ "carouselTags", "carouselTags" ],
+        "created" : 1,
+        "runtime" : 1,
+        "shortDescription" : "shortDescription",
+        "seasonNumber" : 6,
+        "packshotImageUrl" : "packshotImageUrl",
+        "broadcastStartDate" : 4,
+        "contentProviderId" : "contentProviderId",
+        "straplineText" : "straplineText",
+        "adEnabled" : true,
+        "scodes" : [ "scodes", "scodes" ],
+        "offerTypes" : [ "offerTypes", "offerTypes" ],
+        "guid" : "guid",
+        "productGuids" : [ "productGuids", "productGuids" ],
+        "updated" : 1,
+        "backgroundImageUrl" : "backgroundImageUrl"
+      }
+    },
+    "programsTraverseDetails" : {
+      "type" : "object",
+      "properties" : {
+        "programs" : {
+          "type" : "array",
+          "description" : "Program and all it's parent catalogue details of all requested product guids.",
+          "items" : {
+            "$ref" : "#/definitions/programTraverseDetails"
+          }
+        },
+        "outcome" : {
+          "$ref" : "#/definitions/outcome"
+        }
+      },
+      "example" : {
+        "programs" : [ {
+          "season" : {
+            "longDescription" : "longDescription",
+            "year" : 6,
+            "type" : "Season",
+            "title" : "title",
+            "schedulerChannels" : [ "schedulerChannels", "schedulerChannels" ],
+            "displayTitle" : "displayTitle",
+            "updatedAtSource" : 7,
+            "pricingStartDate" : 5,
+            "genres" : [ "genres", "genres" ],
+            "parentInfo" : {
+              "parentEditorialVersion" : "parentEditorialVersion",
+              "guid" : "guid",
+              "type" : "collection"
+            },
+            "offerStartDate" : 1,
+            "contentProviderIDList" : [ "contentProviderIDList", "contentProviderIDList" ],
+            "created" : 9,
+            "shortDescription" : "shortDescription",
+            "seasonNumber" : 0,
+            "packshotImageUrl" : "packshotImageUrl",
+            "pricingEndDate" : 2,
+            "programGuids" : [ "programGuids", "programGuids" ],
+            "offerTypes" : [ "offerTypes", "offerTypes" ],
+            "scodes" : [ "scodes", "scodes" ],
+            "guid" : "guid",
+            "productGuids" : [ "productGuids", "productGuids" ],
+            "updated" : 3,
+            "offerEndDate" : 5,
+            "backgroundImageUrl" : "backgroundImageUrl"
+          },
+          "program" : {
+            "longDescription" : "longDescription",
+            "year" : 5,
+            "subGenres" : [ "subGenres", "subGenres" ],
+            "rating" : "rating",
+            "type" : "Program",
+            "title" : "title",
+            "schedulerChannels" : [ "schedulerChannels", "schedulerChannels" ],
+            "episodeNumber" : 0,
+            "productAssociations" : [ {
+              "availableEndDate" : 9,
+              "pricingEndDate" : 2,
+              "offerStartDate" : 5,
+              "pricingStartDate" : 3,
+              "availableStartDate" : 7,
+              "parentContext" : {
+                "overarchingGuid" : "overarchingGuid",
+                "type" : "collection"
+              },
+              "offerEndDate" : 2,
+              "products" : [ {
+                "parent" : "parent",
+                "guid" : "guid"
+              }, {
+                "parent" : "parent",
+                "guid" : "guid"
+              } ]
+            }, {
+              "availableEndDate" : 9,
+              "pricingEndDate" : 2,
+              "offerStartDate" : 5,
+              "pricingStartDate" : 3,
+              "availableStartDate" : 7,
+              "parentContext" : {
+                "overarchingGuid" : "overarchingGuid",
+                "type" : "collection"
+              },
+              "offerEndDate" : 2,
+              "products" : [ {
+                "parent" : "parent",
+                "guid" : "guid"
+              }, {
+                "parent" : "parent",
+                "guid" : "guid"
+              } ]
+            } ],
+            "displayTitle" : "displayTitle",
+            "updatedAtSource" : 1,
+            "credits" : [ {
+              "personName" : "personName",
+              "personRole" : "personRole"
+            }, {
+              "personName" : "personName",
+              "personRole" : "personRole"
+            } ],
+            "genres" : [ "genres", "genres" ],
+            "broadcastEndDate" : 7,
+            "subtitlesEnabled" : true,
+            "parentInfo" : [ {
+              "parentEditorialVersion" : "parentEditorialVersion",
+              "guid" : "guid",
+              "type" : "collection"
+            }, {
+              "parentEditorialVersion" : "parentEditorialVersion",
+              "guid" : "guid",
+              "type" : "collection"
+            } ],
+            "carouselTags" : [ "carouselTags", "carouselTags" ],
+            "created" : 1,
+            "runtime" : 1,
+            "shortDescription" : "shortDescription",
+            "seasonNumber" : 6,
+            "packshotImageUrl" : "packshotImageUrl",
+            "broadcastStartDate" : 4,
+            "contentProviderId" : "contentProviderId",
+            "straplineText" : "straplineText",
+            "adEnabled" : true,
+            "scodes" : [ "scodes", "scodes" ],
+            "offerTypes" : [ "offerTypes", "offerTypes" ],
+            "guid" : "guid",
+            "productGuids" : [ "productGuids", "productGuids" ],
+            "updated" : 1,
+            "backgroundImageUrl" : "backgroundImageUrl"
+          },
+          "collection" : [ {
+            "longDescription" : "longDescription",
+            "year" : 1,
+            "subGenres" : [ "subGenres", "subGenres" ],
+            "anchors" : [ {
+              "seasonGuid" : "seasonGuid",
+              "programGuid" : "programGuid",
+              "anchorId" : "anchorId",
+              "episodeNumber" : 6,
+              "anchorType" : "anchorType"
+            }, {
+              "seasonGuid" : "seasonGuid",
+              "programGuid" : "programGuid",
+              "anchorId" : "anchorId",
+              "episodeNumber" : 6,
+              "anchorType" : "anchorType"
+            } ],
+            "type" : "Collection",
+            "title" : "title",
+            "displayTitle" : "displayTitle",
+            "updatedAtSource" : 7,
+            "pricingStartDate" : 7,
+            "genres" : [ "genres", "genres" ],
+            "carouselTags" : [ "carouselTags", "carouselTags" ],
+            "offerStartDate" : 2,
+            "noOfChildren" : 1,
+            "created" : 1,
+            "shortDescription" : "shortDescription",
+            "packshotImageUrl" : "packshotImageUrl",
+            "contentProviderId" : "contentProviderId",
+            "pricingEndDate" : 1,
+            "straplineText" : "straplineText",
+            "programGuids" : [ "programGuids", "programGuids" ],
+            "offerTypes" : [ "offerTypes", "offerTypes" ],
+            "scodes" : [ "scodes", "scodes" ],
+            "guid" : "guid",
+            "productGuids" : [ "productGuids", "productGuids" ],
+            "updated" : 4,
+            "offerEndDate" : 4,
+            "backgroundImageUrl" : "backgroundImageUrl"
+          }, {
+            "longDescription" : "longDescription",
+            "year" : 1,
+            "subGenres" : [ "subGenres", "subGenres" ],
+            "anchors" : [ {
+              "seasonGuid" : "seasonGuid",
+              "programGuid" : "programGuid",
+              "anchorId" : "anchorId",
+              "episodeNumber" : 6,
+              "anchorType" : "anchorType"
+            }, {
+              "seasonGuid" : "seasonGuid",
+              "programGuid" : "programGuid",
+              "anchorId" : "anchorId",
+              "episodeNumber" : 6,
+              "anchorType" : "anchorType"
+            } ],
+            "type" : "Collection",
+            "title" : "title",
+            "displayTitle" : "displayTitle",
+            "updatedAtSource" : 7,
+            "pricingStartDate" : 7,
+            "genres" : [ "genres", "genres" ],
+            "carouselTags" : [ "carouselTags", "carouselTags" ],
+            "offerStartDate" : 2,
+            "noOfChildren" : 1,
+            "created" : 1,
+            "shortDescription" : "shortDescription",
+            "packshotImageUrl" : "packshotImageUrl",
+            "contentProviderId" : "contentProviderId",
+            "pricingEndDate" : 1,
+            "straplineText" : "straplineText",
+            "programGuids" : [ "programGuids", "programGuids" ],
+            "offerTypes" : [ "offerTypes", "offerTypes" ],
+            "scodes" : [ "scodes", "scodes" ],
+            "guid" : "guid",
+            "productGuids" : [ "productGuids", "productGuids" ],
+            "updated" : 4,
+            "offerEndDate" : 4,
+            "backgroundImageUrl" : "backgroundImageUrl"
+          } ],
+          "brand" : {
+            "longDescription" : "longDescription",
+            "subGenres" : [ "subGenres", "subGenres" ],
+            "year" : 6,
+            "anchors" : [ {
+              "seasonGuid" : "seasonGuid",
+              "programGuid" : "programGuid",
+              "anchorId" : "anchorId",
+              "episodeNumber" : 6,
+              "anchorType" : "anchorType"
+            }, {
+              "seasonGuid" : "seasonGuid",
+              "programGuid" : "programGuid",
+              "anchorId" : "anchorId",
+              "episodeNumber" : 6,
+              "anchorType" : "anchorType"
+            } ],
+            "type" : "Brand",
+            "title" : "title",
+            "schedulerChannels" : [ "schedulerChannels", "schedulerChannels" ],
+            "displayTitle" : "displayTitle",
+            "updatedAtSource" : 6,
+            "pricingStartDate" : 9,
+            "genres" : [ "genres", "genres" ],
+            "carouselTags" : [ "carouselTags", "carouselTags" ],
+            "availableEndDate" : 5,
+            "offerStartDate" : 5,
+            "seasons" : [ {
+              "displayTitle" : "displayTitle",
+              "updatedAtSource" : 3,
+              "offerStartDate" : 9,
+              "offerTypes" : [ "offerTypes", "offerTypes" ],
+              "guid" : "guid",
+              "shortDescription" : "shortDescription",
+              "seasonNumber" : 8,
+              "offerEndDate" : 6
+            }, {
+              "displayTitle" : "displayTitle",
+              "updatedAtSource" : 3,
+              "offerStartDate" : 9,
+              "offerTypes" : [ "offerTypes", "offerTypes" ],
+              "guid" : "guid",
+              "shortDescription" : "shortDescription",
+              "seasonNumber" : 8,
+              "offerEndDate" : 6
+            } ],
+            "availableStartDate" : 6,
+            "contentProviderIDList" : [ "contentProviderIDList", "contentProviderIDList" ],
+            "created" : 1,
+            "shortDescription" : "shortDescription",
+            "packshotImageUrl" : "packshotImageUrl",
+            "pricingEndDate" : 6,
+            "straplineText" : "straplineText",
+            "offerTypes" : [ "offerTypes", "offerTypes" ],
+            "scodes" : [ "scodes", "scodes" ],
+            "guid" : "guid",
+            "updated" : 2,
+            "offerEndDate" : 9,
+            "backgroundImageUrl" : "backgroundImageUrl"
+          }
+        }, {
+          "season" : {
+            "longDescription" : "longDescription",
+            "year" : 6,
+            "type" : "Season",
+            "title" : "title",
+            "schedulerChannels" : [ "schedulerChannels", "schedulerChannels" ],
+            "displayTitle" : "displayTitle",
+            "updatedAtSource" : 7,
+            "pricingStartDate" : 5,
+            "genres" : [ "genres", "genres" ],
+            "parentInfo" : {
+              "parentEditorialVersion" : "parentEditorialVersion",
+              "guid" : "guid",
+              "type" : "collection"
+            },
+            "offerStartDate" : 1,
+            "contentProviderIDList" : [ "contentProviderIDList", "contentProviderIDList" ],
+            "created" : 9,
+            "shortDescription" : "shortDescription",
+            "seasonNumber" : 0,
+            "packshotImageUrl" : "packshotImageUrl",
+            "pricingEndDate" : 2,
+            "programGuids" : [ "programGuids", "programGuids" ],
+            "offerTypes" : [ "offerTypes", "offerTypes" ],
+            "scodes" : [ "scodes", "scodes" ],
+            "guid" : "guid",
+            "productGuids" : [ "productGuids", "productGuids" ],
+            "updated" : 3,
+            "offerEndDate" : 5,
+            "backgroundImageUrl" : "backgroundImageUrl"
+          },
+          "program" : {
+            "longDescription" : "longDescription",
+            "year" : 5,
+            "subGenres" : [ "subGenres", "subGenres" ],
+            "rating" : "rating",
+            "type" : "Program",
+            "title" : "title",
+            "schedulerChannels" : [ "schedulerChannels", "schedulerChannels" ],
+            "episodeNumber" : 0,
+            "productAssociations" : [ {
+              "availableEndDate" : 9,
+              "pricingEndDate" : 2,
+              "offerStartDate" : 5,
+              "pricingStartDate" : 3,
+              "availableStartDate" : 7,
+              "parentContext" : {
+                "overarchingGuid" : "overarchingGuid",
+                "type" : "collection"
+              },
+              "offerEndDate" : 2,
+              "products" : [ {
+                "parent" : "parent",
+                "guid" : "guid"
+              }, {
+                "parent" : "parent",
+                "guid" : "guid"
+              } ]
+            }, {
+              "availableEndDate" : 9,
+              "pricingEndDate" : 2,
+              "offerStartDate" : 5,
+              "pricingStartDate" : 3,
+              "availableStartDate" : 7,
+              "parentContext" : {
+                "overarchingGuid" : "overarchingGuid",
+                "type" : "collection"
+              },
+              "offerEndDate" : 2,
+              "products" : [ {
+                "parent" : "parent",
+                "guid" : "guid"
+              }, {
+                "parent" : "parent",
+                "guid" : "guid"
+              } ]
+            } ],
+            "displayTitle" : "displayTitle",
+            "updatedAtSource" : 1,
+            "credits" : [ {
+              "personName" : "personName",
+              "personRole" : "personRole"
+            }, {
+              "personName" : "personName",
+              "personRole" : "personRole"
+            } ],
+            "genres" : [ "genres", "genres" ],
+            "broadcastEndDate" : 7,
+            "subtitlesEnabled" : true,
+            "parentInfo" : [ {
+              "parentEditorialVersion" : "parentEditorialVersion",
+              "guid" : "guid",
+              "type" : "collection"
+            }, {
+              "parentEditorialVersion" : "parentEditorialVersion",
+              "guid" : "guid",
+              "type" : "collection"
+            } ],
+            "carouselTags" : [ "carouselTags", "carouselTags" ],
+            "created" : 1,
+            "runtime" : 1,
+            "shortDescription" : "shortDescription",
+            "seasonNumber" : 6,
+            "packshotImageUrl" : "packshotImageUrl",
+            "broadcastStartDate" : 4,
+            "contentProviderId" : "contentProviderId",
+            "straplineText" : "straplineText",
+            "adEnabled" : true,
+            "scodes" : [ "scodes", "scodes" ],
+            "offerTypes" : [ "offerTypes", "offerTypes" ],
+            "guid" : "guid",
+            "productGuids" : [ "productGuids", "productGuids" ],
+            "updated" : 1,
+            "backgroundImageUrl" : "backgroundImageUrl"
+          },
+          "collection" : [ {
+            "longDescription" : "longDescription",
+            "year" : 1,
+            "subGenres" : [ "subGenres", "subGenres" ],
+            "anchors" : [ {
+              "seasonGuid" : "seasonGuid",
+              "programGuid" : "programGuid",
+              "anchorId" : "anchorId",
+              "episodeNumber" : 6,
+              "anchorType" : "anchorType"
+            }, {
+              "seasonGuid" : "seasonGuid",
+              "programGuid" : "programGuid",
+              "anchorId" : "anchorId",
+              "episodeNumber" : 6,
+              "anchorType" : "anchorType"
+            } ],
+            "type" : "Collection",
+            "title" : "title",
+            "displayTitle" : "displayTitle",
+            "updatedAtSource" : 7,
+            "pricingStartDate" : 7,
+            "genres" : [ "genres", "genres" ],
+            "carouselTags" : [ "carouselTags", "carouselTags" ],
+            "offerStartDate" : 2,
+            "noOfChildren" : 1,
+            "created" : 1,
+            "shortDescription" : "shortDescription",
+            "packshotImageUrl" : "packshotImageUrl",
+            "contentProviderId" : "contentProviderId",
+            "pricingEndDate" : 1,
+            "straplineText" : "straplineText",
+            "programGuids" : [ "programGuids", "programGuids" ],
+            "offerTypes" : [ "offerTypes", "offerTypes" ],
+            "scodes" : [ "scodes", "scodes" ],
+            "guid" : "guid",
+            "productGuids" : [ "productGuids", "productGuids" ],
+            "updated" : 4,
+            "offerEndDate" : 4,
+            "backgroundImageUrl" : "backgroundImageUrl"
+          }, {
+            "longDescription" : "longDescription",
+            "year" : 1,
+            "subGenres" : [ "subGenres", "subGenres" ],
+            "anchors" : [ {
+              "seasonGuid" : "seasonGuid",
+              "programGuid" : "programGuid",
+              "anchorId" : "anchorId",
+              "episodeNumber" : 6,
+              "anchorType" : "anchorType"
+            }, {
+              "seasonGuid" : "seasonGuid",
+              "programGuid" : "programGuid",
+              "anchorId" : "anchorId",
+              "episodeNumber" : 6,
+              "anchorType" : "anchorType"
+            } ],
+            "type" : "Collection",
+            "title" : "title",
+            "displayTitle" : "displayTitle",
+            "updatedAtSource" : 7,
+            "pricingStartDate" : 7,
+            "genres" : [ "genres", "genres" ],
+            "carouselTags" : [ "carouselTags", "carouselTags" ],
+            "offerStartDate" : 2,
+            "noOfChildren" : 1,
+            "created" : 1,
+            "shortDescription" : "shortDescription",
+            "packshotImageUrl" : "packshotImageUrl",
+            "contentProviderId" : "contentProviderId",
+            "pricingEndDate" : 1,
+            "straplineText" : "straplineText",
+            "programGuids" : [ "programGuids", "programGuids" ],
+            "offerTypes" : [ "offerTypes", "offerTypes" ],
+            "scodes" : [ "scodes", "scodes" ],
+            "guid" : "guid",
+            "productGuids" : [ "productGuids", "productGuids" ],
+            "updated" : 4,
+            "offerEndDate" : 4,
+            "backgroundImageUrl" : "backgroundImageUrl"
+          } ],
+          "brand" : {
+            "longDescription" : "longDescription",
+            "subGenres" : [ "subGenres", "subGenres" ],
+            "year" : 6,
+            "anchors" : [ {
+              "seasonGuid" : "seasonGuid",
+              "programGuid" : "programGuid",
+              "anchorId" : "anchorId",
+              "episodeNumber" : 6,
+              "anchorType" : "anchorType"
+            }, {
+              "seasonGuid" : "seasonGuid",
+              "programGuid" : "programGuid",
+              "anchorId" : "anchorId",
+              "episodeNumber" : 6,
+              "anchorType" : "anchorType"
+            } ],
+            "type" : "Brand",
+            "title" : "title",
+            "schedulerChannels" : [ "schedulerChannels", "schedulerChannels" ],
+            "displayTitle" : "displayTitle",
+            "updatedAtSource" : 6,
+            "pricingStartDate" : 9,
+            "genres" : [ "genres", "genres" ],
+            "carouselTags" : [ "carouselTags", "carouselTags" ],
+            "availableEndDate" : 5,
+            "offerStartDate" : 5,
+            "seasons" : [ {
+              "displayTitle" : "displayTitle",
+              "updatedAtSource" : 3,
+              "offerStartDate" : 9,
+              "offerTypes" : [ "offerTypes", "offerTypes" ],
+              "guid" : "guid",
+              "shortDescription" : "shortDescription",
+              "seasonNumber" : 8,
+              "offerEndDate" : 6
+            }, {
+              "displayTitle" : "displayTitle",
+              "updatedAtSource" : 3,
+              "offerStartDate" : 9,
+              "offerTypes" : [ "offerTypes", "offerTypes" ],
+              "guid" : "guid",
+              "shortDescription" : "shortDescription",
+              "seasonNumber" : 8,
+              "offerEndDate" : 6
+            } ],
+            "availableStartDate" : 6,
+            "contentProviderIDList" : [ "contentProviderIDList", "contentProviderIDList" ],
+            "created" : 1,
+            "shortDescription" : "shortDescription",
+            "packshotImageUrl" : "packshotImageUrl",
+            "pricingEndDate" : 6,
+            "straplineText" : "straplineText",
+            "offerTypes" : [ "offerTypes", "offerTypes" ],
+            "scodes" : [ "scodes", "scodes" ],
+            "guid" : "guid",
+            "updated" : 2,
+            "offerEndDate" : 9,
+            "backgroundImageUrl" : "backgroundImageUrl"
+          }
+        } ],
+        "outcome" : {
+          "failedGuidInfo" : [ {
+            "reason" : "reason",
+            "guid" : "guid"
+          }, {
+            "reason" : "reason",
+            "guid" : "guid"
+          } ],
+          "numberOfRequestedGuids" : 1,
+          "numberOfRespondedGuids" : 6
+        }
+      }
+    },
+    "programTraverseDetails" : {
+      "type" : "object",
+      "properties" : {
+        "program" : {
+          "$ref" : "#/definitions/program"
+        },
+        "season" : {
+          "$ref" : "#/definitions/season"
+        },
+        "collection" : {
+          "type" : "array",
+          "description" : "Collection details.",
+          "items" : {
+            "$ref" : "#/definitions/collection"
+          }
+        },
+        "brand" : {
+          "$ref" : "#/definitions/brand"
+        }
+      },
+      "example" : {
+        "season" : {
+          "longDescription" : "longDescription",
+          "year" : 6,
+          "type" : "Season",
+          "title" : "title",
+          "schedulerChannels" : [ "schedulerChannels", "schedulerChannels" ],
+          "displayTitle" : "displayTitle",
+          "updatedAtSource" : 7,
+          "pricingStartDate" : 5,
+          "genres" : [ "genres", "genres" ],
+          "parentInfo" : {
+            "parentEditorialVersion" : "parentEditorialVersion",
+            "guid" : "guid",
+            "type" : "collection"
+          },
+          "offerStartDate" : 1,
+          "contentProviderIDList" : [ "contentProviderIDList", "contentProviderIDList" ],
+          "created" : 9,
+          "shortDescription" : "shortDescription",
+          "seasonNumber" : 0,
+          "packshotImageUrl" : "packshotImageUrl",
+          "pricingEndDate" : 2,
+          "programGuids" : [ "programGuids", "programGuids" ],
+          "offerTypes" : [ "offerTypes", "offerTypes" ],
+          "scodes" : [ "scodes", "scodes" ],
+          "guid" : "guid",
+          "productGuids" : [ "productGuids", "productGuids" ],
+          "updated" : 3,
+          "offerEndDate" : 5,
+          "backgroundImageUrl" : "backgroundImageUrl"
+        },
+        "program" : {
+          "longDescription" : "longDescription",
+          "year" : 5,
+          "subGenres" : [ "subGenres", "subGenres" ],
+          "rating" : "rating",
+          "type" : "Program",
+          "title" : "title",
+          "schedulerChannels" : [ "schedulerChannels", "schedulerChannels" ],
+          "episodeNumber" : 0,
+          "productAssociations" : [ {
+            "availableEndDate" : 9,
+            "pricingEndDate" : 2,
+            "offerStartDate" : 5,
+            "pricingStartDate" : 3,
+            "availableStartDate" : 7,
+            "parentContext" : {
+              "overarchingGuid" : "overarchingGuid",
+              "type" : "collection"
+            },
+            "offerEndDate" : 2,
+            "products" : [ {
+              "parent" : "parent",
+              "guid" : "guid"
+            }, {
+              "parent" : "parent",
+              "guid" : "guid"
+            } ]
+          }, {
+            "availableEndDate" : 9,
+            "pricingEndDate" : 2,
+            "offerStartDate" : 5,
+            "pricingStartDate" : 3,
+            "availableStartDate" : 7,
+            "parentContext" : {
+              "overarchingGuid" : "overarchingGuid",
+              "type" : "collection"
+            },
+            "offerEndDate" : 2,
+            "products" : [ {
+              "parent" : "parent",
+              "guid" : "guid"
+            }, {
+              "parent" : "parent",
+              "guid" : "guid"
+            } ]
+          } ],
+          "displayTitle" : "displayTitle",
+          "updatedAtSource" : 1,
+          "credits" : [ {
+            "personName" : "personName",
+            "personRole" : "personRole"
+          }, {
+            "personName" : "personName",
+            "personRole" : "personRole"
+          } ],
+          "genres" : [ "genres", "genres" ],
+          "broadcastEndDate" : 7,
+          "subtitlesEnabled" : true,
+          "parentInfo" : [ {
+            "parentEditorialVersion" : "parentEditorialVersion",
+            "guid" : "guid",
+            "type" : "collection"
+          }, {
+            "parentEditorialVersion" : "parentEditorialVersion",
+            "guid" : "guid",
+            "type" : "collection"
+          } ],
+          "carouselTags" : [ "carouselTags", "carouselTags" ],
+          "created" : 1,
+          "runtime" : 1,
+          "shortDescription" : "shortDescription",
+          "seasonNumber" : 6,
+          "packshotImageUrl" : "packshotImageUrl",
+          "broadcastStartDate" : 4,
+          "contentProviderId" : "contentProviderId",
+          "straplineText" : "straplineText",
+          "adEnabled" : true,
+          "scodes" : [ "scodes", "scodes" ],
+          "offerTypes" : [ "offerTypes", "offerTypes" ],
+          "guid" : "guid",
+          "productGuids" : [ "productGuids", "productGuids" ],
+          "updated" : 1,
+          "backgroundImageUrl" : "backgroundImageUrl"
+        },
+        "collection" : [ {
+          "longDescription" : "longDescription",
+          "year" : 1,
+          "subGenres" : [ "subGenres", "subGenres" ],
+          "anchors" : [ {
+            "seasonGuid" : "seasonGuid",
+            "programGuid" : "programGuid",
+            "anchorId" : "anchorId",
+            "episodeNumber" : 6,
+            "anchorType" : "anchorType"
+          }, {
+            "seasonGuid" : "seasonGuid",
+            "programGuid" : "programGuid",
+            "anchorId" : "anchorId",
+            "episodeNumber" : 6,
+            "anchorType" : "anchorType"
+          } ],
+          "type" : "Collection",
+          "title" : "title",
+          "displayTitle" : "displayTitle",
+          "updatedAtSource" : 7,
+          "pricingStartDate" : 7,
+          "genres" : [ "genres", "genres" ],
+          "carouselTags" : [ "carouselTags", "carouselTags" ],
+          "offerStartDate" : 2,
+          "noOfChildren" : 1,
+          "created" : 1,
+          "shortDescription" : "shortDescription",
+          "packshotImageUrl" : "packshotImageUrl",
+          "contentProviderId" : "contentProviderId",
+          "pricingEndDate" : 1,
+          "straplineText" : "straplineText",
+          "programGuids" : [ "programGuids", "programGuids" ],
+          "offerTypes" : [ "offerTypes", "offerTypes" ],
+          "scodes" : [ "scodes", "scodes" ],
+          "guid" : "guid",
+          "productGuids" : [ "productGuids", "productGuids" ],
+          "updated" : 4,
+          "offerEndDate" : 4,
+          "backgroundImageUrl" : "backgroundImageUrl"
+        }, {
+          "longDescription" : "longDescription",
+          "year" : 1,
+          "subGenres" : [ "subGenres", "subGenres" ],
+          "anchors" : [ {
+            "seasonGuid" : "seasonGuid",
+            "programGuid" : "programGuid",
+            "anchorId" : "anchorId",
+            "episodeNumber" : 6,
+            "anchorType" : "anchorType"
+          }, {
+            "seasonGuid" : "seasonGuid",
+            "programGuid" : "programGuid",
+            "anchorId" : "anchorId",
+            "episodeNumber" : 6,
+            "anchorType" : "anchorType"
+          } ],
+          "type" : "Collection",
+          "title" : "title",
+          "displayTitle" : "displayTitle",
+          "updatedAtSource" : 7,
+          "pricingStartDate" : 7,
+          "genres" : [ "genres", "genres" ],
+          "carouselTags" : [ "carouselTags", "carouselTags" ],
+          "offerStartDate" : 2,
+          "noOfChildren" : 1,
+          "created" : 1,
+          "shortDescription" : "shortDescription",
+          "packshotImageUrl" : "packshotImageUrl",
+          "contentProviderId" : "contentProviderId",
+          "pricingEndDate" : 1,
+          "straplineText" : "straplineText",
+          "programGuids" : [ "programGuids", "programGuids" ],
+          "offerTypes" : [ "offerTypes", "offerTypes" ],
+          "scodes" : [ "scodes", "scodes" ],
+          "guid" : "guid",
+          "productGuids" : [ "productGuids", "productGuids" ],
+          "updated" : 4,
+          "offerEndDate" : 4,
+          "backgroundImageUrl" : "backgroundImageUrl"
+        } ],
+        "brand" : {
+          "longDescription" : "longDescription",
+          "subGenres" : [ "subGenres", "subGenres" ],
+          "year" : 6,
+          "anchors" : [ {
+            "seasonGuid" : "seasonGuid",
+            "programGuid" : "programGuid",
+            "anchorId" : "anchorId",
+            "episodeNumber" : 6,
+            "anchorType" : "anchorType"
+          }, {
+            "seasonGuid" : "seasonGuid",
+            "programGuid" : "programGuid",
+            "anchorId" : "anchorId",
+            "episodeNumber" : 6,
+            "anchorType" : "anchorType"
+          } ],
+          "type" : "Brand",
+          "title" : "title",
+          "schedulerChannels" : [ "schedulerChannels", "schedulerChannels" ],
+          "displayTitle" : "displayTitle",
+          "updatedAtSource" : 6,
+          "pricingStartDate" : 9,
+          "genres" : [ "genres", "genres" ],
+          "carouselTags" : [ "carouselTags", "carouselTags" ],
+          "availableEndDate" : 5,
+          "offerStartDate" : 5,
+          "seasons" : [ {
+            "displayTitle" : "displayTitle",
+            "updatedAtSource" : 3,
+            "offerStartDate" : 9,
+            "offerTypes" : [ "offerTypes", "offerTypes" ],
+            "guid" : "guid",
+            "shortDescription" : "shortDescription",
+            "seasonNumber" : 8,
+            "offerEndDate" : 6
+          }, {
+            "displayTitle" : "displayTitle",
+            "updatedAtSource" : 3,
+            "offerStartDate" : 9,
+            "offerTypes" : [ "offerTypes", "offerTypes" ],
+            "guid" : "guid",
+            "shortDescription" : "shortDescription",
+            "seasonNumber" : 8,
+            "offerEndDate" : 6
+          } ],
+          "availableStartDate" : 6,
+          "contentProviderIDList" : [ "contentProviderIDList", "contentProviderIDList" ],
+          "created" : 1,
+          "shortDescription" : "shortDescription",
+          "packshotImageUrl" : "packshotImageUrl",
+          "pricingEndDate" : 6,
+          "straplineText" : "straplineText",
+          "offerTypes" : [ "offerTypes", "offerTypes" ],
+          "scodes" : [ "scodes", "scodes" ],
+          "guid" : "guid",
+          "updated" : 2,
+          "offerEndDate" : 9,
+          "backgroundImageUrl" : "backgroundImageUrl"
+        }
+      }
+    },
+    "anchorsInfo" : {
+      "type" : "object",
+      "properties" : {
+        "anchorType" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "default, cpRelated, subscribed.",
+          "maxLength" : 20
+        },
+        "programGuid" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "programGuid of first available episode of first available season under the brand for default anchor that is related to the given content provider under the brand.",
+          "maxLength" : 50
+        },
+        "seasonGuid" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "sesonGuid of first available season under the brand for which the anchor episode belongs to that is related to the given content provider under the brand.",
+          "maxLength" : 50
+        },
+        "episodeNumber" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "episode number of the program in the given season/collection, this exists if the program is part of season/collection only."
+        },
+        "anchorId" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "it can be scode for which the anchor program is given in case of subscribed anchor or it can be contentProviderId for which the anchor program is given in case of cpRelated anchor. This exists only for subscribed and cpRelated anchors but not for others.",
+          "maxLength" : 25
+        }
+      },
+      "example" : {
+        "seasonGuid" : "seasonGuid",
+        "programGuid" : "programGuid",
+        "anchorId" : "anchorId",
+        "episodeNumber" : 6,
+        "anchorType" : "anchorType"
+      }
+    },
+    "collectionsDetails" : {
+      "type" : "object",
+      "properties" : {
+        "collections" : {
+          "type" : "array",
+          "description" : "Collection catalogue details of all requested collection guids.",
+          "items" : {
+            "$ref" : "#/definitions/collection"
+          }
+        },
+        "outcome" : {
+          "$ref" : "#/definitions/outcome"
+        }
+      },
+      "example" : {
+        "collections" : [ {
+          "longDescription" : "longDescription",
+          "year" : 1,
+          "subGenres" : [ "subGenres", "subGenres" ],
+          "anchors" : [ {
+            "seasonGuid" : "seasonGuid",
+            "programGuid" : "programGuid",
+            "anchorId" : "anchorId",
+            "episodeNumber" : 6,
+            "anchorType" : "anchorType"
+          }, {
+            "seasonGuid" : "seasonGuid",
+            "programGuid" : "programGuid",
+            "anchorId" : "anchorId",
+            "episodeNumber" : 6,
+            "anchorType" : "anchorType"
+          } ],
+          "type" : "Collection",
+          "title" : "title",
+          "displayTitle" : "displayTitle",
+          "updatedAtSource" : 7,
+          "pricingStartDate" : 7,
+          "genres" : [ "genres", "genres" ],
+          "carouselTags" : [ "carouselTags", "carouselTags" ],
+          "offerStartDate" : 2,
+          "noOfChildren" : 1,
+          "created" : 1,
+          "shortDescription" : "shortDescription",
+          "packshotImageUrl" : "packshotImageUrl",
+          "contentProviderId" : "contentProviderId",
+          "pricingEndDate" : 1,
+          "straplineText" : "straplineText",
+          "programGuids" : [ "programGuids", "programGuids" ],
+          "offerTypes" : [ "offerTypes", "offerTypes" ],
+          "scodes" : [ "scodes", "scodes" ],
+          "guid" : "guid",
+          "productGuids" : [ "productGuids", "productGuids" ],
+          "updated" : 4,
+          "offerEndDate" : 4,
+          "backgroundImageUrl" : "backgroundImageUrl"
+        }, {
+          "longDescription" : "longDescription",
+          "year" : 1,
+          "subGenres" : [ "subGenres", "subGenres" ],
+          "anchors" : [ {
+            "seasonGuid" : "seasonGuid",
+            "programGuid" : "programGuid",
+            "anchorId" : "anchorId",
+            "episodeNumber" : 6,
+            "anchorType" : "anchorType"
+          }, {
+            "seasonGuid" : "seasonGuid",
+            "programGuid" : "programGuid",
+            "anchorId" : "anchorId",
+            "episodeNumber" : 6,
+            "anchorType" : "anchorType"
+          } ],
+          "type" : "Collection",
+          "title" : "title",
+          "displayTitle" : "displayTitle",
+          "updatedAtSource" : 7,
+          "pricingStartDate" : 7,
+          "genres" : [ "genres", "genres" ],
+          "carouselTags" : [ "carouselTags", "carouselTags" ],
+          "offerStartDate" : 2,
+          "noOfChildren" : 1,
+          "created" : 1,
+          "shortDescription" : "shortDescription",
+          "packshotImageUrl" : "packshotImageUrl",
+          "contentProviderId" : "contentProviderId",
+          "pricingEndDate" : 1,
+          "straplineText" : "straplineText",
+          "programGuids" : [ "programGuids", "programGuids" ],
+          "offerTypes" : [ "offerTypes", "offerTypes" ],
+          "scodes" : [ "scodes", "scodes" ],
+          "guid" : "guid",
+          "productGuids" : [ "productGuids", "productGuids" ],
+          "updated" : 4,
+          "offerEndDate" : 4,
+          "backgroundImageUrl" : "backgroundImageUrl"
+        } ],
+        "outcome" : {
+          "failedGuidInfo" : [ {
+            "reason" : "reason",
+            "guid" : "guid"
+          }, {
+            "reason" : "reason",
+            "guid" : "guid"
+          } ],
+          "numberOfRequestedGuids" : 1,
+          "numberOfRespondedGuids" : 6
+        }
+      }
+    },
+    "collection" : {
+      "type" : "object",
+      "properties" : {
+        "guid" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "The requested guid. This is added only for the implementation sake to be able to give the \"outcome\" details.Hence do not reference this field as to get guid details.",
+          "maxLength" : 50
+        },
+        "type" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "This is a new field added to populate the couchbase object type in every object of catalogue store. For Collections, the value of type will be always \"Collection\"",
+          "maxLength" : 50,
+          "default" : "Collection"
+        },
+        "displayTitle" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "Customized display title provided to the client.",
+          "maxLength" : 1024
+        },
+        "title" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "atomic title."
+        },
+        "shortDescription" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "short synopsis of the collection (equal to shortDescription in Collection object).",
+          "maxLength" : 2048
+        },
+        "longDescription" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "long synopsis of the collection (equal to description in Collection object).    ",
+          "maxLength" : 2048
+        },
+        "packshotImageUrl" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "if there are multiple packshot images available then priority has to be given in the order of hiRes, HD and then SD, respective imageMediaId has to be obtained from programAvailability endpoint and then retrieve the image details from Media object. Refer to assetType in thumbnails while determining the image type."
+        },
+        "backgroundImageUrl" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "if there are multiple packshot images available then priority has to be given in the order of hiRes, HD and then SD, respective imageMediaId has to be obtained from programAvailability endpoint and then retrieve the image details from Media object. Refer to assetType in thumbnails while determining the image type."
+        },
+        "programGuids" : {
+          "type" : "array",
+          "description" : "list of collection item guids, respective individual item program guids have to be obtained from TVDS associated to the given Collection guid.",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "productGuids" : {
+          "type" : "array",
+          "description" : "list of collection variant guids (i.e product guids), this has to be obtained from relatedProducts of Collection object in MPX.",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "straplineText" : {
+          "type" : "string",
+          "description" : "this will equal to key in contextualTags custom field in brand/collection/standalone program object in MPX.",
+          "maxLength" : 256
+        },
+        "offerTypes" : {
+          "type" : "array",
+          "description" : "list of offer types such as SVOD/TVOD/STVOD/EST, this can be obtained from relatedProducts of respective program object. If the related Pro contains SVOD and TVOD with same productGuid reference, then that means the respective program is STVOD.",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "offerStartDate" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "offer start date of the brand/collection/standalone program object, to be obtained from programAvailability endpoint. This is in epoch time format."
+        },
+        "offerEndDate" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "offer end date of the brand/collection/standalone program object, to be obtained from programAvailability endpoint. This is in epoch time format."
+        },
+        "pricingStartDate" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "start date of availability of progrom to purchase. This is in epoch time format.."
+        },
+        "pricingEndDate" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "start date of availability of progrom to purchase.This is in epoch time format."
+        },
+        "year" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "release year of the Collection in epoch time format.  "
+        },
+        "scodes" : {
+          "type" : "array",
+          "description" : "list of scodes of the collection.",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "noOfChildren" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "this is the number of individual items in the Collection."
+        },
+        "genres" : {
+          "type" : "array",
+          "description" : "list of genres available for the given collection.",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "anchors" : {
+          "type" : "array",
+          "description" : "default anchor , subscribed and CP related anchor are applicable for brand and collections. They are not applicable for collection and standalone program.",
+          "items" : {
+            "$ref" : "#/definitions/anchorsInfo"
+          }
+        },
+        "updatedAtSource" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "updated date time of the Collection object in MPX in epoch time format."
+        },
+        "created" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "created date time of the Collection object in Couchbase.This is returned in epoch time format."
+        },
+        "updated" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "updated date time of the Collection object in Couchbase.This is returned in epoch time format."
+        },
+        "carouselTags" : {
+          "type" : "array",
+          "description" : "list of carousel tags available for the given collection.",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "contentProviderId" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "Content Provider Id of the collection."
+        },
+        "subGenres" : {
+          "type" : "array",
+          "description" : "list of sub genres available for the given collection.",
+          "items" : {
+            "type" : "string"
+          }
+        }
+      },
+      "example" : {
+        "longDescription" : "longDescription",
+        "year" : 1,
+        "subGenres" : [ "subGenres", "subGenres" ],
+        "anchors" : [ {
+          "seasonGuid" : "seasonGuid",
+          "programGuid" : "programGuid",
+          "anchorId" : "anchorId",
+          "episodeNumber" : 6,
+          "anchorType" : "anchorType"
+        }, {
+          "seasonGuid" : "seasonGuid",
+          "programGuid" : "programGuid",
+          "anchorId" : "anchorId",
+          "episodeNumber" : 6,
+          "anchorType" : "anchorType"
+        } ],
+        "type" : "Collection",
+        "title" : "title",
+        "displayTitle" : "displayTitle",
+        "updatedAtSource" : 7,
+        "pricingStartDate" : 7,
+        "genres" : [ "genres", "genres" ],
+        "carouselTags" : [ "carouselTags", "carouselTags" ],
+        "offerStartDate" : 2,
+        "noOfChildren" : 1,
+        "created" : 1,
+        "shortDescription" : "shortDescription",
+        "packshotImageUrl" : "packshotImageUrl",
+        "contentProviderId" : "contentProviderId",
+        "pricingEndDate" : 1,
+        "straplineText" : "straplineText",
+        "programGuids" : [ "programGuids", "programGuids" ],
+        "offerTypes" : [ "offerTypes", "offerTypes" ],
+        "scodes" : [ "scodes", "scodes" ],
+        "guid" : "guid",
+        "productGuids" : [ "productGuids", "productGuids" ],
+        "updated" : 4,
+        "offerEndDate" : 4,
+        "backgroundImageUrl" : "backgroundImageUrl"
+      }
+    },
+    "seasonsDetails" : {
+      "type" : "object",
+      "properties" : {
+        "seasons" : {
+          "type" : "array",
+          "description" : "Season catalogue details of all requested product guids.",
+          "items" : {
+            "$ref" : "#/definitions/season"
+          }
+        },
+        "outcome" : {
+          "$ref" : "#/definitions/outcome"
+        }
+      },
+      "example" : {
+        "seasons" : [ {
+          "longDescription" : "longDescription",
+          "year" : 6,
+          "type" : "Season",
+          "title" : "title",
+          "schedulerChannels" : [ "schedulerChannels", "schedulerChannels" ],
+          "displayTitle" : "displayTitle",
+          "updatedAtSource" : 7,
+          "pricingStartDate" : 5,
+          "genres" : [ "genres", "genres" ],
+          "parentInfo" : {
+            "parentEditorialVersion" : "parentEditorialVersion",
+            "guid" : "guid",
+            "type" : "collection"
+          },
+          "offerStartDate" : 1,
+          "contentProviderIDList" : [ "contentProviderIDList", "contentProviderIDList" ],
+          "created" : 9,
+          "shortDescription" : "shortDescription",
+          "seasonNumber" : 0,
+          "packshotImageUrl" : "packshotImageUrl",
+          "pricingEndDate" : 2,
+          "programGuids" : [ "programGuids", "programGuids" ],
+          "offerTypes" : [ "offerTypes", "offerTypes" ],
+          "scodes" : [ "scodes", "scodes" ],
+          "guid" : "guid",
+          "productGuids" : [ "productGuids", "productGuids" ],
+          "updated" : 3,
+          "offerEndDate" : 5,
+          "backgroundImageUrl" : "backgroundImageUrl"
+        }, {
+          "longDescription" : "longDescription",
+          "year" : 6,
+          "type" : "Season",
+          "title" : "title",
+          "schedulerChannels" : [ "schedulerChannels", "schedulerChannels" ],
+          "displayTitle" : "displayTitle",
+          "updatedAtSource" : 7,
+          "pricingStartDate" : 5,
+          "genres" : [ "genres", "genres" ],
+          "parentInfo" : {
+            "parentEditorialVersion" : "parentEditorialVersion",
+            "guid" : "guid",
+            "type" : "collection"
+          },
+          "offerStartDate" : 1,
+          "contentProviderIDList" : [ "contentProviderIDList", "contentProviderIDList" ],
+          "created" : 9,
+          "shortDescription" : "shortDescription",
+          "seasonNumber" : 0,
+          "packshotImageUrl" : "packshotImageUrl",
+          "pricingEndDate" : 2,
+          "programGuids" : [ "programGuids", "programGuids" ],
+          "offerTypes" : [ "offerTypes", "offerTypes" ],
+          "scodes" : [ "scodes", "scodes" ],
+          "guid" : "guid",
+          "productGuids" : [ "productGuids", "productGuids" ],
+          "updated" : 3,
+          "offerEndDate" : 5,
+          "backgroundImageUrl" : "backgroundImageUrl"
+        } ],
+        "outcome" : {
+          "failedGuidInfo" : [ {
+            "reason" : "reason",
+            "guid" : "guid"
+          }, {
+            "reason" : "reason",
+            "guid" : "guid"
+          } ],
+          "numberOfRequestedGuids" : 1,
+          "numberOfRespondedGuids" : 6
+        }
+      }
+    },
+    "season" : {
+      "type" : "object",
+      "properties" : {
+        "guid" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "The requested guid. This is added only for the implementation sake to be able to give the \"outcome\" details.Hence do not reference this field as to get guid details.",
+          "maxLength" : 50
+        },
+        "type" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "This is a new field added to populate the couchbase object type in every object of catalogue store. For Seasons, the value of type will be always \"Season\"",
+          "maxLength" : 50,
+          "default" : "Season"
+        },
+        "displayTitle" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "Customized display title provided to the client.",
+          "maxLength" : 1024
+        },
+        "title" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "atomic title"
+        },
+        "shortDescription" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "short synopsis of the season (equal to shortDescription in TvSeason object).",
+          "maxLength" : 2048
+        },
+        "longDescription" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "long synopsis of the season (equal to description in TvSeason object).   ",
+          "maxLength" : 2048
+        },
+        "packshotImageUrl" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "if there are multiple packshot images available then priority has to be given in the order of hiRes, HD and then SD, respective imageMediaId has to be obtained from programAvailability endpoint and then retrieve the image details from Media object. Refer to assetType in thumbnails while determining the image type."
+        },
+        "backgroundImageUrl" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "if there are multiple packshot images available then priority has to be given in the order of hiRes, HD and then SD, respective imageMediaId has to be obtained from programAvailability endpoint and then retrieve the image details from Media object. Refer to assetType in thumbnails while determining the image type."
+        },
+        "seasonNumber" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "equal to tvSeasonNumber in TvSeason object in MPX. This will be the season/series number as populated by schedulers.       "
+        },
+        "offerTypes" : {
+          "type" : "array",
+          "description" : "list of offer types such as SVOD/TVOD/STVOD/EST, this can be obtained from relatedProducts of respective program object. If the related Pro contains SVOD and TVOD with same productGuid reference, then that means the respective program is STVOD.",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "programGuids" : {
+          "type" : "array",
+          "description" : "list of episode program guids, respective episode program guids have to be obtained from TVDS associated to the given TvSeason guid.",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "productGuids" : {
+          "type" : "array",
+          "description" : "list of season program variant guids (i.e product guids), this has to be obtained from relatedProducts of TvSeason object in MPX.",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "parentInfo" : {
+          "$ref" : "#/definitions/parentInfo"
+        },
+        "year" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "release year of the season in epoch time format. "
+        },
+        "scodes" : {
+          "type" : "array",
+          "description" : "list of scodes of season.  ",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "genres" : {
+          "type" : "array",
+          "description" : "list of genres.      ",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "offerStartDate" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "offer start date of TvSeason as exists in TvSeason object in epoch time format."
+        },
+        "offerEndDate" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "offer end date of TvSeason as exists in TvSeason object in epoch time format."
+        },
+        "pricingStartDate" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "start date of availability of progrom to purchase. This is in epoch time format.."
+        },
+        "pricingEndDate" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "start date of availability of progrom to purchase.This is in epoch time format."
+        },
+        "schedulerChannels" : {
+          "type" : "array",
+          "description" : "scheduler channels of the season.",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "updatedAtSource" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "updated date time of the TvSeason object in MPX in epoch time format."
+        },
+        "contentProviderIDList" : {
+          "type" : "array",
+          "description" : "list of Content Provider Ids of the season.",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "created" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "created date time of the TvSeason object in Couchbase. This is returned in epoch time format."
+        },
+        "updated" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "updated date time of the TvSeason object in Couchbase This is returned in epoch time format."
+        }
+      },
+      "example" : {
+        "longDescription" : "longDescription",
+        "year" : 6,
+        "type" : "Season",
+        "title" : "title",
+        "schedulerChannels" : [ "schedulerChannels", "schedulerChannels" ],
+        "displayTitle" : "displayTitle",
+        "updatedAtSource" : 7,
+        "pricingStartDate" : 5,
+        "genres" : [ "genres", "genres" ],
+        "parentInfo" : {
+          "parentEditorialVersion" : "parentEditorialVersion",
+          "guid" : "guid",
+          "type" : "collection"
+        },
+        "offerStartDate" : 1,
+        "contentProviderIDList" : [ "contentProviderIDList", "contentProviderIDList" ],
+        "created" : 9,
+        "shortDescription" : "shortDescription",
+        "seasonNumber" : 0,
+        "packshotImageUrl" : "packshotImageUrl",
+        "pricingEndDate" : 2,
+        "programGuids" : [ "programGuids", "programGuids" ],
+        "offerTypes" : [ "offerTypes", "offerTypes" ],
+        "scodes" : [ "scodes", "scodes" ],
+        "guid" : "guid",
+        "productGuids" : [ "productGuids", "productGuids" ],
+        "updated" : 3,
+        "offerEndDate" : 5,
+        "backgroundImageUrl" : "backgroundImageUrl"
+      }
+    },
+    "seasonsTraverseDetails" : {
+      "type" : "object",
+      "properties" : {
+        "seasons" : {
+          "type" : "array",
+          "description" : "Season and it's brand catalogue details of all requested season guids.",
+          "items" : {
+            "$ref" : "#/definitions/seasonTraverseDetails"
+          }
+        },
+        "outcome" : {
+          "$ref" : "#/definitions/outcome"
+        }
+      },
+      "example" : {
+        "seasons" : [ {
+          "season" : {
+            "longDescription" : "longDescription",
+            "year" : 6,
+            "type" : "Season",
+            "title" : "title",
+            "schedulerChannels" : [ "schedulerChannels", "schedulerChannels" ],
+            "displayTitle" : "displayTitle",
+            "updatedAtSource" : 7,
+            "pricingStartDate" : 5,
+            "genres" : [ "genres", "genres" ],
+            "parentInfo" : {
+              "parentEditorialVersion" : "parentEditorialVersion",
+              "guid" : "guid",
+              "type" : "collection"
+            },
+            "offerStartDate" : 1,
+            "contentProviderIDList" : [ "contentProviderIDList", "contentProviderIDList" ],
+            "created" : 9,
+            "shortDescription" : "shortDescription",
+            "seasonNumber" : 0,
+            "packshotImageUrl" : "packshotImageUrl",
+            "pricingEndDate" : 2,
+            "programGuids" : [ "programGuids", "programGuids" ],
+            "offerTypes" : [ "offerTypes", "offerTypes" ],
+            "scodes" : [ "scodes", "scodes" ],
+            "guid" : "guid",
+            "productGuids" : [ "productGuids", "productGuids" ],
+            "updated" : 3,
+            "offerEndDate" : 5,
+            "backgroundImageUrl" : "backgroundImageUrl"
+          },
+          "brand" : {
+            "longDescription" : "longDescription",
+            "subGenres" : [ "subGenres", "subGenres" ],
+            "year" : 6,
+            "anchors" : [ {
+              "seasonGuid" : "seasonGuid",
+              "programGuid" : "programGuid",
+              "anchorId" : "anchorId",
+              "episodeNumber" : 6,
+              "anchorType" : "anchorType"
+            }, {
+              "seasonGuid" : "seasonGuid",
+              "programGuid" : "programGuid",
+              "anchorId" : "anchorId",
+              "episodeNumber" : 6,
+              "anchorType" : "anchorType"
+            } ],
+            "type" : "Brand",
+            "title" : "title",
+            "schedulerChannels" : [ "schedulerChannels", "schedulerChannels" ],
+            "displayTitle" : "displayTitle",
+            "updatedAtSource" : 6,
+            "pricingStartDate" : 9,
+            "genres" : [ "genres", "genres" ],
+            "carouselTags" : [ "carouselTags", "carouselTags" ],
+            "availableEndDate" : 5,
+            "offerStartDate" : 5,
+            "seasons" : [ {
+              "displayTitle" : "displayTitle",
+              "updatedAtSource" : 3,
+              "offerStartDate" : 9,
+              "offerTypes" : [ "offerTypes", "offerTypes" ],
+              "guid" : "guid",
+              "shortDescription" : "shortDescription",
+              "seasonNumber" : 8,
+              "offerEndDate" : 6
+            }, {
+              "displayTitle" : "displayTitle",
+              "updatedAtSource" : 3,
+              "offerStartDate" : 9,
+              "offerTypes" : [ "offerTypes", "offerTypes" ],
+              "guid" : "guid",
+              "shortDescription" : "shortDescription",
+              "seasonNumber" : 8,
+              "offerEndDate" : 6
+            } ],
+            "availableStartDate" : 6,
+            "contentProviderIDList" : [ "contentProviderIDList", "contentProviderIDList" ],
+            "created" : 1,
+            "shortDescription" : "shortDescription",
+            "packshotImageUrl" : "packshotImageUrl",
+            "pricingEndDate" : 6,
+            "straplineText" : "straplineText",
+            "offerTypes" : [ "offerTypes", "offerTypes" ],
+            "scodes" : [ "scodes", "scodes" ],
+            "guid" : "guid",
+            "updated" : 2,
+            "offerEndDate" : 9,
+            "backgroundImageUrl" : "backgroundImageUrl"
+          }
+        }, {
+          "season" : {
+            "longDescription" : "longDescription",
+            "year" : 6,
+            "type" : "Season",
+            "title" : "title",
+            "schedulerChannels" : [ "schedulerChannels", "schedulerChannels" ],
+            "displayTitle" : "displayTitle",
+            "updatedAtSource" : 7,
+            "pricingStartDate" : 5,
+            "genres" : [ "genres", "genres" ],
+            "parentInfo" : {
+              "parentEditorialVersion" : "parentEditorialVersion",
+              "guid" : "guid",
+              "type" : "collection"
+            },
+            "offerStartDate" : 1,
+            "contentProviderIDList" : [ "contentProviderIDList", "contentProviderIDList" ],
+            "created" : 9,
+            "shortDescription" : "shortDescription",
+            "seasonNumber" : 0,
+            "packshotImageUrl" : "packshotImageUrl",
+            "pricingEndDate" : 2,
+            "programGuids" : [ "programGuids", "programGuids" ],
+            "offerTypes" : [ "offerTypes", "offerTypes" ],
+            "scodes" : [ "scodes", "scodes" ],
+            "guid" : "guid",
+            "productGuids" : [ "productGuids", "productGuids" ],
+            "updated" : 3,
+            "offerEndDate" : 5,
+            "backgroundImageUrl" : "backgroundImageUrl"
+          },
+          "brand" : {
+            "longDescription" : "longDescription",
+            "subGenres" : [ "subGenres", "subGenres" ],
+            "year" : 6,
+            "anchors" : [ {
+              "seasonGuid" : "seasonGuid",
+              "programGuid" : "programGuid",
+              "anchorId" : "anchorId",
+              "episodeNumber" : 6,
+              "anchorType" : "anchorType"
+            }, {
+              "seasonGuid" : "seasonGuid",
+              "programGuid" : "programGuid",
+              "anchorId" : "anchorId",
+              "episodeNumber" : 6,
+              "anchorType" : "anchorType"
+            } ],
+            "type" : "Brand",
+            "title" : "title",
+            "schedulerChannels" : [ "schedulerChannels", "schedulerChannels" ],
+            "displayTitle" : "displayTitle",
+            "updatedAtSource" : 6,
+            "pricingStartDate" : 9,
+            "genres" : [ "genres", "genres" ],
+            "carouselTags" : [ "carouselTags", "carouselTags" ],
+            "availableEndDate" : 5,
+            "offerStartDate" : 5,
+            "seasons" : [ {
+              "displayTitle" : "displayTitle",
+              "updatedAtSource" : 3,
+              "offerStartDate" : 9,
+              "offerTypes" : [ "offerTypes", "offerTypes" ],
+              "guid" : "guid",
+              "shortDescription" : "shortDescription",
+              "seasonNumber" : 8,
+              "offerEndDate" : 6
+            }, {
+              "displayTitle" : "displayTitle",
+              "updatedAtSource" : 3,
+              "offerStartDate" : 9,
+              "offerTypes" : [ "offerTypes", "offerTypes" ],
+              "guid" : "guid",
+              "shortDescription" : "shortDescription",
+              "seasonNumber" : 8,
+              "offerEndDate" : 6
+            } ],
+            "availableStartDate" : 6,
+            "contentProviderIDList" : [ "contentProviderIDList", "contentProviderIDList" ],
+            "created" : 1,
+            "shortDescription" : "shortDescription",
+            "packshotImageUrl" : "packshotImageUrl",
+            "pricingEndDate" : 6,
+            "straplineText" : "straplineText",
+            "offerTypes" : [ "offerTypes", "offerTypes" ],
+            "scodes" : [ "scodes", "scodes" ],
+            "guid" : "guid",
+            "updated" : 2,
+            "offerEndDate" : 9,
+            "backgroundImageUrl" : "backgroundImageUrl"
+          }
+        } ],
+        "outcome" : {
+          "failedGuidInfo" : [ {
+            "reason" : "reason",
+            "guid" : "guid"
+          }, {
+            "reason" : "reason",
+            "guid" : "guid"
+          } ],
+          "numberOfRequestedGuids" : 1,
+          "numberOfRespondedGuids" : 6
+        }
+      }
+    },
+    "seasonTraverseDetails" : {
+      "type" : "object",
+      "properties" : {
+        "season" : {
+          "$ref" : "#/definitions/season"
+        },
+        "brand" : {
+          "$ref" : "#/definitions/brand"
+        }
+      },
+      "example" : {
+        "season" : {
+          "longDescription" : "longDescription",
+          "year" : 6,
+          "type" : "Season",
+          "title" : "title",
+          "schedulerChannels" : [ "schedulerChannels", "schedulerChannels" ],
+          "displayTitle" : "displayTitle",
+          "updatedAtSource" : 7,
+          "pricingStartDate" : 5,
+          "genres" : [ "genres", "genres" ],
+          "parentInfo" : {
+            "parentEditorialVersion" : "parentEditorialVersion",
+            "guid" : "guid",
+            "type" : "collection"
+          },
+          "offerStartDate" : 1,
+          "contentProviderIDList" : [ "contentProviderIDList", "contentProviderIDList" ],
+          "created" : 9,
+          "shortDescription" : "shortDescription",
+          "seasonNumber" : 0,
+          "packshotImageUrl" : "packshotImageUrl",
+          "pricingEndDate" : 2,
+          "programGuids" : [ "programGuids", "programGuids" ],
+          "offerTypes" : [ "offerTypes", "offerTypes" ],
+          "scodes" : [ "scodes", "scodes" ],
+          "guid" : "guid",
+          "productGuids" : [ "productGuids", "productGuids" ],
+          "updated" : 3,
+          "offerEndDate" : 5,
+          "backgroundImageUrl" : "backgroundImageUrl"
+        },
+        "brand" : {
+          "longDescription" : "longDescription",
+          "subGenres" : [ "subGenres", "subGenres" ],
+          "year" : 6,
+          "anchors" : [ {
+            "seasonGuid" : "seasonGuid",
+            "programGuid" : "programGuid",
+            "anchorId" : "anchorId",
+            "episodeNumber" : 6,
+            "anchorType" : "anchorType"
+          }, {
+            "seasonGuid" : "seasonGuid",
+            "programGuid" : "programGuid",
+            "anchorId" : "anchorId",
+            "episodeNumber" : 6,
+            "anchorType" : "anchorType"
+          } ],
+          "type" : "Brand",
+          "title" : "title",
+          "schedulerChannels" : [ "schedulerChannels", "schedulerChannels" ],
+          "displayTitle" : "displayTitle",
+          "updatedAtSource" : 6,
+          "pricingStartDate" : 9,
+          "genres" : [ "genres", "genres" ],
+          "carouselTags" : [ "carouselTags", "carouselTags" ],
+          "availableEndDate" : 5,
+          "offerStartDate" : 5,
+          "seasons" : [ {
+            "displayTitle" : "displayTitle",
+            "updatedAtSource" : 3,
+            "offerStartDate" : 9,
+            "offerTypes" : [ "offerTypes", "offerTypes" ],
+            "guid" : "guid",
+            "shortDescription" : "shortDescription",
+            "seasonNumber" : 8,
+            "offerEndDate" : 6
+          }, {
+            "displayTitle" : "displayTitle",
+            "updatedAtSource" : 3,
+            "offerStartDate" : 9,
+            "offerTypes" : [ "offerTypes", "offerTypes" ],
+            "guid" : "guid",
+            "shortDescription" : "shortDescription",
+            "seasonNumber" : 8,
+            "offerEndDate" : 6
+          } ],
+          "availableStartDate" : 6,
+          "contentProviderIDList" : [ "contentProviderIDList", "contentProviderIDList" ],
+          "created" : 1,
+          "shortDescription" : "shortDescription",
+          "packshotImageUrl" : "packshotImageUrl",
+          "pricingEndDate" : 6,
+          "straplineText" : "straplineText",
+          "offerTypes" : [ "offerTypes", "offerTypes" ],
+          "scodes" : [ "scodes", "scodes" ],
+          "guid" : "guid",
+          "updated" : 2,
+          "offerEndDate" : 9,
+          "backgroundImageUrl" : "backgroundImageUrl"
+        }
+      }
+    },
+    "seasonsInfo" : {
+      "type" : "object",
+      "properties" : {
+        "guid" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "Guid of the season.     ",
+          "maxLength" : 50
+        },
+        "displayTitle" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "Customized display title provided to the client.",
+          "maxLength" : 1024
+        },
+        "shortDescription" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "short synopsis of the season (equal to shortDescription in TvSeason object).  ",
+          "maxLength" : 2048
+        },
+        "seasonNumber" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "if the program is an episode, then this will be the respective tvSeasonNumber of the TvSeason object.  "
+        },
+        "offerTypes" : {
+          "type" : "array",
+          "description" : "list of offer types such as SVOD/TVOD/STVOD/EST, this can be obtained from relatedProducts of respective program object. If the related Pro contains SVOD and TVOD with same productGuid reference, then that means the respective program is STVOD.",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "offerStartDate" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "offer start date of the brand/collection/standalone program object, to be obtained from programAvailability endpoint. This is in epoch time format."
+        },
+        "offerEndDate" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "offer end date of the brand/collection/standalone program object, to be obtained from programAvailability endpoint. This is in epoch time format.    "
+        },
+        "updatedAtSource" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "updated date time of the object in MPX in epoch time format.    "
+        }
+      },
+      "example" : {
+        "displayTitle" : "displayTitle",
+        "updatedAtSource" : 3,
+        "offerStartDate" : 9,
+        "offerTypes" : [ "offerTypes", "offerTypes" ],
+        "guid" : "guid",
+        "shortDescription" : "shortDescription",
+        "seasonNumber" : 8,
+        "offerEndDate" : 6
+      }
+    },
+    "brandsDetails" : {
+      "type" : "object",
+      "properties" : {
+        "brands" : {
+          "type" : "array",
+          "description" : "Brand catalogue details of all requested brand guids.",
+          "items" : {
+            "$ref" : "#/definitions/brand"
+          }
+        },
+        "outcome" : {
+          "$ref" : "#/definitions/outcome"
+        }
+      },
+      "example" : {
+        "brands" : [ {
+          "longDescription" : "longDescription",
+          "subGenres" : [ "subGenres", "subGenres" ],
+          "year" : 6,
+          "anchors" : [ {
+            "seasonGuid" : "seasonGuid",
+            "programGuid" : "programGuid",
+            "anchorId" : "anchorId",
+            "episodeNumber" : 6,
+            "anchorType" : "anchorType"
+          }, {
+            "seasonGuid" : "seasonGuid",
+            "programGuid" : "programGuid",
+            "anchorId" : "anchorId",
+            "episodeNumber" : 6,
+            "anchorType" : "anchorType"
+          } ],
+          "type" : "Brand",
+          "title" : "title",
+          "schedulerChannels" : [ "schedulerChannels", "schedulerChannels" ],
+          "displayTitle" : "displayTitle",
+          "updatedAtSource" : 6,
+          "pricingStartDate" : 9,
+          "genres" : [ "genres", "genres" ],
+          "carouselTags" : [ "carouselTags", "carouselTags" ],
+          "availableEndDate" : 5,
+          "offerStartDate" : 5,
+          "seasons" : [ {
+            "displayTitle" : "displayTitle",
+            "updatedAtSource" : 3,
+            "offerStartDate" : 9,
+            "offerTypes" : [ "offerTypes", "offerTypes" ],
+            "guid" : "guid",
+            "shortDescription" : "shortDescription",
+            "seasonNumber" : 8,
+            "offerEndDate" : 6
+          }, {
+            "displayTitle" : "displayTitle",
+            "updatedAtSource" : 3,
+            "offerStartDate" : 9,
+            "offerTypes" : [ "offerTypes", "offerTypes" ],
+            "guid" : "guid",
+            "shortDescription" : "shortDescription",
+            "seasonNumber" : 8,
+            "offerEndDate" : 6
+          } ],
+          "availableStartDate" : 6,
+          "contentProviderIDList" : [ "contentProviderIDList", "contentProviderIDList" ],
+          "created" : 1,
+          "shortDescription" : "shortDescription",
+          "packshotImageUrl" : "packshotImageUrl",
+          "pricingEndDate" : 6,
+          "straplineText" : "straplineText",
+          "offerTypes" : [ "offerTypes", "offerTypes" ],
+          "scodes" : [ "scodes", "scodes" ],
+          "guid" : "guid",
+          "updated" : 2,
+          "offerEndDate" : 9,
+          "backgroundImageUrl" : "backgroundImageUrl"
+        }, {
+          "longDescription" : "longDescription",
+          "subGenres" : [ "subGenres", "subGenres" ],
+          "year" : 6,
+          "anchors" : [ {
+            "seasonGuid" : "seasonGuid",
+            "programGuid" : "programGuid",
+            "anchorId" : "anchorId",
+            "episodeNumber" : 6,
+            "anchorType" : "anchorType"
+          }, {
+            "seasonGuid" : "seasonGuid",
+            "programGuid" : "programGuid",
+            "anchorId" : "anchorId",
+            "episodeNumber" : 6,
+            "anchorType" : "anchorType"
+          } ],
+          "type" : "Brand",
+          "title" : "title",
+          "schedulerChannels" : [ "schedulerChannels", "schedulerChannels" ],
+          "displayTitle" : "displayTitle",
+          "updatedAtSource" : 6,
+          "pricingStartDate" : 9,
+          "genres" : [ "genres", "genres" ],
+          "carouselTags" : [ "carouselTags", "carouselTags" ],
+          "availableEndDate" : 5,
+          "offerStartDate" : 5,
+          "seasons" : [ {
+            "displayTitle" : "displayTitle",
+            "updatedAtSource" : 3,
+            "offerStartDate" : 9,
+            "offerTypes" : [ "offerTypes", "offerTypes" ],
+            "guid" : "guid",
+            "shortDescription" : "shortDescription",
+            "seasonNumber" : 8,
+            "offerEndDate" : 6
+          }, {
+            "displayTitle" : "displayTitle",
+            "updatedAtSource" : 3,
+            "offerStartDate" : 9,
+            "offerTypes" : [ "offerTypes", "offerTypes" ],
+            "guid" : "guid",
+            "shortDescription" : "shortDescription",
+            "seasonNumber" : 8,
+            "offerEndDate" : 6
+          } ],
+          "availableStartDate" : 6,
+          "contentProviderIDList" : [ "contentProviderIDList", "contentProviderIDList" ],
+          "created" : 1,
+          "shortDescription" : "shortDescription",
+          "packshotImageUrl" : "packshotImageUrl",
+          "pricingEndDate" : 6,
+          "straplineText" : "straplineText",
+          "offerTypes" : [ "offerTypes", "offerTypes" ],
+          "scodes" : [ "scodes", "scodes" ],
+          "guid" : "guid",
+          "updated" : 2,
+          "offerEndDate" : 9,
+          "backgroundImageUrl" : "backgroundImageUrl"
+        } ],
+        "outcome" : {
+          "failedGuidInfo" : [ {
+            "reason" : "reason",
+            "guid" : "guid"
+          }, {
+            "reason" : "reason",
+            "guid" : "guid"
+          } ],
+          "numberOfRequestedGuids" : 1,
+          "numberOfRespondedGuids" : 6
+        }
+      }
+    },
+    "brand" : {
+      "type" : "object",
+      "properties" : {
+        "guid" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "The requested guid. This is added only for the implementation sake to be able to give the \"outcome\" details.Hence do not reference this field as to get guid details.",
+          "maxLength" : 50
+        },
+        "type" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "This is a new field added to populate the couchbase object type in every object of catalogue store. For brands, the value of type will be always \"Brand\"",
+          "maxLength" : 50,
+          "default" : "Brand"
+        },
+        "displayTitle" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "Customized display title provided to the client.",
+          "maxLength" : 1024
+        },
+        "title" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "atomic title"
+        },
+        "shortDescription" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "short synopsis of the brand (equal to shortDescription in brand object).",
+          "maxLength" : 2048
+        },
+        "longDescription" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "long synopsis of the brand (equal to description in brand object).    ",
+          "maxLength" : 2048
+        },
+        "packshotImageUrl" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "if there are multiple packshot images available then priority has to be given in the order of hiRes, HD and then SD, respective imageMediaId has to be obtained from programAvailability endpoint and then retrieve the image details from Media object. Refer to assetType in thumbnails while determining the image type."
+        },
+        "backgroundImageUrl" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "if there are multiple packshot images available then priority has to be given in the order of hiRes, HD and then SD, respective imageMediaId has to be obtained from programAvailability endpoint and then retrieve the image details from Media object. Refer to assetType in thumbnails while determining the image type."
+        },
+        "straplineText" : {
+          "type" : "string",
+          "description" : "this will equal to key in contextualTags custom field in brand/collection/standalone program object in MPX.",
+          "maxLength" : 256
+        },
+        "offerTypes" : {
+          "type" : "array",
+          "description" : "list of offer types such as SVOD/TVOD/STVOD/EST, this can be obtained from relatedProducts of respective program object. If the related Pro contains SVOD and TVOD with same productGuid reference, then that means the respective program is STVOD.",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "offerStartDate" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "offer start date of the brand/collection/standalone program object, to be obtained from programAvailability endpoint. This is in epoch time format."
+        },
+        "offerEndDate" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "offer end date of the brand/collection/standalone program object, to be obtained from programAvailability endpoint. This is in epoch time format."
+        },
+        "pricingStartDate" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "start date of availability of progrom to purchase. This is in epoch time format.."
+        },
+        "pricingEndDate" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "start date of availability of progrom to purchase.This is in epoch time format."
+        },
+        "scodes" : {
+          "type" : "array",
+          "description" : "list of scodes of the brand.",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "genres" : {
+          "type" : "array",
+          "description" : "list of genres. ",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "seasons" : {
+          "type" : "array",
+          "description" : "Seasons of the brand",
+          "items" : {
+            "$ref" : "#/definitions/seasonsInfo"
+          }
+        },
+        "anchors" : {
+          "type" : "array",
+          "description" : "default anchor, subscribed and CP related anchors are applicable for brands and collections.",
+          "items" : {
+            "$ref" : "#/definitions/anchorsInfo"
+          }
+        },
+        "updatedAtSource" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "updated date time of the brand object in MPX in epoch time format."
+        },
+        "created" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "created date time of the brand object in Couchbase.This is returned in epoch time format."
+        },
+        "updated" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "updated date time of the brand object in Couchbase.This is returned in epoch time format."
+        },
+        "carouselTags" : {
+          "type" : "array",
+          "description" : "list of carousel tags available for the given brand.",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "contentProviderIDList" : {
+          "type" : "array",
+          "description" : "list of Content Provider Ids of the brand.",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "schedulerChannels" : {
+          "type" : "array",
+          "description" : "scheduler channels of the brand.",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "subGenres" : {
+          "type" : "array",
+          "description" : "list of sub genres available for the given brand.",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "year" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "release year of the program in epoch time format."
+        },
+        "availableStartDate" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "This is the available start date or license start of the Brand in epoch time format."
+        },
+        "availableEndDate" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "This is the available end date or license end date of the Brand in epoch time format."
+        }
+      },
+      "example" : {
+        "longDescription" : "longDescription",
+        "subGenres" : [ "subGenres", "subGenres" ],
+        "year" : 6,
+        "anchors" : [ {
+          "seasonGuid" : "seasonGuid",
+          "programGuid" : "programGuid",
+          "anchorId" : "anchorId",
+          "episodeNumber" : 6,
+          "anchorType" : "anchorType"
+        }, {
+          "seasonGuid" : "seasonGuid",
+          "programGuid" : "programGuid",
+          "anchorId" : "anchorId",
+          "episodeNumber" : 6,
+          "anchorType" : "anchorType"
+        } ],
+        "type" : "Brand",
+        "title" : "title",
+        "schedulerChannels" : [ "schedulerChannels", "schedulerChannels" ],
+        "displayTitle" : "displayTitle",
+        "updatedAtSource" : 6,
+        "pricingStartDate" : 9,
+        "genres" : [ "genres", "genres" ],
+        "carouselTags" : [ "carouselTags", "carouselTags" ],
+        "availableEndDate" : 5,
+        "offerStartDate" : 5,
+        "seasons" : [ {
+          "displayTitle" : "displayTitle",
+          "updatedAtSource" : 3,
+          "offerStartDate" : 9,
+          "offerTypes" : [ "offerTypes", "offerTypes" ],
+          "guid" : "guid",
+          "shortDescription" : "shortDescription",
+          "seasonNumber" : 8,
+          "offerEndDate" : 6
+        }, {
+          "displayTitle" : "displayTitle",
+          "updatedAtSource" : 3,
+          "offerStartDate" : 9,
+          "offerTypes" : [ "offerTypes", "offerTypes" ],
+          "guid" : "guid",
+          "shortDescription" : "shortDescription",
+          "seasonNumber" : 8,
+          "offerEndDate" : 6
+        } ],
+        "availableStartDate" : 6,
+        "contentProviderIDList" : [ "contentProviderIDList", "contentProviderIDList" ],
+        "created" : 1,
+        "shortDescription" : "shortDescription",
+        "packshotImageUrl" : "packshotImageUrl",
+        "pricingEndDate" : 6,
+        "straplineText" : "straplineText",
+        "offerTypes" : [ "offerTypes", "offerTypes" ],
+        "scodes" : [ "scodes", "scodes" ],
+        "guid" : "guid",
+        "updated" : 2,
+        "offerEndDate" : 9,
+        "backgroundImageUrl" : "backgroundImageUrl"
+      }
+    },
+    "subtitleInfo" : {
+      "type" : "object",
+      "properties" : {
+        "path" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "This is the path   of the subtitle file. This will be absolute path of the respective file from   where the client can retrieve the subtitle file.",
+          "maxLength" : 256
+        },
+        "language" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "this will be the   value of language used for the subtitle in the subtitle file.",
+          "maxLength" : 25
+        }
+      },
+      "example" : {
+        "path" : "path",
+        "language" : "language"
+      }
+    },
+    "audioTrackInfo" : {
+      "type" : "object",
+      "properties" : {
+        "trackNumber" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "this will be the   number of the track in the audio. eg. 6"
+        },
+        "language" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "this will be the   value of language used for the subtitle in the subtitle file.",
+          "maxLength" : 25
+        },
+        "mixType" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "type of the audio   mix. eg. stereo.",
+          "maxLength" : 30
+        },
+        "purpose" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "this will be the   description for the audio track.",
+          "maxLength" : 256
+        },
+        "type" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "this represents   the type of the audio track. eg. background.",
+          "maxLength" : 25
+        }
+      },
+      "example" : {
+        "mixType" : "mixType",
+        "trackNumber" : 4,
+        "purpose" : "purpose",
+        "language" : "language",
+        "type" : "type"
+      }
+    },
+    "overarchingInfo" : {
+      "type" : "object",
+      "properties" : {
+        "type" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "Type of the product overarching.",
+          "maxLength" : 10,
+          "enum" : [ "program", "collection", "season" ]
+        },
+        "guid" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "editorialVersion of the product.",
+          "maxLength" : 50
+        }
+      },
+      "example" : {
+        "guid" : "guid",
+        "type" : "program"
+      }
+    },
+    "products" : {
+      "properties" : {
+        "products" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/product"
+          }
+        }
+      }
+    },
+    "guid" : {
+      "properties" : {
+        "programs" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/program"
+          }
+        }
+      }
+    },
+    "guid_1" : {
+      "properties" : {
+        "collections" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/collection"
+          }
+        }
+      }
+    },
+    "guid_2" : {
+      "properties" : {
+        "seasons" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/season"
+          }
+        }
+      }
+    },
+    "guid_3" : {
+      "properties" : {
+        "brands" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/brand"
+          }
+        }
+      }
+    }
+  }
+}
