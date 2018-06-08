@@ -1,0 +1,3527 @@
+{
+  "swagger" : "2.0",
+  "info" : {
+    "description" : "Metadata Discovery and Syndication Service API is a suite of API for Content Discovery. Offers API for retrieving Discovery Feed that can be used to buid Carousels, Brand Details, Group Details, Program Details and Search for the Top Level Items.",
+    "version" : "6.17",
+    "title" : "Metadata Discovery & Syndication Service API Specification",
+    "contact" : {
+      "name" : "Vijaya Mitnala",
+      "email" : "vijaya.mitnala@bt.com"
+    }
+  },
+  "host" : "contentdata.vision.bt.com",
+  "basePath" : "/mdss/V6.0",
+  "schemes" : [ "https" ],
+  "consumes" : [ "application/json" ],
+  "produces" : [ "application/json" ],
+  "paths" : {
+    "/groupDetails" : {
+      "get" : {
+        "summary" : "get Group details in content discovery",
+        "description" : "This API need to be used to retrieve the details of a season or collection and its associated episode details. This API will return the results by obtaining the season and collection details from MPX. This API doesn’t obtain and as well as return anything from recommendations engine for the group details.",
+        "parameters" : [ {
+          "name" : "X-BT-personalizationSetting",
+          "in" : "header",
+          "description" : "This header parameter will set by STM to trigger MDSS to operated in reduced personalization mode.MDSS in reduced personalization mode will provide only SVOD entitlements. For Seasons and Collections only subscription entitlements will be returned. For programs under the season and collection only subscription entitlements will be returned without - favourites and continue watching information.Value of the header parameter set by STM will be ENT:SVOD|FAV:N|CW:N|REC:N .Value has to be decoded as ENT as Entitlements, FAV as Favourites,CW as Continue Watching,REC as Recommendations.The above value indicates SVOD Entitlements and no Favourites and Continue watching",
+          "required" : false,
+          "type" : "string",
+          "maxLength" : 50,
+          "format" : "string"
+        }, {
+          "name" : "X-BT-correlationId",
+          "in" : "header",
+          "description" : "This has to be a UNIQUE reference for each and every request sent from calling system.This SHOULD NOT be duplicated across the requests.The format of this value should <epoch time in milliseconds>:Partner Id (ESN).Example 1489735101000:YVWBT-DT10-08881343-beed-46c4-b81e-753accddf4e8",
+          "required" : true,
+          "type" : "string",
+          "maxLength" : 150,
+          "format" : "string"
+        }, {
+          "name" : "User-Agent",
+          "in" : "header",
+          "description" : "HTML5 will send the hardware and youview PS version in this field. It doesn’t include the HTML5 App version for now.",
+          "required" : true,
+          "type" : "string",
+          "maxLength" : 10,
+          "format" : "string"
+        }, {
+          "name" : "btToken",
+          "in" : "query",
+          "description" : "This is the authentication token that would have been supplied by NGDA as part of association of the App. This token will be used to authenticate and authorize the device to return the appropriate catalogue data.Bt Token is being made optional to support Anonymous users of  TV App Clients.The existing MDSS will be accepting btToken value in both Header for STBs  and URL param for TV App Devices. In future, this value will accepted only as part of URL Parameters.",
+          "required" : false,
+          "type" : "string",
+          "maxLength" : 1024,
+          "format" : "string"
+        }, {
+          "name" : "context",
+          "in" : "query",
+          "description" : "This represents   the context (for eg. Carousel in a screen) for which the request is made to retrieve the metadata. This will be set by NavMan for the given carousel as per the examples below.Eg. highlights-recommended, highlights-lastchancetowatch, etc Note this will be used for MIS and as well as to assess the recommendations and identify the details such as areas of UI that are most used, menus or carousels that are not used widely, etc.This will also help to update the personalization rules for the given   carousels to refine the recommendations results.In case of Anonymous Users, any specific value that indicates that the request indicates an anonymous user hit should be sent.Eg highlights-recommended_anonymous",
+          "required" : true,
+          "type" : "string",
+          "maxLength" : 1048,
+          "format" : "string"
+        }, {
+          "name" : "guid",
+          "in" : "query",
+          "description" : "this is the unique   identifier of the season or collection for which the respective episodes or items  have to be retrieved",
+          "required" : true,
+          "type" : "string",
+          "maxLength" : 50,
+          "format" : "string"
+        }, {
+          "name" : "type",
+          "in" : "query",
+          "description" : "this represents   the type of the group for which the details have to be obtained.allowed values are  SEASON, COLLECTION",
+          "required" : true,
+          "type" : "string",
+          "maxLength" : 10,
+          "format" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful Response and will be sent in the following scenarios  1. The matching data is found for the given input and all the results will be sent in the response    2. when the matching data is not found for the given input and the response will contain gdResponse but no programs field",
+            "schema" : {
+              "$ref" : "#/definitions/inline_response_200"
+            },
+            "headers" : {
+              "s-maxage" : {
+                "type" : "integer",
+                "description" : "Duration in seconds that the response must be cached.For Logged in Users it should be 0 sec and for Anonymous users it should be 3600 sec"
+              },
+              "cache-control" : {
+                "type" : "string",
+                "description" : "may be cached in public shared caches",
+                "default" : "public"
+              },
+              "max-age" : {
+                "type" : "integer",
+                "description" : "Indicates that the client is willing to accept a response whose age is no greater than the specified time in seconds.0 sec for logged in users and 3600 sec for anonymous users"
+              },
+              "no-transform" : {
+                "type" : "string",
+                "description" : "no-transform directive indicates that intermediate cache or proxy MUST NOT change the header values set",
+                "default" : "no-transform"
+              }
+            }
+          },
+          "400" : {
+            "description" : "bad parameter .This is returned even if mandatory parameters are missing."
+          },
+          "404" : {
+            "description" : "No Data Found.This will be   returned by STM when the particular resource url is not found or not valid."
+          },
+          "415" : {
+            "description" : "unsupported media type. This will be returned from MDSS when the media type sent in the request header is not   supported."
+          },
+          "500" : {
+            "description" : "service exception. This error will be returned when there is an issue within MDSS component such as configuration missing, issue in reaching to external services to fulfill the logic for the response and MDSS is not able to perform the logic successfully."
+          },
+          "503" : {
+            "description" : "service unavailable.This will be returned from STM in case MDSS is busy and not able to serve the requests or   STM is not able to retrieve the response from MDSS within the configured time."
+          }
+        }
+      }
+    },
+    "/programDetails" : {
+      "get" : {
+        "description" : "Provides Program details for the requested program Guid",
+        "parameters" : [ {
+          "name" : "X-BT-personalizationSetting",
+          "in" : "header",
+          "description" : "This header parameter will set by STM to trigger MDSS to operated in            reduced personalization mode.MDSS in reduced personalization mode will provide only SVOD entitlements.For Seasons and Collections only subscription entitlements will be returned. For programs under the season and collection only subscription entitlements will be returned without favourites and continue watching information.Value of the header parameter set by STM will be ENT:SVOD|FAV:N|CW:N|REC:N .Value has to be decoded as ENT as Entitlements,FAV as Favourites,CW as Continue Watching,REC as Recommendations.The above value indicates SVOD Entitlements and no Favourites and Continue watching",
+          "required" : false,
+          "type" : "string",
+          "maxLength" : 50,
+          "format" : "string"
+        }, {
+          "name" : "X-BT-correlationId",
+          "in" : "header",
+          "description" : "This has to be a UNIQUE reference for each and every request sent from calling system.This SHOULD NOT be duplicated across the requests.The format of this value should <epoch time in milliseconds>:Partner Id (ESN).Example 1489735101000:YVWBT-DT10-08881343-beed-46c4-b81e-753accddf4e8",
+          "required" : true,
+          "type" : "string",
+          "maxLength" : 150,
+          "format" : "string"
+        }, {
+          "name" : "User-Agent",
+          "in" : "header",
+          "description" : "HTML5 will send the hardware and   youview PS version in this field. It doesn’t include the HTML5 App version   for now.",
+          "required" : true,
+          "type" : "string",
+          "maxLength" : 10,
+          "format" : "string"
+        }, {
+          "name" : "btToken",
+          "in" : "query",
+          "description" : "This is the authentication token that would have been supplied by NGDA as part of association of the App. This token will be used to authenticate and authorize the device to return the appropriate catalogue data.Bt Token is being made optional to support Anonymous users of TV App Clients.The existing MDSS will be accepting btToken value in both Header for STBs  and URL param for TV App Devices. In future, this value will accepted only as part of URL Parameters.",
+          "required" : false,
+          "type" : "string",
+          "maxLength" : 1024,
+          "format" : "string"
+        }, {
+          "name" : "programGuid",
+          "in" : "query",
+          "description" : "guid of the   program for which the details have to be obtained",
+          "required" : true,
+          "type" : "string",
+          "maxLength" : 50,
+          "format" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful Response and will be sent in the following scenarios  1. The matching data is found for the given input and all the results will be sent in the response    2. when the matching data is not found for the given input and the response will contain pdResponse but no programs field",
+            "schema" : {
+              "$ref" : "#/definitions/inline_response_200_1"
+            },
+            "headers" : {
+              "s-maxage" : {
+                "type" : "integer",
+                "description" : "Duration in seconds that the response must be cached.For Logged in Users it should be 300 sec and for Anonymous users it should be 3600 sec"
+              },
+              "cache-control" : {
+                "type" : "string",
+                "description" : "may be cached in public shared caches",
+                "default" : "public"
+              },
+              "max-age" : {
+                "type" : "integer",
+                "description" : "Indicates that the client is willing to accept a response whose age is no greater than the specified time in seconds"
+              },
+              "no-transform" : {
+                "type" : "string",
+                "description" : "no-transform directive indicates that intermediate cache or proxy MUST NOT change the header values set",
+                "default" : "no-transform"
+              }
+            }
+          },
+          "400" : {
+            "description" : "bad parameter .This is returned even if mandatory parameters are missing."
+          },
+          "404" : {
+            "description" : "No Data Found.This will be   returned by STM when the particular resource url is not found or not valid."
+          },
+          "415" : {
+            "description" : "unsupported media type. This will be returned from MDSS when the media type sent in the request header is not   supported."
+          },
+          "500" : {
+            "description" : "service exception. This error will be returned when there is an issue within MDSS component such as configuration missing, issue in reaching to external services to fulfill the logic for the response and MDSS is not able to perform the logic successfully."
+          },
+          "503" : {
+            "description" : "service unavailable.This will be returned from STM in case MDSS is busy and not able to serve the requests or   STM is not able to retrieve the response from MDSS within the configured time."
+          }
+        }
+      }
+    },
+    "/brandDetails" : {
+      "get" : {
+        "description" : "Provides Brand details for the requested brand Guid",
+        "parameters" : [ {
+          "name" : "X-BT-personalizationSetting",
+          "in" : "header",
+          "description" : "This header parameter will set by STM to trigger MDSS to operated in reduced personalization mode.MDSS in reduced personalization mode ill provide only SVOD entitlements. For Seasons and Collections only subscription entitlements will be returned. For programs under the season and collection only subscription entitlements will be returned without - favourites and continue watching information.Value of the header parameter set by STM will be ENT:SVOD|FAV:N|CW:N|REC:N .Value has to be decoded as ENT as Entitlements, FAV as Favourites,CW as Continue Watching,REC as Recommendations.The above value indicates SVOD Entitlements and no Favourites and Continue watching",
+          "required" : false,
+          "type" : "string",
+          "maxLength" : 50,
+          "format" : "string"
+        }, {
+          "name" : "X-BT-correlationId",
+          "in" : "header",
+          "description" : "This has to be a UNIQUE reference for each and every request sent from calling system.This SHOULD NOT be duplicated across the requests.The format of this value should <epoch time in milliseconds>:Partner Id (ESN).Example 1489735101000:YVWBT-DT10-08881343-beed-46c4-b81e-753accddf4e8",
+          "required" : true,
+          "type" : "string",
+          "maxLength" : 150,
+          "format" : "string"
+        }, {
+          "name" : "User-Agent",
+          "in" : "header",
+          "description" : "HTML5 will send the hardware and youview PS version in this field. It doesn’t include the HTML5 App version for now.",
+          "required" : true,
+          "type" : "string",
+          "maxLength" : 10,
+          "format" : "string"
+        }, {
+          "name" : "btToken",
+          "in" : "query",
+          "description" : "This is the authentication token that would have been supplied by NGDA as part of association of the App.This token will be used to authenticate and authorize the device to return the appropriate catalogue data.Bt Token is being made optional to support Anonymous users of  TV App Clients.The existing MDSS will be accepting btToken value in both Header for STBs  and URL param for TV App Devices. In future, this value will accepted only as part of URL Parameters.",
+          "required" : false,
+          "type" : "string",
+          "maxLength" : 1024,
+          "format" : "string"
+        }, {
+          "name" : "context",
+          "in" : "query",
+          "description" : "This represents the context (for eg. Carousel in a screen) for which the request is made to retrieve the metadata. This will be set by NavMan for the given carousel as per the examples below.Eg. highlights-recommended, highlights-lastchancetowatch, etc Note this will be used for MIS and as well as to assess the recommendations and identify the details such as areas of UI that are most used, menus or carousels that are not used widely, etc.This will also help to update the personalization rules for the given   carousels to refine the recommendations results.In case of Anonymous Users, any specific value that indicates that the request indicates an anonymous user hit should be sent.Eg highlights-recommended_anonymous",
+          "required" : true,
+          "type" : "string",
+          "maxLength" : 1048,
+          "format" : "string"
+        }, {
+          "name" : "brandGuid",
+          "in" : "query",
+          "description" : "this is the unique identifier of the brand for which the respective seasons have to be retrieved",
+          "required" : true,
+          "type" : "string",
+          "maxLength" : 50,
+          "format" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful Response and will be sent in the following scenarios  1. The matching data is found for the given input and all the results will be sent in the response    2. when the matching data is not found for the given input and the response will contain gdResponse but no programs field",
+            "schema" : {
+              "$ref" : "#/definitions/inline_response_200_2"
+            },
+            "headers" : {
+              "s-maxage" : {
+                "type" : "integer",
+                "description" : "Duration in seconds that the response must be cached.For Logged in Users it should be 0 sec and for Anonymous users it should be 3600 sec"
+              },
+              "cache-control" : {
+                "type" : "string",
+                "description" : "may be cached in public shared caches",
+                "default" : "public"
+              },
+              "max-age" : {
+                "type" : "integer",
+                "description" : "Indicates that the client is willing to accept a response whose age is no greater than the specified time in seconds.0 sec for logged in users and 3600 sec for anonymous users"
+              },
+              "no-transform" : {
+                "type" : "string",
+                "description" : "no-transform directive indicates that intermediate cache or proxy MUST NOT change the header values set",
+                "default" : "no-transform"
+              }
+            }
+          },
+          "400" : {
+            "description" : "bad parameter .This is returned even if mandatory parameters are missing."
+          },
+          "404" : {
+            "description" : "No Data Found.This will be   returned by STM when the particular resource url is not found or not valid."
+          },
+          "415" : {
+            "description" : "unsupported media type. This will be returned from MDSS when the media type sent in the request header is not   supported."
+          },
+          "500" : {
+            "description" : "service exception. This error will be returned when there is an issue within MDSS component such as configuration missing, issue in reaching to external services to fulfill the logic for the response and MDSS is not able to perform the logic successfully."
+          },
+          "503" : {
+            "description" : "service unavailable.This will be returned from STM in case MDSS is busy and not able to serve the requests or   STM is not able to retrieve the response from MDSS within the configured time."
+          }
+        }
+      }
+    },
+    "/findTLIs" : {
+      "get" : {
+        "description" : "Returns the top level items such as Brand, Collection or Standalone program matching the search string and the criteria passed.",
+        "parameters" : [ {
+          "name" : "X-BT-correlationId",
+          "in" : "header",
+          "description" : "This has to be a UNIQUE reference for each and every request sent from calling system.This SHOULD NOT be duplicated across the requests.The format of this value should <epoch time in milliseconds>:<deviceId> Eg. '1452783755918 :prod-trusted/4108940' NavMan will set the placeholder for this in the url and Client will populate the value with time in milliseconds (unix epoch time format) and deviceId obtained in the response from associate.",
+          "required" : true,
+          "type" : "string",
+          "maxLength" : 150,
+          "format" : "string"
+        }, {
+          "name" : "User-Agent",
+          "in" : "header",
+          "description" : "HTML5 will send the hardware and youview PS version in this field. It doesn’t include the HTML5 App version for now.",
+          "required" : true,
+          "type" : "string",
+          "maxLength" : 10,
+          "format" : "string"
+        }, {
+          "name" : "btToken",
+          "in" : "query",
+          "description" : "This is the authentication token that would have been supplied by NGDA as part of association of the App.This token will be used to authenticate and authorize the device to return the appropriate catalogue data.Bt Token is being made optional to support Anonymous users of  TV App Clients.The existing MDSS will be accepting btToken value in both Header for STBs  and URL param for TV App Devices. In future, this value will accepted only as part of URL Parameters.",
+          "required" : false,
+          "type" : "string",
+          "maxLength" : 1024,
+          "format" : "string"
+        }, {
+          "name" : "start",
+          "in" : "query",
+          "description" : "This is the starting offset from where the results have to be provided in the response appropriately for the given request details. The least starting point will be 1. This needs to be sent especially when there is a pagination to be applied for a given carousel. If there is no pagination required then this field need not to be sent by Client. start and end parameters should be sent together always. If either of them alone is sent in the request then MSS will return 1 to 20 by default. If the value of start is sent as 0 If the values of start and end index are passed  as 0, we return only the count of the items matching the search criteria instead of actual metadata results of the items being request.",
+          "required" : false,
+          "type" : "number",
+          "maximum" : 5,
+          "format" : "integer"
+        }, {
+          "name" : "end",
+          "in" : "query",
+          "description" : "This needs to be sent by the Client to indicate the end of results from start offset. This has to be there when start is given. If this is sent without start then it will be used to return the maximum number of items equal to end. NavMan will set how many maximum programs that can fit in carousels in a page. Accordingly Client will send this value in the request in order to perform pagination. NavMan should set the end value in multiples of 20. For eg. start=1, end=20 and then the subsequent page request must send start=21 and end=40 start and end parameters should be sent together always. If either of them alone is sent in the request then MSS will return 1 to 20 by default. If the values of start and end index are passed as 0, we return only the count of the items matching the search criteria instead of actual metadata results of the items being request.",
+          "required" : false,
+          "type" : "number",
+          "maximum" : 5,
+          "format" : "integer"
+        }, {
+          "name" : "schema",
+          "in" : "query",
+          "description" : "schema parameter determines the version of the API. For TV APP Clients, schema parameter is mandatory and value must be 1.1 or above. For STB Clients, it is optional and if not passed will be defaulted to 1.0.",
+          "required" : false,
+          "type" : "number",
+          "maximum" : 3,
+          "format" : "decimal"
+        }, {
+          "name" : "byTags",
+          "in" : "query",
+          "description" : "This is the search criteria using which the top level items have to be found. Any one of the following search tags should be sent in the request. 1. title: this is the title of the top level item for which search has to be done. 2. personName: this is the name of the person from cast&crew belonging to the top level item for which the search has to be done Note: At a time ONLY ONE TAG has to be sent in a request. Usage: &byTags={tagName,tagValue} Sample: &byTags={title,pig} &byTags={personName,Cillian Murphy}",
+          "required" : true,
+          "type" : "string",
+          "maxLength" : 250,
+          "format" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful Response and will be sent in the following scenarios  1. The matching data is found for the given input and all the results will be sent in the response    2. when the matching data is not found for the given input and the response will contain gdResponse but no programs field",
+            "schema" : {
+              "$ref" : "#/definitions/inline_response_200_3"
+            },
+            "headers" : {
+              "s-maxage" : {
+                "type" : "integer",
+                "description" : "Duration in seconds that the response must be cached.For Logged in Users it should be 0 sec and for Anonymous users it should be 3600 sec"
+              },
+              "cache-control" : {
+                "type" : "string",
+                "description" : "may be cached in public shared caches",
+                "default" : "public"
+              },
+              "max-age" : {
+                "type" : "integer",
+                "description" : "Indicates that the client is willing to accept a response whose age is no greater than the specified time in seconds.0 sec for logged in users and 3600 sec for anonymous users"
+              },
+              "no-transform" : {
+                "type" : "string",
+                "description" : "no-transform directive indicates that intermediate cache or proxy MUST NOT change the header values set",
+                "default" : "no-transform"
+              }
+            }
+          },
+          "400" : {
+            "description" : "bad parameter .This is returned even if mandatory parameters are missing."
+          },
+          "404" : {
+            "description" : "No Data Found.This will be returned by STM when the particular resource url is not found or not valid."
+          },
+          "415" : {
+            "description" : "unsupported media type. This will be returned from MDSS when the media type sent in the request header is not  supported."
+          },
+          "500" : {
+            "description" : "service exception. This error will be returned when there is an issue within MDSS component such as configuration missing, issue in reaching to external services to fulfill the logic for the response and MDSS is not able to perform the logic successfully."
+          },
+          "503" : {
+            "description" : "service unavailable.This will be returned from STM in case MDSS is busy and not able to serve the requests or   STM is not able to retrieve the response from MDSS within the configured time."
+          }
+        }
+      }
+    },
+    "/discoveryFeed" : {
+      "get" : {
+        "summary" : "Retrieves the brands or collection or standalone asset details at high level to display the packshots in the carousels of discovery screens.",
+        "description" : "This API will be used to retrieve the brands or collection or standalone asset details at high level to display the packshots in the carousels of discovery screens. The information returned from this API will be very minimal that is just suitable to render the landing/discovery pages with respective packshots in the various carousels.",
+        "parameters" : [ {
+          "name" : "X-BT-personalizationSetting",
+          "in" : "header",
+          "description" : "This header parameter will set by STM to trigger MDSS to operated in    reduced personalization mode.MDSS in reduced personalization mode will provide only SVOD entitlements. For Seasons and Collections only subscription entitlements will be returned. For programs under the season and collection only subscription entitlements will be returned without - favourites and continue watching information.Value of the header parameter set by STM will be ENT:SVOD|FAV:N|CW:N|REC:N .Value has to be decoded as ENT as Entitlements, FAV as Favourites,CW as Continue Watching,REC as Recommendations.The above value indicates SVOD Entitlements and no Favourites and Continue watching",
+          "required" : false,
+          "type" : "string",
+          "maxLength" : 50,
+          "format" : "string"
+        }, {
+          "name" : "X-BT-correlationId",
+          "in" : "header",
+          "description" : "This has to be a UNIQUE reference for each and every request sent from calling system.This SHOULD NOT be duplicated across the requests.The format of this value should <epoch time in milliseconds>:<deviceId>Eg. 1452783755918:prod-trusted/4108940 NavMan will set the placeholder for  this in the url and Client will populate the value with time in milliseconds (unix epoch time format) and deviceId obtained in the response from associate. This header name is case-Insensitive and hence Client and Service both should be able to support any case for the header names",
+          "required" : true,
+          "type" : "string",
+          "maxLength" : 150,
+          "format" : "string"
+        }, {
+          "name" : "User-Agent",
+          "in" : "header",
+          "description" : "HTML5 will send the hardware and youview PS version in this field. It doesn’t include the HTML5 App version for now.",
+          "required" : true,
+          "type" : "string",
+          "maxLength" : 10,
+          "format" : "string"
+        }, {
+          "name" : "btToken",
+          "in" : "query",
+          "description" : "This is the authentication token that would have been supplied by NGDA as part of association of the App. This token will be used to authenticate and authorize the device to return the appropriate catalogue data.Bt Token is being made optional to support Anonymous users of TV App Clients.The existing MDSS will be accepting btToken value in both Header for STBs  and URL param for TV App Devices. In future, this value will accepted only as part of URL Parameters.",
+          "required" : false,
+          "type" : "string",
+          "maxLength" : 1024,
+          "format" : "string"
+        }, {
+          "name" : "context",
+          "in" : "query",
+          "description" : "This represents the context (for eg. Carousel in a screen) for which the request is made to retrieve the metadata. This will be the breadcrumb value set by NavMan for the given carousel as per the examples below. This value should be in lower case only with hyphen separating the menu and carousel in the breadcrumb path.Eg.highlights-recommended, highlights-lastchancetowatch, entertainment-tvboxsets,entertainment-entertainmentcatchup, etc. this will be used for business reports, product assessments and as well as to assess the recommendations and identify the details such as areas of UI that are most used, menus or carousels that are not used widely, etc. This will help in formulating the editorial recommendations, upsell and as well as to update the recommendation rules for the given carousels to refine the recommendations results. In case of Anonymous Users, any specific value that indicates that the request indicates an anonymous user hit should be sent. Eg: highlights-recommended_anonymous",
+          "required" : true,
+          "type" : "string",
+          "maxLength" : 150,
+          "format" : "string"
+        }, {
+          "name" : "start",
+          "in" : "query",
+          "description" : "This is the starting offset from where the results have to be provided in the response appropriately for the given request details. The least starting point will be 1.This needs to be sent especially when there is a pagination to be applied for a given carousel. If there is no pagination required then this field need not to be sent by Client. 'start' and 'end' are not mandatory request parameters, if not specified then MDSS defaults to start=1 and end=20. If 'start' is specified in the request, then 'end' must be specified. If “end” is specified in the request, and start is not specified, start will default to 1. If specified, “end” must be equal to or greater then “start”",
+          "required" : false,
+          "type" : "number",
+          "maximum" : 5,
+          "format" : "integer"
+        }, {
+          "name" : "end",
+          "in" : "query",
+          "description" : "This needs to be sent by the Client to indicate the end of results from start offset. This has to be there when start is given. If this is sent without start then it will be used to return the maximum number of items equal to end .NavMan will set how many maximum programs that can fit in carousels in a page. Accordingly Client will send this value in the request in order to perform pagination. NavMan should set the end value in multiples of 20. For eg. start=1, end=20 and then the subsequent page request must send start=21 and end=40. “start” and “end” are not mandatory request parameters, if not specified then MDSS defaults to start=1 and end=20. If “start” is specified in the request, then “end” must be specified. If “end” is specified in the request, and start is not specified, start will default to 1. If specified, “end” must be equal to or greater then “start”",
+          "required" : false,
+          "type" : "number",
+          "maximum" : 5,
+          "format" : "integer"
+        }, {
+          "name" : "dataDrivenRule",
+          "in" : "query",
+          "description" : "Client has to send this parameter when the results for a given carousel to be obtained using scheduler driven data rather than recommendations. The value of this parameters indicates pre-defined rule which will be used to retrieve the data for the given device and based on certain metadata details.allowed values (case-sensitive, all small case): myrentals, mypurchases, myfavourites,mycontinuewatching. Notes:•There can be some more values added for this based on Consumer requirements. But NavMan team should verify with VOSP team before for any values other than these have to be configured because the respective data has to be populated and available in VOSP systems. •dataDrivenRule and byTags are mutually exclusive. MDSS will honour the dataDrivenRule in case it is present in the request and ignore byTags parameters. If there is no data to be returned against the given dataDrivenRule then MDSS will NOT fallback to byTags.•dataDrivenRule and recommendationRule are mututally exclusive. •In case of anonymous users, this shall not be sent.",
+          "required" : false,
+          "type" : "string",
+          "maxLength" : 50,
+          "format" : "string"
+        }, {
+          "name" : "byTags",
+          "in" : "query",
+          "description" : "This has to be sent by the client in case the results have to be returned for specific  genre, subgenre, content provider and pre-defined carousels. These can also be sent by Client in case the results have to be filtered when recommendationRule parameter is provided. Following tags can be used by the Client. schedulerChannel: This has to be sent for the top level menu items. From UI perspective genre term is used synonymously for top menu items. Allowed values (these values are case sensitive and as is):TV, Kids, Sport, Film, Music and TV Replay case-sensitive, This must be single value. Multiple values are not supported for this field and there are no scenarios for Client to send more than one value in this field in  single request. This will be used for main menu items and it is not expected to get requests from Client asking for data that is applicable for more than one menu in single request. subGenre: this has to be sent for the sub menus under the scheduler channel (aka. genre). case-sensitive. This must be single value. Multiple values are not supported for this field  and there are no scenarios for Client to send more than one value in this field in single request. This will be used for sub-menu items and it is not expected to get requests from Client asking for data that is applicable for  more than one sub-menu in single request. Note: There is no defined list of allowed values  for subGenre as those are exhaustive and NavMan team have to verify the metadata in Bebanjo before they are configured for any request. contentProvider: this has to be sent in case the results have to be returned with the items belonging to the given content providers case-sensitive.  This must be single value. Multiple values are not supported for this field  and there are no scenarios for Client to send more than one value in this field in single request. eg. SKY, AMC, etc Notes: •The list of contentProvider is exhaustive and NavMan team have to verify the metadata in Bebanjo before they are configured for any request •If the brand contains children belonging to multiple content providers, then MDSS will NOT exclude the children belonging to the content provider other than that given in the request. carousel: this has to be sent by Client for specific  carousels which will be in My Zone or in other areas as promoted  commercially allowed values (these values are case sensitive to lookup): highlights, awardwinning, boxoffice, btstorerecommendations, etc.Multiple values are not supported. Client should send only one value for  this field for a given request. Note: There can be some more values added for this based on product team requirements. But NavMan team should verify with VOSP team before any values other than these are to be configured as the respective data has to be populated and available in VOSP systems. Usage:&byTags={tagName,tagValue}{tagName,tagValue} Sample: Note: The order of the tags is essential as per the respective carousel layout. For eg. if the carousel is in TV menu for subgenre equal to Drama and belongs to SKY content then Client should send the tag values strictly in this order inline with the breadcrumb path. &byTags={schedulerChannel,TV}{subGenre,Drama}{contentProvider,SKY} For eg. if the carousel is in TV menu for SKY content provider then Client should send the tag values strictly in this order, inline with the breadcrumb path. &byTags={schedulerChannel,TV}{contentProvider,SKY}",
+          "required" : false,
+          "type" : "string",
+          "maxLength" : 250,
+          "format" : "string"
+        }, {
+          "name" : "sortOrder",
+          "in" : "query",
+          "description" : "This has to be sent by client in case the results have to be returned in particular order. allowed values: AtoZ, RELEASEYEAR multiple values are not supported for this. Client should not send more than one value in  single request. If this is not present in the request then items will be returned in the recently updated order by default.",
+          "required" : false,
+          "type" : "string",
+          "maxLength" : 20,
+          "format" : "string"
+        }, {
+          "name" : "freeToMe",
+          "in" : "query",
+          "description" : "this has to be sent by Client whether the results have to be personalized or not in terms of   entitlements. Allowed values: 0, 1 . 0 means results will contain both entitled and unentitled items in the response and that's the default result. 1 means results will contain entitled items only. Note: For recommendation rule driven carousels Free To Me will be supported only for subscriptions but not for rentals and purchases",
+          "required" : false,
+          "type" : "number",
+          "maximum" : 5,
+          "format" : "integer"
+        }, {
+          "name" : "byGuids",
+          "in" : "query",
+          "description" : "This has to be sent by Client in case the results have to be returned based on list of given brand/collection/program/product guids. Client uses this when populating the jonsnow, backward EPG program carousels, pinned items and editorial carousels where the list of program guids will be pre-defined by NavMan for a given carousel. Client can also use this to send the productGuid for More Like This recommendations based on the standalone program variant (Technically MDSS supports more like this for collection or season productGuid as well but from requirement perspective more like this is agreed for standalone asset only for NextGen Youview launch scope) . In case of editorial recommendations, the list of guids given in this field will be used to return respective metadata first in the order in results as the decision is to set the editorial recommended items always first in the carousels before recommendations or data driven items. Client can send single or multiple item guids of same type or different types. &byGuids={itemType,itemValue}{itemType,itemValue} Eg. &byGuids={BRAND,movida_38345_brand}{COLLECTION,movida_37175}{PROGRAM,EV419442A}{PRODUCT,BBJ419442A} In case of productGuid, Client should send the productGuid of SD variant, if SD variant is not available then HD variant. Note: •whatever be the input item guid the response will be provided with top level item details against the given input item guid. •Client should send this byGuids parameter in a separate request for pinned items or editorial carousel and these should not be sent in the request where byTags/dataDrivenRule is present. •productGuid can be sent by Client for More Like This recommendation. In that case recommendationRule should also be sent as morelikethis.",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi",
+          "format" : "string"
+        }, {
+          "name" : "recommendationRule",
+          "in" : "query",
+          "description" : "Client has to send this when a particular carousel is configured to display the catalogue data driven by recommendations primarily. The value of this parameter will be a rule that will be configured by NavMan against the carousel and the same will be used with the recommendation engine to retrieve the suitable recommendations. Following rules (case-sensitive, exact match, all small case) have to be configured in NavMan for Most Popular, New and Recommended For You type of carousels: recommendedforyou, mostpopular,new . Following rule (case-sensitive, exact match, all small case) has to be sent by Client for More Like This request - 'morelikethis'. Client can also send a specific slotId value other than the above 4 rules for this parameter as specified below. slot#<slotId value>, where 'slot#' is constant word that need to be prefixed when the actual slotId value has to be sent. Eg. recommendationRule=slot#tw5ashyro42flnf52. Notes: •this parameter should not be given in the request if dataDrivenRule is also present. recommendationRule and dataDrivenRule are mutually exclusive. •These rule values will be used in recommendations engine to apply required algorithms to generate  the recommendations based on the user's taste profile. Hence these rules will be defined by VOSP team in consultation with Consumer and NavMan team to set the respective rule values based on the screen and carousel. •along with recommendationRule client need to provide the byTags parameters as well to provide the schedulerChannel, subgenre and content provider details which can be used in order to filter the recommendation results accordingly. •for morelikethis rule, client should also send the productGuid based on which the recommendations have to be returned. •When the specific slotId is given in recommendationRule then Client should not pass any other recommendation rule values in that parameter. •The actual slotId value will be configured by NavMan in recommendationRule if there is a carousel where specific slotId has to be given instead of generic recommendation rule. (For eg. jonsnow carousel in highlights with recommended for you items)",
+          "required" : false,
+          "type" : "string",
+          "maxLength" : 150,
+          "format" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful Response and will be sent in the following scenarios  1. The matching data is found for the given input and all the results will be sent in the response    2. when the matching data is not found for the given input and the response will contain discoveryFeedResponse but no programs field",
+            "schema" : {
+              "$ref" : "#/definitions/inline_response_200_4"
+            },
+            "headers" : {
+              "s-maxage" : {
+                "type" : "integer",
+                "description" : "Duration in seconds that the response must be cached.For Logged in Users it should be 0 sec and for Anonymous users it should be 3600 sec"
+              },
+              "cache-control" : {
+                "type" : "string",
+                "description" : "may be cached in public shared caches",
+                "default" : "public"
+              },
+              "max-age" : {
+                "type" : "integer",
+                "description" : "Indicates that the client is willing to accept a response whose age is no greater than the specified time in seconds.0 sec for logged in users and 3600 sec for anonymous users"
+              },
+              "no-transform" : {
+                "type" : "string",
+                "description" : "no-transform directive indicates that intermediate cache or proxy MUST NOT change the header values set",
+                "default" : "no-transform"
+              }
+            }
+          },
+          "400" : {
+            "description" : "bad parameter .This is returned even if mandatory parameters are missing."
+          },
+          "404" : {
+            "description" : "No Data Found.This will be   returned by STM when the particular resource url is not found or not valid."
+          },
+          "415" : {
+            "description" : "unsupported media type. This will be returned from MDSS when the media type sent in the request header is not   supported."
+          },
+          "500" : {
+            "description" : "service exception. This error will be returned when there is an issue within MDSS component such as configuration missing, issue in reaching to external services to fulfill the logic for the response and MDSS is not able to perform the logic successfully."
+          },
+          "503" : {
+            "description" : "service unavailable.This will be returned from STM in case MDSS is busy and not able to serve the requests or   STM is not able to retrieve the response from MDSS within the configured time."
+          }
+        }
+      }
+    }
+  },
+  "definitions" : {
+    "gdResponse" : {
+      "type" : "object",
+      "required" : [ "correlationId", "itemsReturned", "startIndex", "statusCode", "statusMessage", "totalMatchingItems" ],
+      "properties" : {
+        "correlationId" : {
+          "type" : "string"
+        },
+        "totalMatchingItems" : {
+          "type" : "string"
+        },
+        "itemsReturned" : {
+          "type" : "integer"
+        },
+        "startIndex" : {
+          "type" : "string"
+        },
+        "statusMessage" : {
+          "type" : "string"
+        },
+        "statusCode" : {
+          "type" : "integer"
+        },
+        "groupDetails" : {
+          "$ref" : "#/definitions/groupDetails"
+        }
+      },
+      "example" : {
+        "startIndex" : "startIndex",
+        "groupDetails" : {
+          "longDescription" : "longDescription",
+          "images" : [ {
+            "type" : "type",
+            "url" : "url"
+          }, {
+            "type" : "type",
+            "url" : "url"
+          } ],
+          "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+          "year" : 2,
+          "shortDescription" : "shortDescription",
+          "seasonNumber" : 0,
+          "variants" : [ {
+            "audioTrackInfo" : [ {
+              "mixType" : "mixType",
+              "trackNumber" : 1,
+              "purpose" : "purpose",
+              "language" : "language",
+              "type" : "type"
+            }, {
+              "mixType" : "mixType",
+              "trackNumber" : 1,
+              "purpose" : "purpose",
+              "language" : "language",
+              "type" : "type"
+            } ],
+            "isPurchasable" : true,
+            "isMediaAvailable" : true,
+            "subscriptionCodes" : [ "subscriptionCodes", "subscriptionCodes" ],
+            "isLargeScreenAllowed" : true,
+            "entitlementEndDate" : "2000-01-23T04:56:07.000+00:00",
+            "isDownloadable" : true,
+            "price" : 9.301444243932576,
+            "isWatchable" : true,
+            "redeem" : true,
+            "availableEndDate" : "2000-01-23T04:56:07.000+00:00",
+            "actualBandwidth" : "actualBandwidth",
+            "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+            "availableStartDate" : "2000-01-23T04:56:07.000+00:00",
+            "entitlementType" : "entitlementType",
+            "entitlementStartDate" : "2000-01-23T04:56:07.000+00:00",
+            "targetBandwidth" : "targetBandwidth",
+            "channelServiceLocator" : "channelServiceLocator",
+            "isCastable" : true,
+            "offerTypes" : [ "offerTypes", "offerTypes" ],
+            "subtitleInfo" : [ {
+              "path" : "path",
+              "language" : "language"
+            }, {
+              "path" : "path",
+              "language" : "language"
+            } ],
+            "guid" : "guid",
+            "trailerId" : "trailerId",
+            "isViewingPermitted" : true,
+            "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+          }, {
+            "audioTrackInfo" : [ {
+              "mixType" : "mixType",
+              "trackNumber" : 1,
+              "purpose" : "purpose",
+              "language" : "language",
+              "type" : "type"
+            }, {
+              "mixType" : "mixType",
+              "trackNumber" : 1,
+              "purpose" : "purpose",
+              "language" : "language",
+              "type" : "type"
+            } ],
+            "isPurchasable" : true,
+            "isMediaAvailable" : true,
+            "subscriptionCodes" : [ "subscriptionCodes", "subscriptionCodes" ],
+            "isLargeScreenAllowed" : true,
+            "entitlementEndDate" : "2000-01-23T04:56:07.000+00:00",
+            "isDownloadable" : true,
+            "price" : 9.301444243932576,
+            "isWatchable" : true,
+            "redeem" : true,
+            "availableEndDate" : "2000-01-23T04:56:07.000+00:00",
+            "actualBandwidth" : "actualBandwidth",
+            "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+            "availableStartDate" : "2000-01-23T04:56:07.000+00:00",
+            "entitlementType" : "entitlementType",
+            "entitlementStartDate" : "2000-01-23T04:56:07.000+00:00",
+            "targetBandwidth" : "targetBandwidth",
+            "channelServiceLocator" : "channelServiceLocator",
+            "isCastable" : true,
+            "offerTypes" : [ "offerTypes", "offerTypes" ],
+            "subtitleInfo" : [ {
+              "path" : "path",
+              "language" : "language"
+            }, {
+              "path" : "path",
+              "language" : "language"
+            } ],
+            "guid" : "guid",
+            "trailerId" : "trailerId",
+            "isViewingPermitted" : true,
+            "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+          } ],
+          "type" : "type",
+          "displayTitle" : "displayTitle",
+          "straplineText" : "straplineText",
+          "isEntitled" : true,
+          "children" : [ {
+            "longDescription" : "longDescription",
+            "year" : 3,
+            "rating" : "rating",
+            "elapsedWatchTime" : 5,
+            "variants" : [ {
+              "audioTrackInfo" : [ {
+                "mixType" : "mixType",
+                "trackNumber" : 1,
+                "purpose" : "purpose",
+                "language" : "language",
+                "type" : "type"
+              }, {
+                "mixType" : "mixType",
+                "trackNumber" : 1,
+                "purpose" : "purpose",
+                "language" : "language",
+                "type" : "type"
+              } ],
+              "isPurchasable" : true,
+              "isMediaAvailable" : true,
+              "subscriptionCodes" : [ "subscriptionCodes", "subscriptionCodes" ],
+              "isLargeScreenAllowed" : true,
+              "entitlementEndDate" : "2000-01-23T04:56:07.000+00:00",
+              "isDownloadable" : true,
+              "price" : 9.301444243932576,
+              "isWatchable" : true,
+              "redeem" : true,
+              "availableEndDate" : "2000-01-23T04:56:07.000+00:00",
+              "actualBandwidth" : "actualBandwidth",
+              "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+              "availableStartDate" : "2000-01-23T04:56:07.000+00:00",
+              "entitlementType" : "entitlementType",
+              "entitlementStartDate" : "2000-01-23T04:56:07.000+00:00",
+              "targetBandwidth" : "targetBandwidth",
+              "channelServiceLocator" : "channelServiceLocator",
+              "isCastable" : true,
+              "offerTypes" : [ "offerTypes", "offerTypes" ],
+              "subtitleInfo" : [ {
+                "path" : "path",
+                "language" : "language"
+              }, {
+                "path" : "path",
+                "language" : "language"
+              } ],
+              "guid" : "guid",
+              "trailerId" : "trailerId",
+              "isViewingPermitted" : true,
+              "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+            }, {
+              "audioTrackInfo" : [ {
+                "mixType" : "mixType",
+                "trackNumber" : 1,
+                "purpose" : "purpose",
+                "language" : "language",
+                "type" : "type"
+              }, {
+                "mixType" : "mixType",
+                "trackNumber" : 1,
+                "purpose" : "purpose",
+                "language" : "language",
+                "type" : "type"
+              } ],
+              "isPurchasable" : true,
+              "isMediaAvailable" : true,
+              "subscriptionCodes" : [ "subscriptionCodes", "subscriptionCodes" ],
+              "isLargeScreenAllowed" : true,
+              "entitlementEndDate" : "2000-01-23T04:56:07.000+00:00",
+              "isDownloadable" : true,
+              "price" : 9.301444243932576,
+              "isWatchable" : true,
+              "redeem" : true,
+              "availableEndDate" : "2000-01-23T04:56:07.000+00:00",
+              "actualBandwidth" : "actualBandwidth",
+              "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+              "availableStartDate" : "2000-01-23T04:56:07.000+00:00",
+              "entitlementType" : "entitlementType",
+              "entitlementStartDate" : "2000-01-23T04:56:07.000+00:00",
+              "targetBandwidth" : "targetBandwidth",
+              "channelServiceLocator" : "channelServiceLocator",
+              "isCastable" : true,
+              "offerTypes" : [ "offerTypes", "offerTypes" ],
+              "subtitleInfo" : [ {
+                "path" : "path",
+                "language" : "language"
+              }, {
+                "path" : "path",
+                "language" : "language"
+              } ],
+              "guid" : "guid",
+              "trailerId" : "trailerId",
+              "isViewingPermitted" : true,
+              "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+            } ],
+            "episodeNumber" : 2,
+            "displayTitle" : "displayTitle",
+            "isCompletelyWatched" : true,
+            "isEntitled" : true,
+            "credits" : [ {
+              "personName" : "personName",
+              "personRole" : "personRole"
+            }, {
+              "personName" : "personName",
+              "personRole" : "personRole"
+            } ],
+            "genres" : [ "genres", "genres" ],
+            "cancellableCutOffTime" : "2000-01-23T04:56:07.000+00:00",
+            "subtitlesEnabled" : true,
+            "runTime" : 2,
+            "isFavourite" : true,
+            "availableEndDate" : "2000-01-23T04:56:07.000+00:00",
+            "images" : [ {
+              "type" : "type",
+              "url" : "url"
+            }, {
+              "type" : "type",
+              "url" : "url"
+            } ],
+            "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+            "availableStartDate" : "2000-01-23T04:56:07.000+00:00",
+            "shortDescription" : "shortDescription",
+            "seasonNumber" : 2,
+            "broadcastStartDate" : "2000-01-23T04:56:07.000+00:00",
+            "contentProviderId" : "contentProviderId",
+            "straplineText" : "straplineText",
+            "adEnabled" : true,
+            "offerTypes" : [ "offerTypes", "offerTypes" ],
+            "guid" : "guid",
+            "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+          }, {
+            "longDescription" : "longDescription",
+            "year" : 3,
+            "rating" : "rating",
+            "elapsedWatchTime" : 5,
+            "variants" : [ {
+              "audioTrackInfo" : [ {
+                "mixType" : "mixType",
+                "trackNumber" : 1,
+                "purpose" : "purpose",
+                "language" : "language",
+                "type" : "type"
+              }, {
+                "mixType" : "mixType",
+                "trackNumber" : 1,
+                "purpose" : "purpose",
+                "language" : "language",
+                "type" : "type"
+              } ],
+              "isPurchasable" : true,
+              "isMediaAvailable" : true,
+              "subscriptionCodes" : [ "subscriptionCodes", "subscriptionCodes" ],
+              "isLargeScreenAllowed" : true,
+              "entitlementEndDate" : "2000-01-23T04:56:07.000+00:00",
+              "isDownloadable" : true,
+              "price" : 9.301444243932576,
+              "isWatchable" : true,
+              "redeem" : true,
+              "availableEndDate" : "2000-01-23T04:56:07.000+00:00",
+              "actualBandwidth" : "actualBandwidth",
+              "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+              "availableStartDate" : "2000-01-23T04:56:07.000+00:00",
+              "entitlementType" : "entitlementType",
+              "entitlementStartDate" : "2000-01-23T04:56:07.000+00:00",
+              "targetBandwidth" : "targetBandwidth",
+              "channelServiceLocator" : "channelServiceLocator",
+              "isCastable" : true,
+              "offerTypes" : [ "offerTypes", "offerTypes" ],
+              "subtitleInfo" : [ {
+                "path" : "path",
+                "language" : "language"
+              }, {
+                "path" : "path",
+                "language" : "language"
+              } ],
+              "guid" : "guid",
+              "trailerId" : "trailerId",
+              "isViewingPermitted" : true,
+              "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+            }, {
+              "audioTrackInfo" : [ {
+                "mixType" : "mixType",
+                "trackNumber" : 1,
+                "purpose" : "purpose",
+                "language" : "language",
+                "type" : "type"
+              }, {
+                "mixType" : "mixType",
+                "trackNumber" : 1,
+                "purpose" : "purpose",
+                "language" : "language",
+                "type" : "type"
+              } ],
+              "isPurchasable" : true,
+              "isMediaAvailable" : true,
+              "subscriptionCodes" : [ "subscriptionCodes", "subscriptionCodes" ],
+              "isLargeScreenAllowed" : true,
+              "entitlementEndDate" : "2000-01-23T04:56:07.000+00:00",
+              "isDownloadable" : true,
+              "price" : 9.301444243932576,
+              "isWatchable" : true,
+              "redeem" : true,
+              "availableEndDate" : "2000-01-23T04:56:07.000+00:00",
+              "actualBandwidth" : "actualBandwidth",
+              "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+              "availableStartDate" : "2000-01-23T04:56:07.000+00:00",
+              "entitlementType" : "entitlementType",
+              "entitlementStartDate" : "2000-01-23T04:56:07.000+00:00",
+              "targetBandwidth" : "targetBandwidth",
+              "channelServiceLocator" : "channelServiceLocator",
+              "isCastable" : true,
+              "offerTypes" : [ "offerTypes", "offerTypes" ],
+              "subtitleInfo" : [ {
+                "path" : "path",
+                "language" : "language"
+              }, {
+                "path" : "path",
+                "language" : "language"
+              } ],
+              "guid" : "guid",
+              "trailerId" : "trailerId",
+              "isViewingPermitted" : true,
+              "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+            } ],
+            "episodeNumber" : 2,
+            "displayTitle" : "displayTitle",
+            "isCompletelyWatched" : true,
+            "isEntitled" : true,
+            "credits" : [ {
+              "personName" : "personName",
+              "personRole" : "personRole"
+            }, {
+              "personName" : "personName",
+              "personRole" : "personRole"
+            } ],
+            "genres" : [ "genres", "genres" ],
+            "cancellableCutOffTime" : "2000-01-23T04:56:07.000+00:00",
+            "subtitlesEnabled" : true,
+            "runTime" : 2,
+            "isFavourite" : true,
+            "availableEndDate" : "2000-01-23T04:56:07.000+00:00",
+            "images" : [ {
+              "type" : "type",
+              "url" : "url"
+            }, {
+              "type" : "type",
+              "url" : "url"
+            } ],
+            "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+            "availableStartDate" : "2000-01-23T04:56:07.000+00:00",
+            "shortDescription" : "shortDescription",
+            "seasonNumber" : 2,
+            "broadcastStartDate" : "2000-01-23T04:56:07.000+00:00",
+            "contentProviderId" : "contentProviderId",
+            "straplineText" : "straplineText",
+            "adEnabled" : true,
+            "offerTypes" : [ "offerTypes", "offerTypes" ],
+            "guid" : "guid",
+            "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+          } ],
+          "genres" : [ "genres", "genres" ],
+          "offerTypes" : [ "offerTypes", "offerTypes" ],
+          "guid" : "guid",
+          "isFavourite" : true,
+          "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+        },
+        "itemsReturned" : 0,
+        "correlationId" : "correlationId",
+        "totalMatchingItems" : "totalMatchingItems",
+        "statusMessage" : "statusMessage",
+        "statusCode" : 6
+      }
+    },
+    "groupDetails" : {
+      "type" : "object",
+      "required" : [ "children", "displayTitle", "genres", "guid", "images", "offerEndDate", "offerStartDate", "offerTypes", "type", "variants" ],
+      "properties" : {
+        "guid" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "guid of the season or collection",
+          "maxLength" : 50
+        },
+        "type" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "type of the group allowed values are   COLLECTION, SEASON In case of season details under the brand, this value will be SEASON otherwise it will be COLLECTION.",
+          "maxLength" : 10
+        },
+        "displayTitle" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "display title of the seasonor collection. This can be different to the actual title of the season or collection.",
+          "maxLength" : 256
+        },
+        "shortDescription" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "short synopsis of season or collection",
+          "maxLength" : 2048
+        },
+        "longDescription" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "long synopsis of the seasonor collection if it exists",
+          "maxLength" : 2048
+        },
+        "straplineText" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "this is the strap line text populated by schedulers at top level items i.e brand/collection/standalone program. This will be present when the respective top level item has got the strapline text populated.",
+          "maxLength" : 256
+        },
+        "seasonNumber" : {
+          "type" : "integer",
+          "format" : "number",
+          "description" : "this exists of it  is a season which will be equal to season number as populated in metadata. This won't exist if it is a collection.",
+          "maximum" : 3
+        },
+        "images" : {
+          "type" : "array",
+          "description" : "this is an array of imageInfo associated to season. season   can have packshot image and as well as background image.",
+          "items" : {
+            "$ref" : "#/definitions/imageInfo"
+          }
+        },
+        "children" : {
+          "type" : "array",
+          "description" : "this is the array   of programDetails of each   episode associated to the season or each program in the collection",
+          "items" : {
+            "$ref" : "#/definitions/programDetails"
+          }
+        },
+        "variants" : {
+          "type" : "array",
+          "description" : "array of productDetails associated to each season/collection variant",
+          "items" : {
+            "$ref" : "#/definitions/productDetails"
+          }
+        },
+        "year" : {
+          "type" : "integer",
+          "format" : "number",
+          "description" : "Release year of the season (this will be provided by content providers or otherwise set by   the schedulers)",
+          "maximum" : 5
+        },
+        "genres" : {
+          "type" : "array",
+          "description" : "genre of the   season. if there is single value then array contains single value",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "isEntitled" : {
+          "type" : "boolean",
+          "format" : "boolean",
+          "description" : "allowed values are true, falseIf season is entitled (rental or purchaseor subscription) then the value will be true.If season is not entitled (rental or purchaseor subscription) then the value will be false.In reduced personalization mode when the Header Parameter X-BT-personalizationSetting is set to \"ENT:SVOD|FAV:N|CW:N|REC:N\" if the user is not entitled to the item by subscription then this field will not be returned.In Anonymous mode this field will not be returned."
+        },
+        "offerStartDate" : {
+          "type" : "string",
+          "format" : "date-time",
+          "description" : "This is the offer start date of the season or collection. It will be equal to the earliest of all the offer start dates of all the individual items of the collectionor episodes of the season.This will be UTC time in ISO 8601 format.YYYY-MM-DDThh:mm:ssZ"
+        },
+        "offerEndDate" : {
+          "type" : "string",
+          "format" : "date-time",
+          "description" : "This is the offer end date of the season or collection. This will be equal to the latest of all the offer end dates of all the individual items of the collection or episodes of the season.This will be UTC time in ISO 8601 format.YYYY-MM-DDThh:mm:ssZ"
+        },
+        "isFavourite" : {
+          "type" : "boolean",
+          "format" : "boolean",
+          "description" : "allowed values are true, false.Indicates whether the collection has been marked as Favourite or Not. When the collection details are retrieved from MPX rather than Cache, then the value will be false. If the request is for a season, then this will not be present.In reduced personalization mode when the Header Parameter X-BT-personalizationSetting is set to \"ENT:SVOD|FAV:N|CW:N|REC:N\" then this field will not be returned.This field will not be returned in anonymous mode"
+        },
+        "offerTypes" : {
+          "type" : "array",
+          "description" : "this  represents the type of the offer for the given season or collection. If there are multiple offers, then this contains multiple values, otherwise it contains single value.allowed values are TVOD, EST, SVOD, STVOD, PPV.",
+          "items" : {
+            "type" : "string"
+          }
+        }
+      },
+      "example" : {
+        "longDescription" : "longDescription",
+        "images" : [ {
+          "type" : "type",
+          "url" : "url"
+        }, {
+          "type" : "type",
+          "url" : "url"
+        } ],
+        "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+        "year" : 2,
+        "shortDescription" : "shortDescription",
+        "seasonNumber" : 0,
+        "variants" : [ {
+          "audioTrackInfo" : [ {
+            "mixType" : "mixType",
+            "trackNumber" : 1,
+            "purpose" : "purpose",
+            "language" : "language",
+            "type" : "type"
+          }, {
+            "mixType" : "mixType",
+            "trackNumber" : 1,
+            "purpose" : "purpose",
+            "language" : "language",
+            "type" : "type"
+          } ],
+          "isPurchasable" : true,
+          "isMediaAvailable" : true,
+          "subscriptionCodes" : [ "subscriptionCodes", "subscriptionCodes" ],
+          "isLargeScreenAllowed" : true,
+          "entitlementEndDate" : "2000-01-23T04:56:07.000+00:00",
+          "isDownloadable" : true,
+          "price" : 9.301444243932576,
+          "isWatchable" : true,
+          "redeem" : true,
+          "availableEndDate" : "2000-01-23T04:56:07.000+00:00",
+          "actualBandwidth" : "actualBandwidth",
+          "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+          "availableStartDate" : "2000-01-23T04:56:07.000+00:00",
+          "entitlementType" : "entitlementType",
+          "entitlementStartDate" : "2000-01-23T04:56:07.000+00:00",
+          "targetBandwidth" : "targetBandwidth",
+          "channelServiceLocator" : "channelServiceLocator",
+          "isCastable" : true,
+          "offerTypes" : [ "offerTypes", "offerTypes" ],
+          "subtitleInfo" : [ {
+            "path" : "path",
+            "language" : "language"
+          }, {
+            "path" : "path",
+            "language" : "language"
+          } ],
+          "guid" : "guid",
+          "trailerId" : "trailerId",
+          "isViewingPermitted" : true,
+          "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+        }, {
+          "audioTrackInfo" : [ {
+            "mixType" : "mixType",
+            "trackNumber" : 1,
+            "purpose" : "purpose",
+            "language" : "language",
+            "type" : "type"
+          }, {
+            "mixType" : "mixType",
+            "trackNumber" : 1,
+            "purpose" : "purpose",
+            "language" : "language",
+            "type" : "type"
+          } ],
+          "isPurchasable" : true,
+          "isMediaAvailable" : true,
+          "subscriptionCodes" : [ "subscriptionCodes", "subscriptionCodes" ],
+          "isLargeScreenAllowed" : true,
+          "entitlementEndDate" : "2000-01-23T04:56:07.000+00:00",
+          "isDownloadable" : true,
+          "price" : 9.301444243932576,
+          "isWatchable" : true,
+          "redeem" : true,
+          "availableEndDate" : "2000-01-23T04:56:07.000+00:00",
+          "actualBandwidth" : "actualBandwidth",
+          "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+          "availableStartDate" : "2000-01-23T04:56:07.000+00:00",
+          "entitlementType" : "entitlementType",
+          "entitlementStartDate" : "2000-01-23T04:56:07.000+00:00",
+          "targetBandwidth" : "targetBandwidth",
+          "channelServiceLocator" : "channelServiceLocator",
+          "isCastable" : true,
+          "offerTypes" : [ "offerTypes", "offerTypes" ],
+          "subtitleInfo" : [ {
+            "path" : "path",
+            "language" : "language"
+          }, {
+            "path" : "path",
+            "language" : "language"
+          } ],
+          "guid" : "guid",
+          "trailerId" : "trailerId",
+          "isViewingPermitted" : true,
+          "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+        } ],
+        "type" : "type",
+        "displayTitle" : "displayTitle",
+        "straplineText" : "straplineText",
+        "isEntitled" : true,
+        "children" : [ {
+          "longDescription" : "longDescription",
+          "year" : 3,
+          "rating" : "rating",
+          "elapsedWatchTime" : 5,
+          "variants" : [ {
+            "audioTrackInfo" : [ {
+              "mixType" : "mixType",
+              "trackNumber" : 1,
+              "purpose" : "purpose",
+              "language" : "language",
+              "type" : "type"
+            }, {
+              "mixType" : "mixType",
+              "trackNumber" : 1,
+              "purpose" : "purpose",
+              "language" : "language",
+              "type" : "type"
+            } ],
+            "isPurchasable" : true,
+            "isMediaAvailable" : true,
+            "subscriptionCodes" : [ "subscriptionCodes", "subscriptionCodes" ],
+            "isLargeScreenAllowed" : true,
+            "entitlementEndDate" : "2000-01-23T04:56:07.000+00:00",
+            "isDownloadable" : true,
+            "price" : 9.301444243932576,
+            "isWatchable" : true,
+            "redeem" : true,
+            "availableEndDate" : "2000-01-23T04:56:07.000+00:00",
+            "actualBandwidth" : "actualBandwidth",
+            "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+            "availableStartDate" : "2000-01-23T04:56:07.000+00:00",
+            "entitlementType" : "entitlementType",
+            "entitlementStartDate" : "2000-01-23T04:56:07.000+00:00",
+            "targetBandwidth" : "targetBandwidth",
+            "channelServiceLocator" : "channelServiceLocator",
+            "isCastable" : true,
+            "offerTypes" : [ "offerTypes", "offerTypes" ],
+            "subtitleInfo" : [ {
+              "path" : "path",
+              "language" : "language"
+            }, {
+              "path" : "path",
+              "language" : "language"
+            } ],
+            "guid" : "guid",
+            "trailerId" : "trailerId",
+            "isViewingPermitted" : true,
+            "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+          }, {
+            "audioTrackInfo" : [ {
+              "mixType" : "mixType",
+              "trackNumber" : 1,
+              "purpose" : "purpose",
+              "language" : "language",
+              "type" : "type"
+            }, {
+              "mixType" : "mixType",
+              "trackNumber" : 1,
+              "purpose" : "purpose",
+              "language" : "language",
+              "type" : "type"
+            } ],
+            "isPurchasable" : true,
+            "isMediaAvailable" : true,
+            "subscriptionCodes" : [ "subscriptionCodes", "subscriptionCodes" ],
+            "isLargeScreenAllowed" : true,
+            "entitlementEndDate" : "2000-01-23T04:56:07.000+00:00",
+            "isDownloadable" : true,
+            "price" : 9.301444243932576,
+            "isWatchable" : true,
+            "redeem" : true,
+            "availableEndDate" : "2000-01-23T04:56:07.000+00:00",
+            "actualBandwidth" : "actualBandwidth",
+            "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+            "availableStartDate" : "2000-01-23T04:56:07.000+00:00",
+            "entitlementType" : "entitlementType",
+            "entitlementStartDate" : "2000-01-23T04:56:07.000+00:00",
+            "targetBandwidth" : "targetBandwidth",
+            "channelServiceLocator" : "channelServiceLocator",
+            "isCastable" : true,
+            "offerTypes" : [ "offerTypes", "offerTypes" ],
+            "subtitleInfo" : [ {
+              "path" : "path",
+              "language" : "language"
+            }, {
+              "path" : "path",
+              "language" : "language"
+            } ],
+            "guid" : "guid",
+            "trailerId" : "trailerId",
+            "isViewingPermitted" : true,
+            "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+          } ],
+          "episodeNumber" : 2,
+          "displayTitle" : "displayTitle",
+          "isCompletelyWatched" : true,
+          "isEntitled" : true,
+          "credits" : [ {
+            "personName" : "personName",
+            "personRole" : "personRole"
+          }, {
+            "personName" : "personName",
+            "personRole" : "personRole"
+          } ],
+          "genres" : [ "genres", "genres" ],
+          "cancellableCutOffTime" : "2000-01-23T04:56:07.000+00:00",
+          "subtitlesEnabled" : true,
+          "runTime" : 2,
+          "isFavourite" : true,
+          "availableEndDate" : "2000-01-23T04:56:07.000+00:00",
+          "images" : [ {
+            "type" : "type",
+            "url" : "url"
+          }, {
+            "type" : "type",
+            "url" : "url"
+          } ],
+          "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+          "availableStartDate" : "2000-01-23T04:56:07.000+00:00",
+          "shortDescription" : "shortDescription",
+          "seasonNumber" : 2,
+          "broadcastStartDate" : "2000-01-23T04:56:07.000+00:00",
+          "contentProviderId" : "contentProviderId",
+          "straplineText" : "straplineText",
+          "adEnabled" : true,
+          "offerTypes" : [ "offerTypes", "offerTypes" ],
+          "guid" : "guid",
+          "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+        }, {
+          "longDescription" : "longDescription",
+          "year" : 3,
+          "rating" : "rating",
+          "elapsedWatchTime" : 5,
+          "variants" : [ {
+            "audioTrackInfo" : [ {
+              "mixType" : "mixType",
+              "trackNumber" : 1,
+              "purpose" : "purpose",
+              "language" : "language",
+              "type" : "type"
+            }, {
+              "mixType" : "mixType",
+              "trackNumber" : 1,
+              "purpose" : "purpose",
+              "language" : "language",
+              "type" : "type"
+            } ],
+            "isPurchasable" : true,
+            "isMediaAvailable" : true,
+            "subscriptionCodes" : [ "subscriptionCodes", "subscriptionCodes" ],
+            "isLargeScreenAllowed" : true,
+            "entitlementEndDate" : "2000-01-23T04:56:07.000+00:00",
+            "isDownloadable" : true,
+            "price" : 9.301444243932576,
+            "isWatchable" : true,
+            "redeem" : true,
+            "availableEndDate" : "2000-01-23T04:56:07.000+00:00",
+            "actualBandwidth" : "actualBandwidth",
+            "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+            "availableStartDate" : "2000-01-23T04:56:07.000+00:00",
+            "entitlementType" : "entitlementType",
+            "entitlementStartDate" : "2000-01-23T04:56:07.000+00:00",
+            "targetBandwidth" : "targetBandwidth",
+            "channelServiceLocator" : "channelServiceLocator",
+            "isCastable" : true,
+            "offerTypes" : [ "offerTypes", "offerTypes" ],
+            "subtitleInfo" : [ {
+              "path" : "path",
+              "language" : "language"
+            }, {
+              "path" : "path",
+              "language" : "language"
+            } ],
+            "guid" : "guid",
+            "trailerId" : "trailerId",
+            "isViewingPermitted" : true,
+            "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+          }, {
+            "audioTrackInfo" : [ {
+              "mixType" : "mixType",
+              "trackNumber" : 1,
+              "purpose" : "purpose",
+              "language" : "language",
+              "type" : "type"
+            }, {
+              "mixType" : "mixType",
+              "trackNumber" : 1,
+              "purpose" : "purpose",
+              "language" : "language",
+              "type" : "type"
+            } ],
+            "isPurchasable" : true,
+            "isMediaAvailable" : true,
+            "subscriptionCodes" : [ "subscriptionCodes", "subscriptionCodes" ],
+            "isLargeScreenAllowed" : true,
+            "entitlementEndDate" : "2000-01-23T04:56:07.000+00:00",
+            "isDownloadable" : true,
+            "price" : 9.301444243932576,
+            "isWatchable" : true,
+            "redeem" : true,
+            "availableEndDate" : "2000-01-23T04:56:07.000+00:00",
+            "actualBandwidth" : "actualBandwidth",
+            "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+            "availableStartDate" : "2000-01-23T04:56:07.000+00:00",
+            "entitlementType" : "entitlementType",
+            "entitlementStartDate" : "2000-01-23T04:56:07.000+00:00",
+            "targetBandwidth" : "targetBandwidth",
+            "channelServiceLocator" : "channelServiceLocator",
+            "isCastable" : true,
+            "offerTypes" : [ "offerTypes", "offerTypes" ],
+            "subtitleInfo" : [ {
+              "path" : "path",
+              "language" : "language"
+            }, {
+              "path" : "path",
+              "language" : "language"
+            } ],
+            "guid" : "guid",
+            "trailerId" : "trailerId",
+            "isViewingPermitted" : true,
+            "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+          } ],
+          "episodeNumber" : 2,
+          "displayTitle" : "displayTitle",
+          "isCompletelyWatched" : true,
+          "isEntitled" : true,
+          "credits" : [ {
+            "personName" : "personName",
+            "personRole" : "personRole"
+          }, {
+            "personName" : "personName",
+            "personRole" : "personRole"
+          } ],
+          "genres" : [ "genres", "genres" ],
+          "cancellableCutOffTime" : "2000-01-23T04:56:07.000+00:00",
+          "subtitlesEnabled" : true,
+          "runTime" : 2,
+          "isFavourite" : true,
+          "availableEndDate" : "2000-01-23T04:56:07.000+00:00",
+          "images" : [ {
+            "type" : "type",
+            "url" : "url"
+          }, {
+            "type" : "type",
+            "url" : "url"
+          } ],
+          "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+          "availableStartDate" : "2000-01-23T04:56:07.000+00:00",
+          "shortDescription" : "shortDescription",
+          "seasonNumber" : 2,
+          "broadcastStartDate" : "2000-01-23T04:56:07.000+00:00",
+          "contentProviderId" : "contentProviderId",
+          "straplineText" : "straplineText",
+          "adEnabled" : true,
+          "offerTypes" : [ "offerTypes", "offerTypes" ],
+          "guid" : "guid",
+          "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+        } ],
+        "genres" : [ "genres", "genres" ],
+        "offerTypes" : [ "offerTypes", "offerTypes" ],
+        "guid" : "guid",
+        "isFavourite" : true,
+        "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+      }
+    },
+    "programDetails" : {
+      "type" : "object",
+      "required" : [ "displayTitle", "genres", "guid", "offerTypes", "runTime" ],
+      "properties" : {
+        "guid" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "guid of the season or collection",
+          "maxLength" : 50
+        },
+        "displayTitle" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "display title of the seasonor collection. This can be different to the actual title of the season or collection.",
+          "maxLength" : 256
+        },
+        "shortDescription" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "short synopsis of season or collection.",
+          "maxLength" : 2048
+        },
+        "longDescription" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "long synopsis of the seasonor collection if it exists.",
+          "maxLength" : 2048
+        },
+        "straplineText" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "this is the strap line text populated by schedulers at top level items i.e brand/collection/standalone program. This will be present when the respective top level item has got the strapline text populated.",
+          "maxLength" : 256
+        },
+        "episodeNumber" : {
+          "type" : "integer",
+          "format" : "number",
+          "description" : "this will be present if the program is an episode of a season.",
+          "maximum" : 5
+        },
+        "seasonNumber" : {
+          "type" : "integer",
+          "format" : "number",
+          "description" : "this exists of it  is a season which will be equal to season number as populated in metadata. This won't exist if it is a collection.",
+          "maximum" : 5
+        },
+        "rating" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "content rating of   the program. If there are multiple ratings for a given program then the   highest rating will be provided here.Allowed values for rating (BBFC   standard) in the order, left most is the lowest rating.\"U\", \"PG\", \"12A\", \"12\", \"15\", \"18\", \"UNRATED\", \"18A\", \"R18\".Note that the values are in upper case   as given for Flash Player App currently.",
+          "maxLength" : 10
+        },
+        "runTime" : {
+          "type" : "integer",
+          "format" : "number",
+          "description" : "this is the total   duration of the program represented in seconds.If it is an episode or movie then the   runtime will be equal to the duration of the individual program.If it is series/collection then the   runtime will be equal to total duration of the episodes or individual   programs in the collection.",
+          "maximum" : 10
+        },
+        "year" : {
+          "type" : "integer",
+          "format" : "number",
+          "description" : "Release year of the season (this will be provided by content providers or otherwise set by   the schedulers)",
+          "maximum" : 5
+        },
+        "genres" : {
+          "type" : "array",
+          "description" : "genre of the   season. if there is single value then array contains single value.",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "images" : {
+          "type" : "array",
+          "description" : "this is an array of imageInfo associated to season. season   can have packshot image and as well as background image.",
+          "items" : {
+            "$ref" : "#/definitions/imageInfo"
+          }
+        },
+        "variants" : {
+          "type" : "array",
+          "description" : "this is an array   of productDetails objects which contains the details of the different variants of the program such as SD, HD, UHD and as   well as EST.",
+          "items" : {
+            "$ref" : "#/definitions/productDetails"
+          }
+        },
+        "credits" : {
+          "type" : "array",
+          "description" : "this contains the   array of creditInfo objects which contains the details of cast and crew of the program.",
+          "items" : {
+            "$ref" : "#/definitions/creditInfo"
+          }
+        },
+        "offerStartDate" : {
+          "type" : "string",
+          "format" : "date-time",
+          "description" : "This is the offer start date of the season or collection. It will be equal to the earliest of all the offer start dates of all the individual items of the collectionor episodes of the season.This will be UTC time in ISO 8601 format.YYYY-MM-DDThh:mm:ssZ"
+        },
+        "offerEndDate" : {
+          "type" : "string",
+          "format" : "date-time",
+          "description" : "This is the offer end date of the season or collection. This will be equal to the latest of all the offer end dates of all the individual items of the collection or episodes of the season.This will be UTC time in ISO 8601 format.YYYY-MM-DDThh:mm:ssZ"
+        },
+        "contentProviderId" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "it is the content   provider Id value which would be populated as part of the business metadata",
+          "maxLength" : 50
+        },
+        "subtitlesEnabled" : {
+          "type" : "boolean",
+          "format" : "boolean",
+          "description" : "allowed values are true, false.this will represent whether there are subtitles enabled for the given program or not. If there are subtitles then the value will be true. if there are no subtitles then the values will be false. it will be true if any one or all variants of the program have subtitle field will not be returned.This field will not be returned in anonymous mode."
+        },
+        "adEnabled" : {
+          "type" : "boolean",
+          "format" : "boolean",
+          "description" : "allowed values are true, false.this will  represent whether there is audio description enabled for the given program or  not. if there is audio description enabled then the value will be true. if audio description is not enabled then the values will be false. it will be true if any one   or all variants of the program have audio description enabled."
+        },
+        "availableStartDate" : {
+          "type" : "string",
+          "format" : "date-time",
+          "description" : "This is the available start date or license start of the product.This will be UTC time in ISO 8601   format.YYYY-MM-DDThh:mm:ssZ"
+        },
+        "availableEndDate" : {
+          "type" : "string",
+          "format" : "date-time",
+          "description" : "This is the available end date or license end date of the product.This will be UTC time in ISO 8601 format.YYYY-MM-DDThh:mm:ssZ"
+        },
+        "offerTypes" : {
+          "type" : "array",
+          "description" : "this  represents the type of the offer for the given program. If there are multiple offers, then this contains multiple values, otherwise it contains single value.allowed values are TVOD, EST, SVOD, STVOD, PPV.",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "isEntitled" : {
+          "type" : "boolean",
+          "format" : "boolean",
+          "description" : "allowed values are true, falseIf season is entitled (rental or purchaseor subscription) then the value will be true.If season is not entitled (rental or purchaseor subscription) then the value will be false.In reduced personalization mode when the Header Parameter X-BT-personalizationSetting is set to \"ENT:SVOD|FAV:N|CW:N|REC:N\" if the user is not entitled to the item by subscription then this field will not be returned.In Anonymous mode this field will not be returned."
+        },
+        "isFavourite" : {
+          "type" : "boolean",
+          "format" : "boolean",
+          "description" : "allowed values are true, false.Indicates whether the collection has been marked as Favourite."
+        },
+        "isCompletelyWatched" : {
+          "type" : "boolean",
+          "format" : "boolean",
+          "description" : "allowed values are true, false.Indicates whether the collection has been marked as Favourite"
+        },
+        "elapsedWatchTime" : {
+          "type" : "integer",
+          "format" : "number",
+          "description" : "Program Watchpoint. Indicates the time elapsed in seconds watching the current program or item.",
+          "maximum" : 25
+        },
+        "broadcastStartDate" : {
+          "type" : "string",
+          "format" : "date-time",
+          "description" : "This is the broadcast start time of the PayPerView event.This will be UTC time in ISO 8601 format.YYYY-MM-DDThh:mm:ssZ"
+        },
+        "cancellableCutOffTime" : {
+          "type" : "string",
+          "format" : "date-time",
+          "description" : "This is the cut off time till then the PayPerView purchase could be cancelled.This will be UTC time in ISO 8601 format.YYYY-MM-DDThh:mm:ssZ"
+        }
+      },
+      "example" : {
+        "longDescription" : "longDescription",
+        "year" : 3,
+        "rating" : "rating",
+        "elapsedWatchTime" : 5,
+        "variants" : [ {
+          "audioTrackInfo" : [ {
+            "mixType" : "mixType",
+            "trackNumber" : 1,
+            "purpose" : "purpose",
+            "language" : "language",
+            "type" : "type"
+          }, {
+            "mixType" : "mixType",
+            "trackNumber" : 1,
+            "purpose" : "purpose",
+            "language" : "language",
+            "type" : "type"
+          } ],
+          "isPurchasable" : true,
+          "isMediaAvailable" : true,
+          "subscriptionCodes" : [ "subscriptionCodes", "subscriptionCodes" ],
+          "isLargeScreenAllowed" : true,
+          "entitlementEndDate" : "2000-01-23T04:56:07.000+00:00",
+          "isDownloadable" : true,
+          "price" : 9.301444243932576,
+          "isWatchable" : true,
+          "redeem" : true,
+          "availableEndDate" : "2000-01-23T04:56:07.000+00:00",
+          "actualBandwidth" : "actualBandwidth",
+          "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+          "availableStartDate" : "2000-01-23T04:56:07.000+00:00",
+          "entitlementType" : "entitlementType",
+          "entitlementStartDate" : "2000-01-23T04:56:07.000+00:00",
+          "targetBandwidth" : "targetBandwidth",
+          "channelServiceLocator" : "channelServiceLocator",
+          "isCastable" : true,
+          "offerTypes" : [ "offerTypes", "offerTypes" ],
+          "subtitleInfo" : [ {
+            "path" : "path",
+            "language" : "language"
+          }, {
+            "path" : "path",
+            "language" : "language"
+          } ],
+          "guid" : "guid",
+          "trailerId" : "trailerId",
+          "isViewingPermitted" : true,
+          "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+        }, {
+          "audioTrackInfo" : [ {
+            "mixType" : "mixType",
+            "trackNumber" : 1,
+            "purpose" : "purpose",
+            "language" : "language",
+            "type" : "type"
+          }, {
+            "mixType" : "mixType",
+            "trackNumber" : 1,
+            "purpose" : "purpose",
+            "language" : "language",
+            "type" : "type"
+          } ],
+          "isPurchasable" : true,
+          "isMediaAvailable" : true,
+          "subscriptionCodes" : [ "subscriptionCodes", "subscriptionCodes" ],
+          "isLargeScreenAllowed" : true,
+          "entitlementEndDate" : "2000-01-23T04:56:07.000+00:00",
+          "isDownloadable" : true,
+          "price" : 9.301444243932576,
+          "isWatchable" : true,
+          "redeem" : true,
+          "availableEndDate" : "2000-01-23T04:56:07.000+00:00",
+          "actualBandwidth" : "actualBandwidth",
+          "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+          "availableStartDate" : "2000-01-23T04:56:07.000+00:00",
+          "entitlementType" : "entitlementType",
+          "entitlementStartDate" : "2000-01-23T04:56:07.000+00:00",
+          "targetBandwidth" : "targetBandwidth",
+          "channelServiceLocator" : "channelServiceLocator",
+          "isCastable" : true,
+          "offerTypes" : [ "offerTypes", "offerTypes" ],
+          "subtitleInfo" : [ {
+            "path" : "path",
+            "language" : "language"
+          }, {
+            "path" : "path",
+            "language" : "language"
+          } ],
+          "guid" : "guid",
+          "trailerId" : "trailerId",
+          "isViewingPermitted" : true,
+          "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+        } ],
+        "episodeNumber" : 2,
+        "displayTitle" : "displayTitle",
+        "isCompletelyWatched" : true,
+        "isEntitled" : true,
+        "credits" : [ {
+          "personName" : "personName",
+          "personRole" : "personRole"
+        }, {
+          "personName" : "personName",
+          "personRole" : "personRole"
+        } ],
+        "genres" : [ "genres", "genres" ],
+        "cancellableCutOffTime" : "2000-01-23T04:56:07.000+00:00",
+        "subtitlesEnabled" : true,
+        "runTime" : 2,
+        "isFavourite" : true,
+        "availableEndDate" : "2000-01-23T04:56:07.000+00:00",
+        "images" : [ {
+          "type" : "type",
+          "url" : "url"
+        }, {
+          "type" : "type",
+          "url" : "url"
+        } ],
+        "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+        "availableStartDate" : "2000-01-23T04:56:07.000+00:00",
+        "shortDescription" : "shortDescription",
+        "seasonNumber" : 2,
+        "broadcastStartDate" : "2000-01-23T04:56:07.000+00:00",
+        "contentProviderId" : "contentProviderId",
+        "straplineText" : "straplineText",
+        "adEnabled" : true,
+        "offerTypes" : [ "offerTypes", "offerTypes" ],
+        "guid" : "guid",
+        "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+      }
+    },
+    "productDetails" : {
+      "type" : "object",
+      "required" : [ "entitlementType", "guid", "isDownloadable", "isPurchasable", "isWatchable", "offerTypes" ],
+      "properties" : {
+        "guid" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "guid of the season or collection"
+        },
+        "offerTypes" : {
+          "type" : "array",
+          "description" : "this  represents the type of the offer for the given program. If there are multiple offers, then this contains multiple values, otherwise it contains single value.allowed   values are TVOD, EST, SVOD, STVOD, PPV.",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "targetBandwidth" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "encoding bandwidth   or bitrate of the media. The valid values are SD, HD and 4K"
+        },
+        "actualBandwidth" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "encoding bandwidth or bitrate at which watchable media is available. The valid values are SD, HD and 4K"
+        },
+        "price" : {
+          "type" : "number",
+          "format" : "double",
+          "description" : "price of the   product. If the product is offered as TVOD then only there will be price   associated to it."
+        },
+        "subscriptionCodes" : {
+          "type" : "array",
+          "description" : "this is an array of the scodes that the product has associated with. If the product is offered as SVOD then only there will be scodes associated to it.",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "trailerId" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "ID (MPX internal   ID) of the trailer asset. If this value is present then it means there is a trailer associated to the product which is playable on client device. If this value is empty then it means there will be NO trailer associated to the product.Client UI has to send this value to   requestToPlay API when respective trailer has to be played."
+        },
+        "entitlementType" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "this will indicate   whether the season product or collection product or episode product or   standalone product is entitled or not. if it is entitled then what type of   entitlement it is.The allowed values of this are subscription -  this will be given when the season product or collection product or episode   product or standalone product  is entitled to the user through   subscription when it is SVOD season or STVOD collection. rental-   this will be given when the season product or collection product or episode product or standalone product  is entitled to the user through rent when it is TVOD season or STVOD collection. purchase-  this will be given when the season product or collection product or episode   product or standalone product  is entitled to the user through buy when   it is EST collection. unentitled-  this will be given when the season product or collection product or episode   product or standalone product  and none of the items in the collection  is not entitled by the user by any means. unknown- this will be given in reduced personalization mode when MDSS cannot determine the entitlement."
+        },
+        "entitlementStartDate" : {
+          "type" : "string",
+          "format" : "date-time",
+          "description" : "This is the   entitlement start date of the collection for the given deviceId. This will be   present when the collection is entitled to the user by rental or purchase.This will be UTC time in ISO 8601 format.YYYY-MM-DDThh:mm:ssZ"
+        },
+        "entitlementEndDate" : {
+          "type" : "string",
+          "format" : "date-time",
+          "description" : "This is the   entitlement end date of the collection for the given deviceId. This will be   present when the collection is entitled the user by rental or purchase.This will be UTC time in ISO 8601 format.YYYY-MM-DDThh:mm:ssZ"
+        },
+        "subtitleInfo" : {
+          "type" : "array",
+          "description" : "this will be the   array of subtitleInfo information   provided for each subtitle. This will exist if there are subtitles available   for a given media file associated to the given product",
+          "items" : {
+            "$ref" : "#/definitions/subtitleInfo"
+          }
+        },
+        "audioTrackInfo" : {
+          "type" : "array",
+          "description" : "this will be the   array of audioInfo information provided   for each audio description. This will exist if there are audio description available for a given media file associated to the given product.",
+          "items" : {
+            "$ref" : "#/definitions/audioInfo"
+          }
+        },
+        "offerStartDate" : {
+          "type" : "string",
+          "format" : "date-time",
+          "description" : "This is the offer start date of the season or collection. It will be equal to the earliest of all the offer start dates of all the individual items of the collectionor episodes of the season.This will be UTC time in ISO 8601 format.YYYY-MM-DDThh:mm:ssZ"
+        },
+        "offerEndDate" : {
+          "type" : "string",
+          "format" : "date-time",
+          "description" : "This is the offer end date of the season or collection. This will be equal to the latest of all the offer end dates of all the individual items of the collection or episodes of the season.This will be UTC time in ISO 8601 format.YYYY-MM-DDThh:mm:ssZ"
+        },
+        "availableStartDate" : {
+          "type" : "string",
+          "format" : "date-time",
+          "description" : "This is the available start date or license start of the product.This will be UTC time in ISO 8601   format.YYYY-MM-DDThh:mm:ssZ"
+        },
+        "availableEndDate" : {
+          "type" : "string",
+          "format" : "date-time",
+          "description" : "This is the available end date or license end date of the product.This will be UTC time in ISO 8601 format.YYYY-MM-DDThh:mm:ssZ"
+        },
+        "isViewingPermitted" : {
+          "type" : "boolean",
+          "format" : "boolean",
+          "description" : "Indicates whether or not the client has viewing rights. Viewing rights are determined by the master agreement service types associated with a particular product variant."
+        },
+        "isMediaAvailable" : {
+          "type" : "boolean",
+          "format" : "boolean",
+          "description" : "Indicates whether or not media is available for the client. Media availability is determined by the supported platforms associated with a particular product variant."
+        },
+        "isWatchable" : {
+          "type" : "boolean",
+          "format" : "boolean",
+          "description" : "allowed values are true, false Indicates whether or not discovered content is playable on device."
+        },
+        "isPurchasable" : {
+          "type" : "boolean",
+          "format" : "boolean",
+          "description" : "allowed values are true, false.Whether or not an item of content can be purchased/rented will be exposed by using this field."
+        },
+        "isDownloadable" : {
+          "type" : "boolean",
+          "format" : "boolean",
+          "description" : "Whether or not a product is downloadable to TV App for playback offline. Dependent on the rights granted to BT by content provider."
+        },
+        "isCastable" : {
+          "type" : "boolean",
+          "format" : "boolean",
+          "description" : "Whether or not a product is allowed to Cast on chromecast devices. Dependent on the rights granted to BT by content provider."
+        },
+        "isLargeScreenAllowed" : {
+          "type" : "boolean",
+          "format" : "boolean",
+          "description" : "Whether or not a product is allowed to be played on large screen deviced. Dependent on the rights granted to BT by content provider."
+        },
+        "redeem" : {
+          "type" : "boolean",
+          "format" : "boolean",
+          "description" : "whether or not a product is allowed to be redeemed under BT Plus. Dependent on the rights granted to BT by content provider."
+        },
+        "channelServiceLocator" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "Id of the channel service locator."
+        }
+      },
+      "example" : {
+        "audioTrackInfo" : [ {
+          "mixType" : "mixType",
+          "trackNumber" : 1,
+          "purpose" : "purpose",
+          "language" : "language",
+          "type" : "type"
+        }, {
+          "mixType" : "mixType",
+          "trackNumber" : 1,
+          "purpose" : "purpose",
+          "language" : "language",
+          "type" : "type"
+        } ],
+        "isPurchasable" : true,
+        "isMediaAvailable" : true,
+        "subscriptionCodes" : [ "subscriptionCodes", "subscriptionCodes" ],
+        "isLargeScreenAllowed" : true,
+        "entitlementEndDate" : "2000-01-23T04:56:07.000+00:00",
+        "isDownloadable" : true,
+        "price" : 9.301444243932576,
+        "isWatchable" : true,
+        "redeem" : true,
+        "availableEndDate" : "2000-01-23T04:56:07.000+00:00",
+        "actualBandwidth" : "actualBandwidth",
+        "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+        "availableStartDate" : "2000-01-23T04:56:07.000+00:00",
+        "entitlementType" : "entitlementType",
+        "entitlementStartDate" : "2000-01-23T04:56:07.000+00:00",
+        "targetBandwidth" : "targetBandwidth",
+        "channelServiceLocator" : "channelServiceLocator",
+        "isCastable" : true,
+        "offerTypes" : [ "offerTypes", "offerTypes" ],
+        "subtitleInfo" : [ {
+          "path" : "path",
+          "language" : "language"
+        }, {
+          "path" : "path",
+          "language" : "language"
+        } ],
+        "guid" : "guid",
+        "trailerId" : "trailerId",
+        "isViewingPermitted" : true,
+        "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+      }
+    },
+    "creditInfo" : {
+      "type" : "object",
+      "required" : [ "personName", "personRole" ],
+      "properties" : {
+        "personName" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "name of the cast",
+          "maxLength" : 256
+        },
+        "personRole" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "role of the person",
+          "maxLength" : 256
+        }
+      },
+      "example" : {
+        "personName" : "personName",
+        "personRole" : "personRole"
+      }
+    },
+    "imageInfo" : {
+      "type" : "object",
+      "required" : [ "type", "url" ],
+      "properties" : {
+        "type" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "Image can be of   two types.  packshot is the image  used to display the programs in the carousel.  background is the        image used to display the background of the program when it is rolled-up",
+          "maxLength" : 15
+        },
+        "url" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "this is the url of   the image file using which Client can retrieve the image",
+          "maxLength" : 256
+        }
+      },
+      "example" : {
+        "type" : "type",
+        "url" : "url"
+      }
+    },
+    "subtitleInfo" : {
+      "type" : "object",
+      "required" : [ "language", "path" ],
+      "properties" : {
+        "path" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "This is the path   of the subtitle file. This will be absolute path of the respective file from   where the client can retrieve the subtitle file",
+          "maxLength" : 256
+        },
+        "language" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "this will be the   value of language used for the subtitle in the subtitle file.",
+          "maxLength" : 25
+        }
+      },
+      "example" : {
+        "path" : "path",
+        "language" : "language"
+      }
+    },
+    "audioInfo" : {
+      "type" : "object",
+      "required" : [ "language", "trackNumber" ],
+      "properties" : {
+        "trackNumber" : {
+          "type" : "integer",
+          "format" : "number",
+          "description" : "this will be the   number of the track in the audio. eg. 6",
+          "maximum" : 5
+        },
+        "language" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "this will be the   value of language used for the subtitle in the subtitle file.",
+          "maxLength" : 25
+        },
+        "mixType" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "type of the audio   mix. eg. stereo.",
+          "maxLength" : 30
+        },
+        "purpose" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "this will be the   description for the audio track.",
+          "maxLength" : 256
+        },
+        "type" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "this represents   the type of the audio track. eg. background.",
+          "maxLength" : 25
+        }
+      },
+      "example" : {
+        "mixType" : "mixType",
+        "trackNumber" : 1,
+        "purpose" : "purpose",
+        "language" : "language",
+        "type" : "type"
+      }
+    },
+    "pdResponse" : {
+      "type" : "object",
+      "required" : [ "correlationId", "itemsReturned", "startIndex", "statusCode", "statusMessage", "totalMatchingItems" ],
+      "properties" : {
+        "correlationId" : {
+          "type" : "string"
+        },
+        "totalMatchingItems" : {
+          "type" : "string"
+        },
+        "itemsReturned" : {
+          "type" : "integer"
+        },
+        "startIndex" : {
+          "type" : "string"
+        },
+        "statusMessage" : {
+          "type" : "string"
+        },
+        "statusCode" : {
+          "type" : "integer"
+        },
+        "programInfo" : {
+          "$ref" : "#/definitions/programDetails"
+        }
+      },
+      "example" : {
+        "startIndex" : "startIndex",
+        "programInfo" : {
+          "longDescription" : "longDescription",
+          "year" : 3,
+          "rating" : "rating",
+          "elapsedWatchTime" : 5,
+          "variants" : [ {
+            "audioTrackInfo" : [ {
+              "mixType" : "mixType",
+              "trackNumber" : 1,
+              "purpose" : "purpose",
+              "language" : "language",
+              "type" : "type"
+            }, {
+              "mixType" : "mixType",
+              "trackNumber" : 1,
+              "purpose" : "purpose",
+              "language" : "language",
+              "type" : "type"
+            } ],
+            "isPurchasable" : true,
+            "isMediaAvailable" : true,
+            "subscriptionCodes" : [ "subscriptionCodes", "subscriptionCodes" ],
+            "isLargeScreenAllowed" : true,
+            "entitlementEndDate" : "2000-01-23T04:56:07.000+00:00",
+            "isDownloadable" : true,
+            "price" : 9.301444243932576,
+            "isWatchable" : true,
+            "redeem" : true,
+            "availableEndDate" : "2000-01-23T04:56:07.000+00:00",
+            "actualBandwidth" : "actualBandwidth",
+            "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+            "availableStartDate" : "2000-01-23T04:56:07.000+00:00",
+            "entitlementType" : "entitlementType",
+            "entitlementStartDate" : "2000-01-23T04:56:07.000+00:00",
+            "targetBandwidth" : "targetBandwidth",
+            "channelServiceLocator" : "channelServiceLocator",
+            "isCastable" : true,
+            "offerTypes" : [ "offerTypes", "offerTypes" ],
+            "subtitleInfo" : [ {
+              "path" : "path",
+              "language" : "language"
+            }, {
+              "path" : "path",
+              "language" : "language"
+            } ],
+            "guid" : "guid",
+            "trailerId" : "trailerId",
+            "isViewingPermitted" : true,
+            "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+          }, {
+            "audioTrackInfo" : [ {
+              "mixType" : "mixType",
+              "trackNumber" : 1,
+              "purpose" : "purpose",
+              "language" : "language",
+              "type" : "type"
+            }, {
+              "mixType" : "mixType",
+              "trackNumber" : 1,
+              "purpose" : "purpose",
+              "language" : "language",
+              "type" : "type"
+            } ],
+            "isPurchasable" : true,
+            "isMediaAvailable" : true,
+            "subscriptionCodes" : [ "subscriptionCodes", "subscriptionCodes" ],
+            "isLargeScreenAllowed" : true,
+            "entitlementEndDate" : "2000-01-23T04:56:07.000+00:00",
+            "isDownloadable" : true,
+            "price" : 9.301444243932576,
+            "isWatchable" : true,
+            "redeem" : true,
+            "availableEndDate" : "2000-01-23T04:56:07.000+00:00",
+            "actualBandwidth" : "actualBandwidth",
+            "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+            "availableStartDate" : "2000-01-23T04:56:07.000+00:00",
+            "entitlementType" : "entitlementType",
+            "entitlementStartDate" : "2000-01-23T04:56:07.000+00:00",
+            "targetBandwidth" : "targetBandwidth",
+            "channelServiceLocator" : "channelServiceLocator",
+            "isCastable" : true,
+            "offerTypes" : [ "offerTypes", "offerTypes" ],
+            "subtitleInfo" : [ {
+              "path" : "path",
+              "language" : "language"
+            }, {
+              "path" : "path",
+              "language" : "language"
+            } ],
+            "guid" : "guid",
+            "trailerId" : "trailerId",
+            "isViewingPermitted" : true,
+            "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+          } ],
+          "episodeNumber" : 2,
+          "displayTitle" : "displayTitle",
+          "isCompletelyWatched" : true,
+          "isEntitled" : true,
+          "credits" : [ {
+            "personName" : "personName",
+            "personRole" : "personRole"
+          }, {
+            "personName" : "personName",
+            "personRole" : "personRole"
+          } ],
+          "genres" : [ "genres", "genres" ],
+          "cancellableCutOffTime" : "2000-01-23T04:56:07.000+00:00",
+          "subtitlesEnabled" : true,
+          "runTime" : 2,
+          "isFavourite" : true,
+          "availableEndDate" : "2000-01-23T04:56:07.000+00:00",
+          "images" : [ {
+            "type" : "type",
+            "url" : "url"
+          }, {
+            "type" : "type",
+            "url" : "url"
+          } ],
+          "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+          "availableStartDate" : "2000-01-23T04:56:07.000+00:00",
+          "shortDescription" : "shortDescription",
+          "seasonNumber" : 2,
+          "broadcastStartDate" : "2000-01-23T04:56:07.000+00:00",
+          "contentProviderId" : "contentProviderId",
+          "straplineText" : "straplineText",
+          "adEnabled" : true,
+          "offerTypes" : [ "offerTypes", "offerTypes" ],
+          "guid" : "guid",
+          "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+        },
+        "itemsReturned" : 0,
+        "correlationId" : "correlationId",
+        "totalMatchingItems" : "totalMatchingItems",
+        "statusMessage" : "statusMessage",
+        "statusCode" : 6
+      }
+    },
+    "brandInfo" : {
+      "type" : "object",
+      "required" : [ "displayTitle", "groups", "guid", "images" ],
+      "properties" : {
+        "guid" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "Unique identifier of the brand",
+          "maxLength" : 50
+        },
+        "displayTitle" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "Title of the Brand",
+          "maxLength" : 256
+        },
+        "shortDescription" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "short synopsis of brand",
+          "maxLength" : 2048
+        },
+        "longDescription" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "long synopsis of the brand if it exists",
+          "maxLength" : 2048
+        },
+        "straplineText" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "this is the strap line text populated by schedulers at top level items i.e brand/collection/standalone program. This will be present when the respective top level item has got the strapline text populated.",
+          "maxLength" : 256
+        },
+        "images" : {
+          "type" : "array",
+          "description" : "this is an array of imageInfo associated to brand. Brand can have packshot image and as well as background bespoke image. Packshot image will be mandatory but the background image is optional to have.",
+          "items" : {
+            "$ref" : "#/definitions/imageInfo"
+          }
+        },
+        "genres" : {
+          "type" : "array",
+          "description" : "genre of the   season. if there is single value then array contains single value",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "groups" : {
+          "$ref" : "#/definitions/groupInfo"
+        }
+      },
+      "example" : {
+        "longDescription" : "longDescription",
+        "displayTitle" : "displayTitle",
+        "straplineText" : "straplineText",
+        "images" : [ {
+          "type" : "type",
+          "url" : "url"
+        }, {
+          "type" : "type",
+          "url" : "url"
+        } ],
+        "genres" : [ "genres", "genres" ],
+        "guid" : "guid",
+        "groups" : {
+          "displayTitle" : "displayTitle",
+          "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+          "offerTypes" : [ "offerTypes", "offerTypes" ],
+          "guidd" : "guidd",
+          "shortDescription" : "shortDescription",
+          "seasonNumber" : 0.732906490251472586550107735092751681804656982421875,
+          "type" : "type",
+          "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+        },
+        "shortDescription" : "shortDescription"
+      }
+    },
+    "bdResponse" : {
+      "type" : "object",
+      "required" : [ "correlationId", "itemsReturned", "startIndex", "statusCode", "statusMessage", "totalMatchingItems" ],
+      "properties" : {
+        "correlationId" : {
+          "type" : "string",
+          "description" : "MDSS will return   the same correlationId value that will be sent from Client in the request"
+        },
+        "totalMatchingItems" : {
+          "type" : "string",
+          "description" : "total Programs   that are available to return matching to the given input (inclusive of the   entries given in this response)"
+        },
+        "itemsReturned" : {
+          "type" : "integer",
+          "description" : "total number of   Programs returned in the response matching to the given input"
+        },
+        "startIndex" : {
+          "type" : "string",
+          "description" : "starting position   of the Programs returned in the response from overall total results"
+        },
+        "statusMessage" : {
+          "type" : "string",
+          "description" : "success (for statusCode=0), invalid or expired token (for statusCode=16000), reduced personalization mode ( for statusCode=19000)"
+        },
+        "statusCode" : {
+          "type" : "integer",
+          "description" : "this will be present in the response to return any business errors to Client. This status code will be returned only to indicate whether the token is resovled successfully or not. For any remaining errors MDSS will return 0 and empty/anonymous catalogue details.errors that will be applicable here- 0, 16000, 19000. If the given token is valid and not expired or the token is not sent at all (in case of anonymous users), then 0 will be returned. If there is an issue in decrypting the token or if the given token is expired, then 16000 will be returned. If the Header Parameter X-BT-personalizationSetting is set then MDSS will return Status Code 19000 to indicate to the client that VoSP is Operating in Reduced Personalization Mode"
+        },
+        "brandInfo" : {
+          "$ref" : "#/definitions/brandInfo"
+        }
+      },
+      "example" : {
+        "startIndex" : "startIndex",
+        "itemsReturned" : 0,
+        "correlationId" : "correlationId",
+        "brandInfo" : {
+          "longDescription" : "longDescription",
+          "displayTitle" : "displayTitle",
+          "straplineText" : "straplineText",
+          "images" : [ {
+            "type" : "type",
+            "url" : "url"
+          }, {
+            "type" : "type",
+            "url" : "url"
+          } ],
+          "genres" : [ "genres", "genres" ],
+          "guid" : "guid",
+          "groups" : {
+            "displayTitle" : "displayTitle",
+            "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+            "offerTypes" : [ "offerTypes", "offerTypes" ],
+            "guidd" : "guidd",
+            "shortDescription" : "shortDescription",
+            "seasonNumber" : 0.732906490251472586550107735092751681804656982421875,
+            "type" : "type",
+            "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+          },
+          "shortDescription" : "shortDescription"
+        },
+        "totalMatchingItems" : "totalMatchingItems",
+        "statusMessage" : "statusMessage",
+        "statusCode" : 6
+      }
+    },
+    "tliResponse" : {
+      "type" : "object",
+      "required" : [ "correlationId", "itemsReturned", "startIndex", "statusCode", "statusMessage", "totalMatchingItems" ],
+      "properties" : {
+        "correlationId" : {
+          "type" : "string",
+          "description" : "MDSS will return the same correlationId value that will be sent from Client in the request."
+        },
+        "totalMatchingItems" : {
+          "type" : "string",
+          "description" : "total items that are available to return matching to the given input (inclusive of the entries given in this response)"
+        },
+        "itemsReturned" : {
+          "type" : "integer",
+          "description" : "total number of items returned in the response matching to the given input"
+        },
+        "startIndex" : {
+          "type" : "string",
+          "description" : "starting position of the items returned in the response from overall total results"
+        },
+        "statusMessage" : {
+          "type" : "string",
+          "description" : "success (for statusCode=0), invalid or expired token (for statusCode=16000), reduced personalization mode ( for statusCode=19000)"
+        },
+        "statusCode" : {
+          "type" : "integer",
+          "description" : "this will be present in the response to return any business errors to Client. errors that will be applicable here: 0, 16000. If the given token is valid and not expired or the token is not sent at all (in case of anonymous users), then 0 will be returned. If there is an issue in decrypting the token or if the given token is expired, then 16000 will be returned. In this case MDSS will return carousel details without any personalization aspects (NO entitlements (isAnyChildEntitled field will not be returned, no entitlementEndDate), NO entitlement anchors, NO favourites, NO continue watching anchor and information) only default and CP anchors will be returned."
+        },
+        "items" : {
+          "description" : "this includes the list of items matching to the given input parameters. this is an array of itemInfo JSON objects",
+          "$ref" : "#/definitions/itemInfo"
+        }
+      },
+      "example" : {
+        "startIndex" : "startIndex",
+        "itemsReturned" : 0,
+        "correlationId" : "correlationId",
+        "totalMatchingItems" : "totalMatchingItems",
+        "items" : {
+          "elapsedWatchTime" : 5.962133916683182377482808078639209270477294921875,
+          "anchors" : {
+            "entitlementEndDate" : "2000-01-23T04:56:07.000+00:00",
+            "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+            "availabilityEndDate" : "2000-01-23T04:56:07.000+00:00",
+            "seasonGuid" : "seasonGuid",
+            "programGuid" : "programGuid",
+            "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+          },
+          "type" : "type",
+          "displayTitle" : "displayTitle",
+          "entitlementEndDate" : "2000-01-23T04:56:07.000+00:00",
+          "straplineText" : "straplineText",
+          "numberOfChildren" : 0.5863251922011780692400861880742013454437255859375,
+          "isCompletelyWatched" : true,
+          "genres" : [ "genres", "genres" ],
+          "offerTypes" : [ "offerTypes", "offerTypes" ],
+          "guid" : "guid",
+          "packshot" : "packshot",
+          "runTime" : 5.63737665663332876420099637471139430999755859375,
+          "isAnyChildEntitled" : true,
+          "isFavourite" : true
+        },
+        "statusMessage" : "statusMessage",
+        "statusCode" : 6
+      }
+    },
+    "itemInfo" : {
+      "type" : "object",
+      "required" : [ "displayTitle", "genres", "guid", "offerTypes", "packshot", "type" ],
+      "properties" : {
+        "guid" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "Unique identifier of the item.",
+          "maxLength" : 50
+        },
+        "type" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "This will indicate what type of item is returned. allowed values (upper case, case-sensitive)- BRAND, COLLECTION, PROGRAM. At a given point of time there will be only one type in the response.",
+          "maxLength" : 20
+        },
+        "displayTitle" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "title of the brand/collection/program. If there is a displayTitle for brand/collection/program then it will be returned otherwise atomic title will be returned.",
+          "maxLength" : 256
+        },
+        "genres" : {
+          "type" : "array",
+          "description" : "This is an array of genre that the brand/collection/program belongs to. There can be more than one genre for a given brand/collection/program",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "isAnyChildEntitled" : {
+          "type" : "boolean",
+          "format" : "boolean",
+          "description" : "Allowed values are true, false. If any of the children under the brand/collection is entitled or the standalone program is entitled (rental/purchase/subscription) then the value will be true If none of the children under the brand/collection are entitled or the standalone program is not entitled (rental/purchase/subscription) then the value will be false. In reduced personalization mode when the Header Parameter X-BT-personalizationSetting is set to 'ENT:SVOD|FAV:N|CW:N|REC:N' if the user is not entitled to the item by subscription then this field will not be returned. In Anonymous mode this field will not be returned."
+        },
+        "offerTypes" : {
+          "type" : "array",
+          "description" : "array of the offering types belonging to the children under the brand or collection or the standalone program. Allowed values: SVOD, TVOD, STVOD, EST, PPV.",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "entitlementEndDate" : {
+          "type" : "string",
+          "format" : "date-time",
+          "description" : "This will be the latest entitlement end date under brand/collection or it will be the latest entitlement end date of standalone program. This will be the rental or purchase entitlement end date. This is not applicable for SVOD items. The value of this will be UTC date time format, eg. 2016-06-25T10:45:30Z"
+        },
+        "packshot" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "this is the url of the packshot image file using which Client can retrieve the image"
+        },
+        "numberOfChildren" : {
+          "type" : "number",
+          "format" : "integer",
+          "description" : "this will be present in case the item is a collection to denote the number of items in the collection.",
+          "maximum" : 4
+        },
+        "elapsedWatchTime" : {
+          "type" : "number",
+          "format" : "integer",
+          "description" : "this will be equal to the elapsed watch time of a given standalone program. This will not be applicable for brands and collections and hence this will not be present for them. This field is applicable only if the standaloneProgram is in Continue Watching list.",
+          "maximum" : 10
+        },
+        "runTime" : {
+          "type" : "number",
+          "format" : "integer",
+          "description" : "Indicates the runtime (seconds) of the standalone program. This will not be applicable for brands and collections and hence this will not be present for them.",
+          "maximum" : 10
+        },
+        "isFavourite" : {
+          "type" : "boolean",
+          "format" : "boolean",
+          "description" : "allowed values are true, false. Indicates whether the collection has been marked as Favourite or Not. This is applicable for brands, collections and standalone programs. In reduced personalization mode when the Header Parameter X-BT-personalizationSetting is set to ENT:SVOD|FAV:N|CW:N|REC:N then this field will not be returned.This field will not be returned in anonymous mode"
+        },
+        "isCompletelyWatched" : {
+          "type" : "boolean",
+          "format" : "boolean",
+          "description" : " allowed values: true, false. Indicates whether the given stand alone program is fully watched or not. This will not be applicable for brands and collections and hence this will not be present for them. If the runTime <= 2Hrs (7200 seconds) and %Watched (elapsed time/runtime) >= 0.95 then it will be true. If the runTime > 2Hrs (7200 seconds) then %Watched (elapsed time/runtime) >= 0.98 then it will be true. Else it will be false. In reduced personalization mode when the Header Parameter X-BT-personalizationSetting is set to ENT:SVOD|FAV:N|CW:N|REC:N then this field will not be returned. This field will not be returned in anonymous mode"
+        },
+        "straplineText" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "this is the strap line text populated by schedulers at top level items i.e brand/collection/standalone program. This will be present when the respective top level item has got the strapline text populated.",
+          "maxLength" : 256
+        },
+        "anchors" : {
+          "description" : "This will contain the list of possible anchors for the given item in the carousel. All anchors will be applicable for brands. Few anchors are applicable for collections. There will be NO anchors for standalone programs. The JSON object for this field will be as follows: { anchor:{anchorInfo} } – note that this will be list of key-value pairs. anchor: this will represent the anchor from pre-defined enumerated list. allowed list of anchors: continueWatching, recentlyPurchased, recentlyRented, subscribed, cpRelated and default. continueWatching: this will be the recently watched program under the brand or collection (episode of a season under the brand or individual program under a collection). This is applicable for brand and collection but not for standalone program. This anchor will be provided for the items in any carousel if that respective item is added by Client in continue watching list. if the respective item is not present in continueWatching list of that user, then this anchor will not be present. This will not be returned in reduced personalization mode when the Header Parameter X-BT-personalizationSetting is set to 'ENT:SVOD|FAV:N|CW:N|REC:N' . recentlyPurchased: this will be the recently purchased program under the brand (episode of a season under the brand or season under the brand). This is applicable for brand alone but not for collection and standalone program. This anchor will not be present for a given brand if none of the items under that respective brand are purchased by the user. This will not be returned in reduced personalization mode when the Header Parameter X-BT-personalizationSetting is set to 'ENT:SVOD|FAV:N|CW:N|REC:N' . recentlyRented: this will be the recently rented program under the brand (episode of a season under the brand or season under the brand). This is applicable for brand alone but not for collection and standalone program. This anchor will not be present for a given brand if none of the items under that respective brand is rented by the user. This will not be returned in reduced personalization mode when the Header Parameter X-BT -personalizationSetting is set to 'ENT:SVOD|FAV:N|CW:N|REC:N' . subscribed: this will be the first available episode of the first available season among those subscribed by the user under the given brand or collection. This is applicable for brand and collection but not for standalone program. This is applicable for both STB users and logged in TV App Users. This anchor will be returned if the user subscription matches to the subscription of the Brand or Collection. cpRelated: This anchor will be returned for brands and collections in case the request is for a given specific content provider carousel. So if the given brand contains seasons/programs belonging to different content providers, then MDSS will return the first available episode of first available season under that brand belonging to the respective content provider for which the carousel request comes. In case of a collection it will be the first available episode under the collection.This is applicable for brand and collection and not for standalone program. This anchor will be returned only in case the request for the specific content provider carousel is made. This Anchor should be returned only if the request is for a CP carousel (where byTags contains the CP value). This is applicable for STB, Logged in and Anonymous TV APP Users. default: this will be first available episode of the first available season under the given brand.This is applicable for brand alone but not for collection and standalone program. For eg. if the brand has season1, season2 and season3 and season1 has episode1, episode2 and episode3 then this anchor will be equal to episode1 of season1. For eg. if the brand has season3, season4 and season5 and season3 has episode5, episode6 and episode7 then this anchor will be equal to episode5 of season3. Note:In case MDSS retrieves the item details for discoveryFeedResponse from MPX instead of Cache (when Cache is not available) then none of the above anchors will be returned.",
+          "$ref" : "#/definitions/anchorInfo"
+        }
+      },
+      "example" : {
+        "elapsedWatchTime" : 5.962133916683182377482808078639209270477294921875,
+        "anchors" : {
+          "entitlementEndDate" : "2000-01-23T04:56:07.000+00:00",
+          "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+          "availabilityEndDate" : "2000-01-23T04:56:07.000+00:00",
+          "seasonGuid" : "seasonGuid",
+          "programGuid" : "programGuid",
+          "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+        },
+        "type" : "type",
+        "displayTitle" : "displayTitle",
+        "entitlementEndDate" : "2000-01-23T04:56:07.000+00:00",
+        "straplineText" : "straplineText",
+        "numberOfChildren" : 0.5863251922011780692400861880742013454437255859375,
+        "isCompletelyWatched" : true,
+        "genres" : [ "genres", "genres" ],
+        "offerTypes" : [ "offerTypes", "offerTypes" ],
+        "guid" : "guid",
+        "packshot" : "packshot",
+        "runTime" : 5.63737665663332876420099637471139430999755859375,
+        "isAnyChildEntitled" : true,
+        "isFavourite" : true
+      }
+    },
+    "anchorInfo" : {
+      "type" : "object",
+      "properties" : {
+        "programGuid" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "This will be the guid of the program (episode) for which the anchor is provided under the given brand/collection as applicable If the anchor is given for an epsiode, then the seasonGuid also exists.",
+          "maxLength" : 50
+        },
+        "seasonGuid" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "This will be the guid of the season for which the anchor is provided under the given brand/collection as applicable If the anchor is given for a season, then the programGuid will not exist.",
+          "maxLength" : 50
+        },
+        "offerEndDate" : {
+          "type" : "string",
+          "format" : "date-time",
+          "description" : "this will be the offer end date of the anchored program. If there are multiple variants for a given program then this will be equal to the latest (farthest) offer end date among all. this exists if the anchor is a pogram The value of this will be UTC date time format, eg. 2016-06-25T10:45:30Z"
+        },
+        "offerStartDate" : {
+          "type" : "string",
+          "format" : "date-time",
+          "description" : "the will be the offer start date of the anchored program. If there are multiple variants for a program then this will be the earliest offer start date among all this exist only if the anchor is a program The value of this will be UTC date time formant eg. 2016-06-15T10:45:30Z"
+        },
+        "entitlementEndDate" : {
+          "type" : "string",
+          "format" : "date-time",
+          "description" : "this will be the entitlement end date of the anchored program/season/episode. If the respective user has entitlements for more than one variant of the a given program/season/episode then this will be equal to the latest (farthest) entitlement end date among all. this exists only in case the program/episode/season is TVOD/EST.The value of this will be UTC date time format, eg. 2016-06-25T10:45:30Z"
+        },
+        "availabilityEndDate" : {
+          "type" : "string",
+          "format" : "date-time",
+          "description" : "this will be the license end date of the anchored program/season/episode. this is applicable and exists for SVOD/TVOD/STVOD/EST. The value of this will be UTC date time format, eg. 2016-06-25T10:45:30Z"
+        }
+      },
+      "example" : {
+        "entitlementEndDate" : "2000-01-23T04:56:07.000+00:00",
+        "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+        "availabilityEndDate" : "2000-01-23T04:56:07.000+00:00",
+        "seasonGuid" : "seasonGuid",
+        "programGuid" : "programGuid",
+        "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+      }
+    },
+    "itemInfoForDiscoveryFeedResponse" : {
+      "type" : "object",
+      "required" : [ "displayTitle", "genres", "guid", "offerTypes", "packshot", "type" ],
+      "properties" : {
+        "guid" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "Unique identifier of the item.",
+          "maxLength" : 50
+        },
+        "type" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "This will indicate what type of item is returned. allowed values\n  (upper case, case-sensitive)- BRAND, COLLECTION, PROGRAM. At a given\n  point of time there will be only one type in the response.",
+          "maxLength" : 20
+        },
+        "displayTitle" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "title of the brand/collection/program. If there is a displayTitle for\n  brand/collection/program then it will be returned otherwise atomic\n  title will be returned.",
+          "maxLength" : 256
+        },
+        "genres" : {
+          "type" : "array",
+          "description" : "This is an array of genre that the brand/collection/program belongs to. There can be more than one genre for a given brand/collection/program",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "isAnyChildEntitled" : {
+          "type" : "boolean",
+          "format" : "boolean",
+          "description" : "Allowed values are true, false. If any of the children under the brand/collection is entitled or the standalone program is entitled (rental/purchase/subscription) then the value will be true If none of the children under the brand/collection are entitled or the standalone program is not entitled (rental/purchase/subscription) then the value will be false. In reduced personalization mode when the Header Parameter X-BT-personalizationSetting is set to 'ENT:SVOD|FAV:N|CW:N|REC:N' if the user is not entitled to the item by subscription then this field will not be returned. In Anonymous mode this field will not be returned."
+        },
+        "offerTypes" : {
+          "type" : "array",
+          "description" : "array of the offering types belonging to the children under the brand or collection or the standalone program. Allowed values: SVOD, TVOD, STVOD, EST, PPV.",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "packshot" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "this is the url of the packshot image file using which Client can retrieve the image"
+        },
+        "entitlementEndDate" : {
+          "type" : "string",
+          "format" : "date-time",
+          "description" : "This will be the latest entitlement end date under brand/collection or it will be the latest entitlement end date of standalone program. This will be the rental or purchase entitlement end date. This is not applicable for SVOD items. The value of this will be UTC date time format, eg. 2016-06-25T10:45:30Z"
+        },
+        "numberOfChildren" : {
+          "type" : "number",
+          "format" : "integer",
+          "description" : "this will be present in case the item is a collection to denote the number of items in the collection.",
+          "maximum" : 4
+        },
+        "elapsedWatchTime" : {
+          "type" : "number",
+          "format" : "integer",
+          "description" : "this will be equal to the elapsed watch time of a given standalone program. This will not be applicable for brands and collections and hence this will not be present for them. This field is applicable only if the standaloneProgram is in Continue Watching list.",
+          "maximum" : 10
+        },
+        "runTime" : {
+          "type" : "number",
+          "format" : "integer",
+          "description" : "Indicates the runtime (seconds) of the standalone program. This will not be applicable for brands and collections and hence this will not be present for them.",
+          "maximum" : 10
+        },
+        "isFavourite" : {
+          "type" : "boolean",
+          "format" : "boolean",
+          "description" : "allowed values are true, false. Indicates whether the collection has been marked as Favourite or Not. This is applicable for brands, collections and standalone programs. In reduced personalization mode when the Header Parameter X-BT-personalizationSetting is set to ENT:SVOD|FAV:N|CW:N|REC:N then this field will not be returned.This field will not be returned in anonymous mode"
+        },
+        "isCompletelyWatched" : {
+          "type" : "boolean",
+          "format" : "boolean",
+          "description" : " allowed values: true, false. Indicates whether the given stand alone program is fully watched or not. This will not be applicable for brands and collections and hence this will not be present for them. If the runTime <= 2Hrs (7200 seconds) and %Watched (elapsed time/runtime) >= 0.95 then it will be true. If the runTime > 2Hrs (7200 seconds) then %Watched (elapsed time/runtime) >= 0.98 then it will be true. Else it will be false. In reduced personalization mode when the Header Parameter X-BT-personalizationSetting is set to ENT:SVOD|FAV:N|CW:N|REC:N then this field will not be returned. This field will not be returned in anonymous mode"
+        },
+        "straplineText" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "this is the strap line text populated by schedulers at top level items i.e brand/collection/standalone program. This will be present when the respective top level item has got the strapline text populated.",
+          "maxLength" : 256
+        },
+        "anchors" : {
+          "description" : "This will contain the list of possible anchors for the given item in the carousel. All anchors will be applicable for brands. Few anchors are applicable for collections. There will be NO anchors for standalone programs. The JSON object for this field will be as follows: { anchor:{anchorInfo} } – note that this will be list of key-value pairs. anchor: this will represent the anchor from pre-defined enumerated list. allowed list of anchors: continueWatching, recentlyPurchased, recentlyRented, subscribed, cpRelated, and default continueWatching: this will be the recently watched program under the brand or collection (episode of a season under the brand or individual program under a collection). This is applicable for brand and collection but not for standalone program. This anchor will be provided for the items in any carousel if that respective item is added by Client in continue watching list. if the respective item is not present in continueWatching list of that user, then this anchor will not be present. This will not be returned in reduced personalization mode when the Header Parameter X-BT-personalizationSetting is set to 'ENT:SVOD|FAV:N|CW:N|REC:N' . recentlyPurchased: this will be the recently purchased program under the brand (episode of a season under the brand or season under the brand). This is applicable for brand alone but not for collection and standalone program. This anchor will not be present for a given brand if none of the items under that respective brand are purchased by the user. This will not be returned in reduced personalization mode when the Header Parameter X-BT-personalizationSetting is set to 'ENT:SVOD|FAV:N|CW:N|REC:N' . recentlyRented: this will be the recently rented program under the brand (episode of a season under the brand or season under the brand). This is applicable for brand alone but not for collection and standalone program. This anchor will not be present for a given brand if none of the items under that respective brand is rented by the user. This will not be returned in reduced personalization mode when the Header Parameter X-BT -personalizationSetting is set to 'ENT:SVOD|FAV:N|CW:N|REC:N' . subscribed: this will be the first available episode of the first available season among those subscribed by the user under the given brand or collection. This is applicable for brand and collection but not for standalone program. This is applicable for both STB users and logged in TV App Users. This anchor will be returned if the user subscription matches to the subscription of the Brand or Collection. cpRelated: This anchor will be returned for brands and collections in case the request is for a given specific content provider carousel. So if the given brand contains seasons/programs belonging to different content providers, then MDSS will return the first available episode of first available season under that brand belonging to the respective content provider for which the carousel request comes. In case of a collection it will be the first available episode under the collection.This is applicable for brand and collection and not for standalone program. This anchor will be returned only in case the request for the specific content provider carousel is made. This Anchor should be returned only if the request is for a CP carousel (where byTags contains the CP value). This is applicable for STB, Logged in and Anonymous TV APP Users. default: this will be first available episode of the first available season under the given brand. This is applicable for brand alone but not for collection and standalone program. For eg. if the brand has season1, season2 and season3 and season1 has episode1, episode2 and episode3 then this anchor will be equal to episode1 of season1. For eg. if the brand has season3, season4 and season5 and season3 has episode5, episode6 and episode7 then this anchor will be equal to episode5 of season3. Note: In case MDSS retrieves the item details for discoveryFeedResponse from MPX instead of Cache (when Cache is not available) then none of the above anchors will be returned.",
+          "$ref" : "#/definitions/anchorInfo"
+        },
+        "dataDrivenRule" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "MDSS simply returns the value as it is received in the request. If it is not sent in the request then this need not to sent in the response.",
+          "maxLength" : 50
+        },
+        "recommendationRule" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "MDSS simply returns the value as it is received in the request. If it is not sent in the request then this need not to sent in the response.",
+          "maxLength" : 50
+        },
+        "recommendationGuid" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "this will be returned when the response is given based on a recommendation rule for the recommendation driven carousel. This value will be obtained from recommendation engine and the same will be sent in the response to Client as is. Note: The expectation is that Client will cache this for the given carousel so that it will resend this in the next page request of the same recommendation driven carousel. For Launch scope, the decision is NOT to support View All pagination for recommendation carousels and hence when that is brought in scope then this specification will be updated to accept this value in the request to MDSS from Client.",
+          "maxLength" : 50
+        }
+      },
+      "example" : {
+        "elapsedWatchTime" : 2.3021358869347654518833223846741020679473876953125,
+        "anchors" : {
+          "entitlementEndDate" : "2000-01-23T04:56:07.000+00:00",
+          "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+          "availabilityEndDate" : "2000-01-23T04:56:07.000+00:00",
+          "seasonGuid" : "seasonGuid",
+          "programGuid" : "programGuid",
+          "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+        },
+        "recommendationGuid" : "recommendationGuid",
+        "type" : "type",
+        "displayTitle" : "displayTitle",
+        "entitlementEndDate" : "2000-01-23T04:56:07.000+00:00",
+        "straplineText" : "straplineText",
+        "numberOfChildren" : 2.25495066265333132804471460985951125621795654296875,
+        "isCompletelyWatched" : true,
+        "genres" : [ "genres", "genres" ],
+        "offerTypes" : [ "offerTypes", "offerTypes" ],
+        "guid" : "guid",
+        "dataDrivenRule" : "dataDrivenRule",
+        "packshot" : "packshot",
+        "runTime" : 7.061401241503109105224211816675961017608642578125,
+        "recommendationRule" : "recommendationRule",
+        "isAnyChildEntitled" : true,
+        "isFavourite" : true
+      }
+    },
+    "discoveryFeedResponse" : {
+      "type" : "object",
+      "required" : [ "correlationId", "itemsReturned", "startIndex", "statusCode", "statusMessage", "totalMatchingItems" ],
+      "properties" : {
+        "correlationId" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "MDSS will return the same correlationId value that will be sent from Client in the request.",
+          "maxLength" : 150
+        },
+        "totalMatchingItems" : {
+          "type" : "number",
+          "format" : "integer",
+          "description" : "total items that are available to return matching to the given input (inclusive of the   entries given in this response).",
+          "maximum" : 5
+        },
+        "itemsReturned" : {
+          "type" : "number",
+          "format" : "integer",
+          "description" : "total number of groups returned in the response matching to the given input.",
+          "maximum" : 5
+        },
+        "startIndex" : {
+          "type" : "number",
+          "format" : "integer",
+          "description" : "starting position of the Programs returned in the response from overall total results.",
+          "maximum" : 5
+        },
+        "statusMessage" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "success (for statusCode=0), invalid or expired token (for statusCode=16000),  reduced personalization mode ( for statusCode=19000)",
+          "maxLength" : 250
+        },
+        "statusCode" : {
+          "type" : "number",
+          "format" : "integer",
+          "description" : "this will be present in the response to return any business errors to Client. Errors that will be applicable here:0, 16000, 19000. If the given token is valid and not expired or the token is not sent at all, then 0 will be returned. If there is an issue in decrypting the token or if the given token is expired, then 16000 will be returned. In this case MDSS will return carousel details without any personalization aspects (NO entitlements (isAnyChildEntitled field will not be returned, no entitlementEndDate), NO entitlement anchors, NO favourites, NO continue watching anchor and information) only default and CP anchors will be returned. If the Header Parameter 'X-BT-personalizationSetting' is set then MDSS will return Status Code 19000 to indicate to the client that VoSP is Operating in Reduced Personalization Mode."
+        },
+        "items" : {
+          "$ref" : "#/definitions/itemInfoForDiscoveryFeedResponse"
+        }
+      },
+      "example" : {
+        "startIndex" : 0.732906490251472586550107735092751681804656982421875,
+        "itemsReturned" : 3.013728091535201603079485721536912024021148681640625,
+        "correlationId" : "correlationId",
+        "totalMatchingItems" : 0.400414095230505751032978878356516361236572265625,
+        "items" : {
+          "elapsedWatchTime" : 2.3021358869347654518833223846741020679473876953125,
+          "anchors" : {
+            "entitlementEndDate" : "2000-01-23T04:56:07.000+00:00",
+            "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+            "availabilityEndDate" : "2000-01-23T04:56:07.000+00:00",
+            "seasonGuid" : "seasonGuid",
+            "programGuid" : "programGuid",
+            "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+          },
+          "recommendationGuid" : "recommendationGuid",
+          "type" : "type",
+          "displayTitle" : "displayTitle",
+          "entitlementEndDate" : "2000-01-23T04:56:07.000+00:00",
+          "straplineText" : "straplineText",
+          "numberOfChildren" : 2.25495066265333132804471460985951125621795654296875,
+          "isCompletelyWatched" : true,
+          "genres" : [ "genres", "genres" ],
+          "offerTypes" : [ "offerTypes", "offerTypes" ],
+          "guid" : "guid",
+          "dataDrivenRule" : "dataDrivenRule",
+          "packshot" : "packshot",
+          "runTime" : 7.061401241503109105224211816675961017608642578125,
+          "recommendationRule" : "recommendationRule",
+          "isAnyChildEntitled" : true,
+          "isFavourite" : true
+        },
+        "statusMessage" : "statusMessage",
+        "statusCode" : 5.962133916683182377482808078639209270477294921875
+      }
+    },
+    "groupInfo" : {
+      "type" : "object",
+      "required" : [ "displayTitle", "guidd", "offerEndDate", "offerStartDate", "offerTypes", "seasonNumber", "shortDescription", "type" ],
+      "properties" : {
+        "type" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "type  of the group. allowed values:   SEASON",
+          "maxLength" : 10
+        },
+        "guidd" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "Unique identifier of the brand",
+          "maxLength" : 50
+        },
+        "displayTitle" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "Title of the Brand",
+          "maxLength" : 256
+        },
+        "shortDescription" : {
+          "type" : "string",
+          "format" : "string",
+          "description" : "short synopsis of brand",
+          "maxLength" : 2048
+        },
+        "seasonNumber" : {
+          "type" : "number",
+          "format" : "integer",
+          "description" : "this will be the season number as populated by schedulers for a given season under the brand",
+          "maximum" : 5
+        },
+        "offerTypes" : {
+          "type" : "array",
+          "description" : "this represents the type of the offer for the given group. If there are multiple offers, then this contains multiple values, otherwise it contains single value allowed  values': 'TVOD, EST, SVOD, STVOD, PPV'.",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "offerStartDate" : {
+          "type" : "string",
+          "format" : "date-time",
+          "description" : "This is the offer start date of the season or collection. It will be equal to the earliest of all the offer start dates of all the individual items of the collectionor episodes of the season.This will be UTC time in ISO 8601 format.YYYY-MM-DDThh:mm:ssZ"
+        },
+        "offerEndDate" : {
+          "type" : "string",
+          "format" : "date-time",
+          "description" : "This is the offer end date of the season or collection. This will be equal to the latest of all the offer end dates of all the individual items of the collection or episodes of the season.This will be UTC time in ISO 8601 format.YYYY-MM-DDThh:mm:ssZ"
+        }
+      },
+      "example" : {
+        "displayTitle" : "displayTitle",
+        "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+        "offerTypes" : [ "offerTypes", "offerTypes" ],
+        "guidd" : "guidd",
+        "shortDescription" : "shortDescription",
+        "seasonNumber" : 0.732906490251472586550107735092751681804656982421875,
+        "type" : "type",
+        "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+      }
+    },
+    "inline_response_200" : {
+      "properties" : {
+        "gdResponse" : {
+          "$ref" : "#/definitions/gdResponse"
+        }
+      },
+      "example" : {
+        "gdResponse" : {
+          "startIndex" : "startIndex",
+          "groupDetails" : {
+            "longDescription" : "longDescription",
+            "images" : [ {
+              "type" : "type",
+              "url" : "url"
+            }, {
+              "type" : "type",
+              "url" : "url"
+            } ],
+            "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+            "year" : 2,
+            "shortDescription" : "shortDescription",
+            "seasonNumber" : 0,
+            "variants" : [ {
+              "audioTrackInfo" : [ {
+                "mixType" : "mixType",
+                "trackNumber" : 1,
+                "purpose" : "purpose",
+                "language" : "language",
+                "type" : "type"
+              }, {
+                "mixType" : "mixType",
+                "trackNumber" : 1,
+                "purpose" : "purpose",
+                "language" : "language",
+                "type" : "type"
+              } ],
+              "isPurchasable" : true,
+              "isMediaAvailable" : true,
+              "subscriptionCodes" : [ "subscriptionCodes", "subscriptionCodes" ],
+              "isLargeScreenAllowed" : true,
+              "entitlementEndDate" : "2000-01-23T04:56:07.000+00:00",
+              "isDownloadable" : true,
+              "price" : 9.301444243932576,
+              "isWatchable" : true,
+              "redeem" : true,
+              "availableEndDate" : "2000-01-23T04:56:07.000+00:00",
+              "actualBandwidth" : "actualBandwidth",
+              "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+              "availableStartDate" : "2000-01-23T04:56:07.000+00:00",
+              "entitlementType" : "entitlementType",
+              "entitlementStartDate" : "2000-01-23T04:56:07.000+00:00",
+              "targetBandwidth" : "targetBandwidth",
+              "channelServiceLocator" : "channelServiceLocator",
+              "isCastable" : true,
+              "offerTypes" : [ "offerTypes", "offerTypes" ],
+              "subtitleInfo" : [ {
+                "path" : "path",
+                "language" : "language"
+              }, {
+                "path" : "path",
+                "language" : "language"
+              } ],
+              "guid" : "guid",
+              "trailerId" : "trailerId",
+              "isViewingPermitted" : true,
+              "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+            }, {
+              "audioTrackInfo" : [ {
+                "mixType" : "mixType",
+                "trackNumber" : 1,
+                "purpose" : "purpose",
+                "language" : "language",
+                "type" : "type"
+              }, {
+                "mixType" : "mixType",
+                "trackNumber" : 1,
+                "purpose" : "purpose",
+                "language" : "language",
+                "type" : "type"
+              } ],
+              "isPurchasable" : true,
+              "isMediaAvailable" : true,
+              "subscriptionCodes" : [ "subscriptionCodes", "subscriptionCodes" ],
+              "isLargeScreenAllowed" : true,
+              "entitlementEndDate" : "2000-01-23T04:56:07.000+00:00",
+              "isDownloadable" : true,
+              "price" : 9.301444243932576,
+              "isWatchable" : true,
+              "redeem" : true,
+              "availableEndDate" : "2000-01-23T04:56:07.000+00:00",
+              "actualBandwidth" : "actualBandwidth",
+              "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+              "availableStartDate" : "2000-01-23T04:56:07.000+00:00",
+              "entitlementType" : "entitlementType",
+              "entitlementStartDate" : "2000-01-23T04:56:07.000+00:00",
+              "targetBandwidth" : "targetBandwidth",
+              "channelServiceLocator" : "channelServiceLocator",
+              "isCastable" : true,
+              "offerTypes" : [ "offerTypes", "offerTypes" ],
+              "subtitleInfo" : [ {
+                "path" : "path",
+                "language" : "language"
+              }, {
+                "path" : "path",
+                "language" : "language"
+              } ],
+              "guid" : "guid",
+              "trailerId" : "trailerId",
+              "isViewingPermitted" : true,
+              "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+            } ],
+            "type" : "type",
+            "displayTitle" : "displayTitle",
+            "straplineText" : "straplineText",
+            "isEntitled" : true,
+            "children" : [ {
+              "longDescription" : "longDescription",
+              "year" : 3,
+              "rating" : "rating",
+              "elapsedWatchTime" : 5,
+              "variants" : [ {
+                "audioTrackInfo" : [ {
+                  "mixType" : "mixType",
+                  "trackNumber" : 1,
+                  "purpose" : "purpose",
+                  "language" : "language",
+                  "type" : "type"
+                }, {
+                  "mixType" : "mixType",
+                  "trackNumber" : 1,
+                  "purpose" : "purpose",
+                  "language" : "language",
+                  "type" : "type"
+                } ],
+                "isPurchasable" : true,
+                "isMediaAvailable" : true,
+                "subscriptionCodes" : [ "subscriptionCodes", "subscriptionCodes" ],
+                "isLargeScreenAllowed" : true,
+                "entitlementEndDate" : "2000-01-23T04:56:07.000+00:00",
+                "isDownloadable" : true,
+                "price" : 9.301444243932576,
+                "isWatchable" : true,
+                "redeem" : true,
+                "availableEndDate" : "2000-01-23T04:56:07.000+00:00",
+                "actualBandwidth" : "actualBandwidth",
+                "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+                "availableStartDate" : "2000-01-23T04:56:07.000+00:00",
+                "entitlementType" : "entitlementType",
+                "entitlementStartDate" : "2000-01-23T04:56:07.000+00:00",
+                "targetBandwidth" : "targetBandwidth",
+                "channelServiceLocator" : "channelServiceLocator",
+                "isCastable" : true,
+                "offerTypes" : [ "offerTypes", "offerTypes" ],
+                "subtitleInfo" : [ {
+                  "path" : "path",
+                  "language" : "language"
+                }, {
+                  "path" : "path",
+                  "language" : "language"
+                } ],
+                "guid" : "guid",
+                "trailerId" : "trailerId",
+                "isViewingPermitted" : true,
+                "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+              }, {
+                "audioTrackInfo" : [ {
+                  "mixType" : "mixType",
+                  "trackNumber" : 1,
+                  "purpose" : "purpose",
+                  "language" : "language",
+                  "type" : "type"
+                }, {
+                  "mixType" : "mixType",
+                  "trackNumber" : 1,
+                  "purpose" : "purpose",
+                  "language" : "language",
+                  "type" : "type"
+                } ],
+                "isPurchasable" : true,
+                "isMediaAvailable" : true,
+                "subscriptionCodes" : [ "subscriptionCodes", "subscriptionCodes" ],
+                "isLargeScreenAllowed" : true,
+                "entitlementEndDate" : "2000-01-23T04:56:07.000+00:00",
+                "isDownloadable" : true,
+                "price" : 9.301444243932576,
+                "isWatchable" : true,
+                "redeem" : true,
+                "availableEndDate" : "2000-01-23T04:56:07.000+00:00",
+                "actualBandwidth" : "actualBandwidth",
+                "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+                "availableStartDate" : "2000-01-23T04:56:07.000+00:00",
+                "entitlementType" : "entitlementType",
+                "entitlementStartDate" : "2000-01-23T04:56:07.000+00:00",
+                "targetBandwidth" : "targetBandwidth",
+                "channelServiceLocator" : "channelServiceLocator",
+                "isCastable" : true,
+                "offerTypes" : [ "offerTypes", "offerTypes" ],
+                "subtitleInfo" : [ {
+                  "path" : "path",
+                  "language" : "language"
+                }, {
+                  "path" : "path",
+                  "language" : "language"
+                } ],
+                "guid" : "guid",
+                "trailerId" : "trailerId",
+                "isViewingPermitted" : true,
+                "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+              } ],
+              "episodeNumber" : 2,
+              "displayTitle" : "displayTitle",
+              "isCompletelyWatched" : true,
+              "isEntitled" : true,
+              "credits" : [ {
+                "personName" : "personName",
+                "personRole" : "personRole"
+              }, {
+                "personName" : "personName",
+                "personRole" : "personRole"
+              } ],
+              "genres" : [ "genres", "genres" ],
+              "cancellableCutOffTime" : "2000-01-23T04:56:07.000+00:00",
+              "subtitlesEnabled" : true,
+              "runTime" : 2,
+              "isFavourite" : true,
+              "availableEndDate" : "2000-01-23T04:56:07.000+00:00",
+              "images" : [ {
+                "type" : "type",
+                "url" : "url"
+              }, {
+                "type" : "type",
+                "url" : "url"
+              } ],
+              "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+              "availableStartDate" : "2000-01-23T04:56:07.000+00:00",
+              "shortDescription" : "shortDescription",
+              "seasonNumber" : 2,
+              "broadcastStartDate" : "2000-01-23T04:56:07.000+00:00",
+              "contentProviderId" : "contentProviderId",
+              "straplineText" : "straplineText",
+              "adEnabled" : true,
+              "offerTypes" : [ "offerTypes", "offerTypes" ],
+              "guid" : "guid",
+              "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+            }, {
+              "longDescription" : "longDescription",
+              "year" : 3,
+              "rating" : "rating",
+              "elapsedWatchTime" : 5,
+              "variants" : [ {
+                "audioTrackInfo" : [ {
+                  "mixType" : "mixType",
+                  "trackNumber" : 1,
+                  "purpose" : "purpose",
+                  "language" : "language",
+                  "type" : "type"
+                }, {
+                  "mixType" : "mixType",
+                  "trackNumber" : 1,
+                  "purpose" : "purpose",
+                  "language" : "language",
+                  "type" : "type"
+                } ],
+                "isPurchasable" : true,
+                "isMediaAvailable" : true,
+                "subscriptionCodes" : [ "subscriptionCodes", "subscriptionCodes" ],
+                "isLargeScreenAllowed" : true,
+                "entitlementEndDate" : "2000-01-23T04:56:07.000+00:00",
+                "isDownloadable" : true,
+                "price" : 9.301444243932576,
+                "isWatchable" : true,
+                "redeem" : true,
+                "availableEndDate" : "2000-01-23T04:56:07.000+00:00",
+                "actualBandwidth" : "actualBandwidth",
+                "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+                "availableStartDate" : "2000-01-23T04:56:07.000+00:00",
+                "entitlementType" : "entitlementType",
+                "entitlementStartDate" : "2000-01-23T04:56:07.000+00:00",
+                "targetBandwidth" : "targetBandwidth",
+                "channelServiceLocator" : "channelServiceLocator",
+                "isCastable" : true,
+                "offerTypes" : [ "offerTypes", "offerTypes" ],
+                "subtitleInfo" : [ {
+                  "path" : "path",
+                  "language" : "language"
+                }, {
+                  "path" : "path",
+                  "language" : "language"
+                } ],
+                "guid" : "guid",
+                "trailerId" : "trailerId",
+                "isViewingPermitted" : true,
+                "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+              }, {
+                "audioTrackInfo" : [ {
+                  "mixType" : "mixType",
+                  "trackNumber" : 1,
+                  "purpose" : "purpose",
+                  "language" : "language",
+                  "type" : "type"
+                }, {
+                  "mixType" : "mixType",
+                  "trackNumber" : 1,
+                  "purpose" : "purpose",
+                  "language" : "language",
+                  "type" : "type"
+                } ],
+                "isPurchasable" : true,
+                "isMediaAvailable" : true,
+                "subscriptionCodes" : [ "subscriptionCodes", "subscriptionCodes" ],
+                "isLargeScreenAllowed" : true,
+                "entitlementEndDate" : "2000-01-23T04:56:07.000+00:00",
+                "isDownloadable" : true,
+                "price" : 9.301444243932576,
+                "isWatchable" : true,
+                "redeem" : true,
+                "availableEndDate" : "2000-01-23T04:56:07.000+00:00",
+                "actualBandwidth" : "actualBandwidth",
+                "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+                "availableStartDate" : "2000-01-23T04:56:07.000+00:00",
+                "entitlementType" : "entitlementType",
+                "entitlementStartDate" : "2000-01-23T04:56:07.000+00:00",
+                "targetBandwidth" : "targetBandwidth",
+                "channelServiceLocator" : "channelServiceLocator",
+                "isCastable" : true,
+                "offerTypes" : [ "offerTypes", "offerTypes" ],
+                "subtitleInfo" : [ {
+                  "path" : "path",
+                  "language" : "language"
+                }, {
+                  "path" : "path",
+                  "language" : "language"
+                } ],
+                "guid" : "guid",
+                "trailerId" : "trailerId",
+                "isViewingPermitted" : true,
+                "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+              } ],
+              "episodeNumber" : 2,
+              "displayTitle" : "displayTitle",
+              "isCompletelyWatched" : true,
+              "isEntitled" : true,
+              "credits" : [ {
+                "personName" : "personName",
+                "personRole" : "personRole"
+              }, {
+                "personName" : "personName",
+                "personRole" : "personRole"
+              } ],
+              "genres" : [ "genres", "genres" ],
+              "cancellableCutOffTime" : "2000-01-23T04:56:07.000+00:00",
+              "subtitlesEnabled" : true,
+              "runTime" : 2,
+              "isFavourite" : true,
+              "availableEndDate" : "2000-01-23T04:56:07.000+00:00",
+              "images" : [ {
+                "type" : "type",
+                "url" : "url"
+              }, {
+                "type" : "type",
+                "url" : "url"
+              } ],
+              "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+              "availableStartDate" : "2000-01-23T04:56:07.000+00:00",
+              "shortDescription" : "shortDescription",
+              "seasonNumber" : 2,
+              "broadcastStartDate" : "2000-01-23T04:56:07.000+00:00",
+              "contentProviderId" : "contentProviderId",
+              "straplineText" : "straplineText",
+              "adEnabled" : true,
+              "offerTypes" : [ "offerTypes", "offerTypes" ],
+              "guid" : "guid",
+              "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+            } ],
+            "genres" : [ "genres", "genres" ],
+            "offerTypes" : [ "offerTypes", "offerTypes" ],
+            "guid" : "guid",
+            "isFavourite" : true,
+            "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+          },
+          "itemsReturned" : 0,
+          "correlationId" : "correlationId",
+          "totalMatchingItems" : "totalMatchingItems",
+          "statusMessage" : "statusMessage",
+          "statusCode" : 6
+        }
+      }
+    },
+    "inline_response_200_1" : {
+      "properties" : {
+        "pdResponse" : {
+          "$ref" : "#/definitions/pdResponse"
+        }
+      },
+      "example" : {
+        "pdResponse" : {
+          "startIndex" : "startIndex",
+          "programInfo" : {
+            "longDescription" : "longDescription",
+            "year" : 3,
+            "rating" : "rating",
+            "elapsedWatchTime" : 5,
+            "variants" : [ {
+              "audioTrackInfo" : [ {
+                "mixType" : "mixType",
+                "trackNumber" : 1,
+                "purpose" : "purpose",
+                "language" : "language",
+                "type" : "type"
+              }, {
+                "mixType" : "mixType",
+                "trackNumber" : 1,
+                "purpose" : "purpose",
+                "language" : "language",
+                "type" : "type"
+              } ],
+              "isPurchasable" : true,
+              "isMediaAvailable" : true,
+              "subscriptionCodes" : [ "subscriptionCodes", "subscriptionCodes" ],
+              "isLargeScreenAllowed" : true,
+              "entitlementEndDate" : "2000-01-23T04:56:07.000+00:00",
+              "isDownloadable" : true,
+              "price" : 9.301444243932576,
+              "isWatchable" : true,
+              "redeem" : true,
+              "availableEndDate" : "2000-01-23T04:56:07.000+00:00",
+              "actualBandwidth" : "actualBandwidth",
+              "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+              "availableStartDate" : "2000-01-23T04:56:07.000+00:00",
+              "entitlementType" : "entitlementType",
+              "entitlementStartDate" : "2000-01-23T04:56:07.000+00:00",
+              "targetBandwidth" : "targetBandwidth",
+              "channelServiceLocator" : "channelServiceLocator",
+              "isCastable" : true,
+              "offerTypes" : [ "offerTypes", "offerTypes" ],
+              "subtitleInfo" : [ {
+                "path" : "path",
+                "language" : "language"
+              }, {
+                "path" : "path",
+                "language" : "language"
+              } ],
+              "guid" : "guid",
+              "trailerId" : "trailerId",
+              "isViewingPermitted" : true,
+              "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+            }, {
+              "audioTrackInfo" : [ {
+                "mixType" : "mixType",
+                "trackNumber" : 1,
+                "purpose" : "purpose",
+                "language" : "language",
+                "type" : "type"
+              }, {
+                "mixType" : "mixType",
+                "trackNumber" : 1,
+                "purpose" : "purpose",
+                "language" : "language",
+                "type" : "type"
+              } ],
+              "isPurchasable" : true,
+              "isMediaAvailable" : true,
+              "subscriptionCodes" : [ "subscriptionCodes", "subscriptionCodes" ],
+              "isLargeScreenAllowed" : true,
+              "entitlementEndDate" : "2000-01-23T04:56:07.000+00:00",
+              "isDownloadable" : true,
+              "price" : 9.301444243932576,
+              "isWatchable" : true,
+              "redeem" : true,
+              "availableEndDate" : "2000-01-23T04:56:07.000+00:00",
+              "actualBandwidth" : "actualBandwidth",
+              "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+              "availableStartDate" : "2000-01-23T04:56:07.000+00:00",
+              "entitlementType" : "entitlementType",
+              "entitlementStartDate" : "2000-01-23T04:56:07.000+00:00",
+              "targetBandwidth" : "targetBandwidth",
+              "channelServiceLocator" : "channelServiceLocator",
+              "isCastable" : true,
+              "offerTypes" : [ "offerTypes", "offerTypes" ],
+              "subtitleInfo" : [ {
+                "path" : "path",
+                "language" : "language"
+              }, {
+                "path" : "path",
+                "language" : "language"
+              } ],
+              "guid" : "guid",
+              "trailerId" : "trailerId",
+              "isViewingPermitted" : true,
+              "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+            } ],
+            "episodeNumber" : 2,
+            "displayTitle" : "displayTitle",
+            "isCompletelyWatched" : true,
+            "isEntitled" : true,
+            "credits" : [ {
+              "personName" : "personName",
+              "personRole" : "personRole"
+            }, {
+              "personName" : "personName",
+              "personRole" : "personRole"
+            } ],
+            "genres" : [ "genres", "genres" ],
+            "cancellableCutOffTime" : "2000-01-23T04:56:07.000+00:00",
+            "subtitlesEnabled" : true,
+            "runTime" : 2,
+            "isFavourite" : true,
+            "availableEndDate" : "2000-01-23T04:56:07.000+00:00",
+            "images" : [ {
+              "type" : "type",
+              "url" : "url"
+            }, {
+              "type" : "type",
+              "url" : "url"
+            } ],
+            "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+            "availableStartDate" : "2000-01-23T04:56:07.000+00:00",
+            "shortDescription" : "shortDescription",
+            "seasonNumber" : 2,
+            "broadcastStartDate" : "2000-01-23T04:56:07.000+00:00",
+            "contentProviderId" : "contentProviderId",
+            "straplineText" : "straplineText",
+            "adEnabled" : true,
+            "offerTypes" : [ "offerTypes", "offerTypes" ],
+            "guid" : "guid",
+            "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+          },
+          "itemsReturned" : 0,
+          "correlationId" : "correlationId",
+          "totalMatchingItems" : "totalMatchingItems",
+          "statusMessage" : "statusMessage",
+          "statusCode" : 6
+        }
+      }
+    },
+    "inline_response_200_2" : {
+      "properties" : {
+        "bdResponse" : {
+          "$ref" : "#/definitions/bdResponse"
+        }
+      },
+      "example" : {
+        "bdResponse" : {
+          "startIndex" : "startIndex",
+          "itemsReturned" : 0,
+          "correlationId" : "correlationId",
+          "brandInfo" : {
+            "longDescription" : "longDescription",
+            "displayTitle" : "displayTitle",
+            "straplineText" : "straplineText",
+            "images" : [ {
+              "type" : "type",
+              "url" : "url"
+            }, {
+              "type" : "type",
+              "url" : "url"
+            } ],
+            "genres" : [ "genres", "genres" ],
+            "guid" : "guid",
+            "groups" : {
+              "displayTitle" : "displayTitle",
+              "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+              "offerTypes" : [ "offerTypes", "offerTypes" ],
+              "guidd" : "guidd",
+              "shortDescription" : "shortDescription",
+              "seasonNumber" : 0.732906490251472586550107735092751681804656982421875,
+              "type" : "type",
+              "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+            },
+            "shortDescription" : "shortDescription"
+          },
+          "totalMatchingItems" : "totalMatchingItems",
+          "statusMessage" : "statusMessage",
+          "statusCode" : 6
+        }
+      }
+    },
+    "inline_response_200_3" : {
+      "properties" : {
+        "tliResponse" : {
+          "$ref" : "#/definitions/tliResponse"
+        }
+      },
+      "example" : {
+        "tliResponse" : {
+          "startIndex" : "startIndex",
+          "itemsReturned" : 0,
+          "correlationId" : "correlationId",
+          "totalMatchingItems" : "totalMatchingItems",
+          "items" : {
+            "elapsedWatchTime" : 5.962133916683182377482808078639209270477294921875,
+            "anchors" : {
+              "entitlementEndDate" : "2000-01-23T04:56:07.000+00:00",
+              "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+              "availabilityEndDate" : "2000-01-23T04:56:07.000+00:00",
+              "seasonGuid" : "seasonGuid",
+              "programGuid" : "programGuid",
+              "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+            },
+            "type" : "type",
+            "displayTitle" : "displayTitle",
+            "entitlementEndDate" : "2000-01-23T04:56:07.000+00:00",
+            "straplineText" : "straplineText",
+            "numberOfChildren" : 0.5863251922011780692400861880742013454437255859375,
+            "isCompletelyWatched" : true,
+            "genres" : [ "genres", "genres" ],
+            "offerTypes" : [ "offerTypes", "offerTypes" ],
+            "guid" : "guid",
+            "packshot" : "packshot",
+            "runTime" : 5.63737665663332876420099637471139430999755859375,
+            "isAnyChildEntitled" : true,
+            "isFavourite" : true
+          },
+          "statusMessage" : "statusMessage",
+          "statusCode" : 6
+        }
+      }
+    },
+    "inline_response_200_4" : {
+      "properties" : {
+        "discoveryFeedResponse" : {
+          "$ref" : "#/definitions/discoveryFeedResponse"
+        }
+      },
+      "example" : {
+        "discoveryFeedResponse" : {
+          "startIndex" : 0.732906490251472586550107735092751681804656982421875,
+          "itemsReturned" : 3.013728091535201603079485721536912024021148681640625,
+          "correlationId" : "correlationId",
+          "totalMatchingItems" : 0.400414095230505751032978878356516361236572265625,
+          "items" : {
+            "elapsedWatchTime" : 2.3021358869347654518833223846741020679473876953125,
+            "anchors" : {
+              "entitlementEndDate" : "2000-01-23T04:56:07.000+00:00",
+              "offerStartDate" : "2000-01-23T04:56:07.000+00:00",
+              "availabilityEndDate" : "2000-01-23T04:56:07.000+00:00",
+              "seasonGuid" : "seasonGuid",
+              "programGuid" : "programGuid",
+              "offerEndDate" : "2000-01-23T04:56:07.000+00:00"
+            },
+            "recommendationGuid" : "recommendationGuid",
+            "type" : "type",
+            "displayTitle" : "displayTitle",
+            "entitlementEndDate" : "2000-01-23T04:56:07.000+00:00",
+            "straplineText" : "straplineText",
+            "numberOfChildren" : 2.25495066265333132804471460985951125621795654296875,
+            "isCompletelyWatched" : true,
+            "genres" : [ "genres", "genres" ],
+            "offerTypes" : [ "offerTypes", "offerTypes" ],
+            "guid" : "guid",
+            "dataDrivenRule" : "dataDrivenRule",
+            "packshot" : "packshot",
+            "runTime" : 7.061401241503109105224211816675961017608642578125,
+            "recommendationRule" : "recommendationRule",
+            "isAnyChildEntitled" : true,
+            "isFavourite" : true
+          },
+          "statusMessage" : "statusMessage",
+          "statusCode" : 5.962133916683182377482808078639209270477294921875
+        }
+      }
+    }
+  }
+}
